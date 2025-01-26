@@ -3,6 +3,7 @@ class World {
   enemies = [new Fish(), new Fish(), new Fish()];
   canvas;
   ctx;
+  surfaces = [new Surface()];
 
   constructor(canvas) {
     this.ctx = canvas.getContext("2d");
@@ -20,6 +21,17 @@ class World {
       this.character.width,
       this.character.height
     );
+
+    this.surfaces.forEach((surface) => {
+      this.ctx.drawImage(
+        surface.img,
+        surface.x,
+        surface.y,
+        surface.width,
+        surface.height
+      );
+    });
+
     this.enemies.forEach((enemy) => {
       this.ctx.drawImage(
         enemy.img,
