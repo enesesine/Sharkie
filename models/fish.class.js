@@ -1,5 +1,7 @@
 class Fish extends MoveableObject {
-  y = 290;
+  y = 250;
+  height = 120;
+  width = 90;
 
   constructor() {
     super().loadImage(

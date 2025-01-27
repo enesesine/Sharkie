@@ -1,6 +1,7 @@
 class Surface extends MoveableObject {
   constructor() {
-    super().loadImage(" Imgs/3. Background/Layers/5. Water/D.png");
+    super().loadImage(" Imgs/3. Background/Layers/xx. Water/D.png");
+    // "xx um das bild zu blocken"
 
     this.x = Math.random() * 500;
     this.y = 0;
