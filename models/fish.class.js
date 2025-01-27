@@ -17,10 +17,13 @@ class Fish extends MoveableObject {
     this.loadImages(this.IMAGES_SWIMMING);
 
     this.x = 200 + Math.random() * 500;
+    this.speed = 0.15 + Math.random() * 0.25;
     this.animate();
   }
 
   animate() {
+    this.moveLeft();
+
     setInterval(() => {
       let i = this.currentImage % this.IMAGES_SWIMMING.length;
       let path = this.IMAGES_SWIMMING[i];
