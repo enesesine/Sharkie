@@ -45,6 +45,8 @@ class World {
   }
 
   addToMap(mo) {
-    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+    if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
+      this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+    }
   }
 }

@@ -24,6 +24,7 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/1.IDLE/17.png",
     "Imgs/1.Sharkie/1.IDLE/18.png",
   ];
+
   currentImage = 0;
 
   constructor() {
@@ -35,10 +36,11 @@ class Character extends MoveableObject {
 
   animate() {
     setInterval(() => {
-      let path = this.IMAGES_STANDING[this.currentImage];
+      let i = this.currentImage % this.IMAGES_STANDING.length;
+      let path = this.IMAGES_STANDING[i];
       this.img = this.imageCache[path];
       this.currentImage++;
-    }, 1000);
+    }, 200);
   }
 
   jump() {}
