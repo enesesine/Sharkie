@@ -1,10 +1,10 @@
-// world.class.js
 class World {
   character = new Character();
   enemies = level1.enemies;
   backgroundObjects = level1.backgroundObjects;
-  level = level1;
   surfaces = [new Surface()];
+  level = level1;
+  bubbles = []; // Sammlung aller Bubbles
   canvas;
   ctx;
   keyboard;
@@ -24,19 +24,13 @@ class World {
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // Kamera-Verschiebung
     this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.backgroundObjects);
     this.addToMap(this.character);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
-
-    // Kamera-Offset zurück
+    this.addObjectsToMap(this.bubbles);
     this.ctx.translate(-this.camera_x, 0);
-
-    // Endlos-Schleife
     requestAnimationFrame(() => this.draw());
   }
 
@@ -48,18 +42,26 @@ class World {
 
   addToMap(mo) {
     this.ctx.save();
-
     if (mo.otherDirection) {
       this.ctx.translate(mo.x + mo.width, mo.y);
       this.ctx.scale(-1, 1);
     } else {
       this.ctx.translate(mo.x, mo.y);
     }
-
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
     }
-
     this.ctx.restore();
+  }
+
+  spawnBubble(sharkie) {
+    let offsetX = sharkie.otherDirection ? -30 : 50;
+    let offsetY = 50;
+    let bubble = new Bubble(
+      sharkie.x + offsetX,
+      sharkie.y + offsetY,
+      sharkie.otherDirection
+    );
+    this.bubbles.push(bubble);
   }
 }

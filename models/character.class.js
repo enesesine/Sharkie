@@ -127,6 +127,8 @@ class Character extends MoveableObject {
   attackSlapIndex = 0;
   isAttacking = false;
   lastMovementTime = 0;
+  bubbleAttackIndex = 0;
+  isBubbleAttacking = false;
 
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
@@ -151,6 +153,7 @@ class Character extends MoveableObject {
     this.animateSwimming();
     this.animateIdle();
     this.animateAttackSlap();
+    this.animateAttackBubble();
   }
 
   animateHorizontalMovement() {
@@ -231,11 +234,25 @@ class Character extends MoveableObject {
           this.isAttacking = false;
           this.attackSlapIndex = 0;
         }
-      } else {
-        if (this.world.keyboard.SPACE) {
-          this.isAttacking = true;
-          this.attackSlapIndex = 0;
+      } else if (this.world.keyboard.SPACE) {
+        this.isAttacking = true;
+        this.attackSlapIndex = 0;
+      }
+    }, 150);
+  }
+
+  animateAttackBubble() {
+    setInterval(() => {
+      if (this.isBubbleAttacking) {
+        this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
+        if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
+          this.isBubbleAttacking = false;
+          this.bubbleAttackIndex = 0;
+          this.world.spawnBubble(this);
         }
+      } else if (this.world.keyboard.D) {
+        this.isBubbleAttacking = true;
+        this.bubbleAttackIndex = 0;
       }
     }, 150);
   }
