@@ -12,12 +12,22 @@ class World {
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D1.png", 0),
 
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D1.png", 0),
+
+    new BackgroundObject("  Imgs/3. Background/Layers/5. Water/D1.png", 720),
+
+    new BackgroundObject(
+      "  Imgs/3. Background/Legacy/Layers/3.Fondo 1/D2.png",
+      720
+    ),
+
+    new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D2.png", 720),
   ];
 
   surfaces = [new Surface()];
   canvas;
   ctx;
   keyboard;
+  camera_x = 0;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -34,10 +44,14 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    this.ctx.translate(this.camera_x, 0);
+
     this.addObjectsToMap(this.backgroundObjects);
     this.addToMap(this.character);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
+
+    this.ctx.translate(-this.camera_x, 0);
 
     let self = this;
     requestAnimationFrame(function () {
