@@ -3,7 +3,7 @@ class World {
   enemies = level1.enemies;
   backgroundObjects = level1.backgroundObjects;
 
-  surfaces = [new Surface()];
+  surfaces = level1.surfaces;
   canvas;
   ctx;
   keyboard;
