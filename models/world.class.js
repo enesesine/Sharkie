@@ -1,3 +1,4 @@
+// world.class.js
 class World {
   character = new Character();
   enemies = level1.enemies;
@@ -24,6 +25,7 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    // Kamera-Verschiebung
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.backgroundObjects);
@@ -31,12 +33,11 @@ class World {
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
 
+    // Kamera-Offset zurück
     this.ctx.translate(-this.camera_x, 0);
 
-    let self = this;
-    requestAnimationFrame(function () {
-      self.draw();
-    });
+    // Endlos-Schleife
+    requestAnimationFrame(() => this.draw());
   }
 
   addObjectsToMap(objects) {
@@ -46,19 +47,19 @@ class World {
   }
 
   addToMap(mo) {
+    this.ctx.save();
+
     if (mo.otherDirection) {
-      this.ctx.save();
-      this.ctx.translate(mo.width, 0);
+      this.ctx.translate(mo.x + mo.width, mo.y);
       this.ctx.scale(-1, 1);
-      mo.x = mo.x * -1;
+    } else {
+      this.ctx.translate(mo.x, mo.y);
     }
 
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
-      this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
-      if (mo.otherDirection) {
-        mo.x = mo.x * -1;
-        this.ctx.restore();
-      }
+      this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
     }
+
+    this.ctx.restore();
   }
 }
