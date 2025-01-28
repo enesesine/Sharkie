@@ -2,7 +2,7 @@ class World {
   character = new Character();
   enemies = level1.enemies;
   backgroundObjects = level1.backgroundObjects;
-
+  level = level1;
   surfaces = [new Surface()];
   canvas;
   ctx;
