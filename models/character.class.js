@@ -26,6 +26,23 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/1.IDLE/18.png",
   ];
 
+  IMAGES_STANDING_LONG = [
+    "Imgs/1.Sharkie/1.IDLE/!1.png",
+    "Imgs/1.Sharkie/1.IDLE/!2.png",
+    "Imgs/1.Sharkie/1.IDLE/!3.png",
+    "Imgs/1.Sharkie/1.IDLE/!4.png",
+    "Imgs/1.Sharkie/1.IDLE/!5.png",
+    "Imgs/1.Sharkie/1.IDLE/!6.png",
+    "Imgs/1.Sharkie/1.IDLE/!7.png",
+    "Imgs/1.Sharkie/1.IDLE/!8.png",
+    "Imgs/1.Sharkie/1.IDLE/!9.png",
+    "Imgs/1.Sharkie/1.IDLE/!10.png",
+    "Imgs/1.Sharkie/1.IDLE/!11.png",
+    "Imgs/1.Sharkie/1.IDLE/!12.png",
+    "Imgs/1.Sharkie/1.IDLE/!13.png",
+    "Imgs/1.Sharkie/1.IDLE/!14.png",
+  ];
+
   IMAGES_SWIMMING = [
     "Imgs/1.Sharkie/3.Swim/1.png",
     "Imgs/1.Sharkie/3.Swim/2.png",
@@ -35,6 +52,66 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/3.Swim/6.png",
     "Imgs/1.Sharkie/3.Swim/7.png",
   ];
+
+  IMAGES_ATTACK_BUBBLE = [
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/1.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/2.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/3.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/4.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/5.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/6.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/7.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/8.png",
+  ];
+
+  IMAGES_ATTACK_SLAP = [
+    "Imgs/1.Sharkie/4.AttackFin slap/1.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/2.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/3.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/4.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/5.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/6.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/7.png",
+    "Imgs/1.Sharkie/4.AttackFin slap/8.png",
+  ];
+
+  IMAGES_HURT_POISON = [
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/1.png",
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/2.png",
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/3.png",
+  ];
+
+  IMAGES_HURT_SHOCK = [
+    "Imgs/1.Sharkie/5.Hurt/2.Electric shock/1.png",
+    "Imgs/1.Sharkie/5.Hurt/2.Electric shock/2.png",
+    "Imgs/1.Sharkie/5.Hurt/2.Electric shock/3.png",
+  ];
+
+  IMAGES_DEAD_POISON = [
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/1.png",
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/2.png",
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/3.png",
+  ];
+  DEAD_BY_POISON = [
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/1.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/2.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/3.png",
+  ];
+
+  DEAD_BY_SHOCK = [
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/1.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/2.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/3.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/4.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/5.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/6.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/7.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/8.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/9.png",
+    "Imgs/1.Sharkie/6.dead/2.Electro_shock/10.png",
+  ];
+
+  IMAGES_;
   world;
 
   currentImage = 0;
