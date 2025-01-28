@@ -1,4 +1,3 @@
-// character.class.js
 class Character extends MoveableObject {
   height = 220;
   width = 170;
@@ -6,7 +5,6 @@ class Character extends MoveableObject {
   x = 5;
   speed = 10;
 
-  // --- Kurze Idle-Animation (Breathing) ---
   IMAGES_STANDING = [
     "Imgs/1.Sharkie/1.IDLE/1.png",
     "Imgs/1.Sharkie/1.IDLE/2.png",
@@ -28,7 +26,6 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/1.IDLE/18.png",
   ];
 
-  // --- Lange Idle-Animation (Frames 1 bis 14) ---
   IMAGES_STANDING_LONG = [
     "Imgs/1.Sharkie/2.Long_IDLE/i1.png",
     "Imgs/1.Sharkie/2.Long_IDLE/i2.png",
@@ -46,7 +43,6 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/2.Long_IDLE/i14.png",
   ];
 
-  // --- Lange Idle-Endlos-Schleife (nur Frames 11 bis 14) ---
   IMAGES_STANDING_LONG_LOOP = [
     "Imgs/1.Sharkie/2.Long_IDLE/i11.png",
     "Imgs/1.Sharkie/2.Long_IDLE/i12.png",
@@ -54,7 +50,6 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/2.Long_IDLE/i14.png",
   ];
 
-  // --- Schwimm-Animation (Bewegung) ---
   IMAGES_SWIMMING = [
     "Imgs/1.Sharkie/3.Swim/1.png",
     "Imgs/1.Sharkie/3.Swim/2.png",
@@ -64,7 +59,6 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/3.Swim/6.png",
   ];
 
-  // --- Attack, Hurt, usw. ---
   IMAGES_ATTACK_BUBBLE = [
     "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/1.png",
     "Imgs/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/2.png",
@@ -104,6 +98,7 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/5.Hurt/1.Poisoned/2.png",
     "Imgs/1.Sharkie/5.Hurt/1.Poisoned/3.png",
   ];
+
   DEAD_BY_POISON = [
     "Imgs/1.Sharkie/6.dead/1.Poisoned/1.png",
     "Imgs/1.Sharkie/6.dead/1.Poisoned/2.png",
@@ -124,30 +119,17 @@ class Character extends MoveableObject {
   ];
 
   world;
-
-  // --- Verschiedene Indizes zur Vermeidung von Flackern ---
   swimImageIndex = 0;
   idleImageIndex = 0;
-
-  // Für "lange Idle":
-  idleLongIntroIndex = 0; // i1.. i14
-  idleLongLoopIndex = 0; // i11.. i14
+  idleLongIntroIndex = 0;
+  idleLongLoopIndex = 0;
   longIdleIntroDone = false;
-
-  // Attack-Slap
   attackSlapIndex = 0;
-
-  // **NEU**: Flag, ob Sharkie gerade angreift (Animation läuft)
   isAttacking = false;
-
-  // Speichert Zeit (in ms), wann zuletzt Bewegung stattfand
   lastMovementTime = 0;
 
   constructor() {
-    // Erstes Bild:
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
-
-    // Alle Bild-Arrays laden
     this.loadImages(this.IMAGES_STANDING);
     this.loadImages(this.IMAGES_STANDING_LONG);
     this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
@@ -159,7 +141,6 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_DEAD_POISON);
     this.loadImages(this.DEAD_BY_POISON);
     this.loadImages(this.DEAD_BY_SHOCK);
-
     this.lastMovementTime = performance.now();
     this.animate();
   }
@@ -174,15 +155,14 @@ class Character extends MoveableObject {
 
   animateHorizontalMovement() {
     setInterval(() => {
-      const key = this.world.keyboard;
+      const keyboard = this.world.keyboard;
       let moved = false;
-
-      if (key.RIGHT && this.x < this.world.level.level_end_x) {
+      if (keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.x += this.speed;
         this.otherDirection = false;
         moved = true;
       }
-      if (key.LEFT && this.x > -300) {
+      if (keyboard.LEFT && this.x > -300) {
         this.x -= this.speed;
         this.otherDirection = true;
         moved = true;
@@ -197,18 +177,16 @@ class Character extends MoveableObject {
 
   animateVerticalMovement() {
     setInterval(() => {
-      const key = this.world.keyboard;
+      const keyboard = this.world.keyboard;
       let moved = false;
-
-      if (key.DOWN && this.y < 270) {
+      if (keyboard.DOWN && this.y < 270) {
         this.y += this.speed;
         moved = true;
       }
-      if (key.UP && this.y > -50) {
+      if (keyboard.UP && this.y > -50) {
         this.y -= this.speed;
         moved = true;
       }
-
       if (moved) {
         this.lastMovementTime = performance.now();
         this.resetLongIdle();
@@ -218,12 +196,8 @@ class Character extends MoveableObject {
 
   animateSwimming() {
     setInterval(() => {
-      const key = this.world.keyboard;
-
-      // OPTIONAL: Wenn du Attack Vorrang geben willst, prüfe:
-      // if (this.isAttacking) return;
-
-      if (key.LEFT || key.RIGHT || key.UP || key.DOWN) {
+      const keyboard = this.world.keyboard;
+      if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
         this.playAnimation(this.IMAGES_SWIMMING, "swimImageIndex");
       }
     }, 150);
@@ -231,22 +205,16 @@ class Character extends MoveableObject {
 
   animateIdle() {
     setInterval(() => {
-      const key = this.world.keyboard;
-
-      // OPTIONAL: Wenn Attack Vorrang, abfragen:
-      // if (this.isAttacking) return;
-
-      if (key.LEFT || key.RIGHT || key.UP || key.DOWN) {
+      const keyboard = this.world.keyboard;
+      if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
         return;
       }
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
-
       if (idleTime < 5000) {
         this.playAnimation(this.IMAGES_STANDING, "idleImageIndex");
         return;
       }
-
       if (!this.longIdleIntroDone) {
         this.playLongIdleIntro();
       } else {
@@ -255,52 +223,40 @@ class Character extends MoveableObject {
     }, 150);
   }
 
-  /**
-   * NEU: Attack-Slap =>
-   * - Einmal auslösen mit Tastendruck SPACE
-   * - Dann Animation komplett durchlaufen (isAttacking = true)
-   * - Nach letztem Frame => isAttacking = false, attackSlapIndex = 0
-   */
   animateAttackSlap() {
     setInterval(() => {
-      // Wenn wir gerade angreifen, spiele die Attack-Frames bis zum Ende
       if (this.isAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_SLAP, "attackSlapIndex");
-
-        // Wenn wir alle Frames durch haben, Attack vorbei
         if (this.attackSlapIndex >= this.IMAGES_ATTACK_SLAP.length) {
           this.isAttacking = false;
           this.attackSlapIndex = 0;
         }
       } else {
-        // isAttacking = false => prüfen, ob SPACE gerade gedrückt wurde
         if (this.world.keyboard.SPACE) {
-          // Angriff starten
           this.isAttacking = true;
-          this.attackSlapIndex = 0; // Von vorn anfangen
+          this.attackSlapIndex = 0;
         }
       }
     }, 150);
   }
 
   playLongIdleIntro() {
-    let i = this.idleLongIntroIndex % this.IMAGES_STANDING_LONG.length;
-    let path = this.IMAGES_STANDING_LONG[i];
+    let index = this.idleLongIntroIndex % this.IMAGES_STANDING_LONG.length;
+    let path = this.IMAGES_STANDING_LONG[index];
     if (!this.imageCache[path]) {
       console.warn("Bildpfad nicht im Cache (Intro):", path);
       return;
     }
     this.img = this.imageCache[path];
     this.idleLongIntroIndex++;
-
     if (this.idleLongIntroIndex >= this.IMAGES_STANDING_LONG.length) {
       this.longIdleIntroDone = true;
     }
   }
 
   playLongIdleLoop() {
-    let i = this.idleLongLoopIndex % this.IMAGES_STANDING_LONG_LOOP.length;
-    let path = this.IMAGES_STANDING_LONG_LOOP[i];
+    let index = this.idleLongLoopIndex % this.IMAGES_STANDING_LONG_LOOP.length;
+    let path = this.IMAGES_STANDING_LONG_LOOP[index];
     if (!this.imageCache[path]) {
       console.warn("Bildpfad nicht im Cache (Loop):", path);
       return;
@@ -319,10 +275,10 @@ class Character extends MoveableObject {
     if (!this[indexName]) {
       this[indexName] = 0;
     }
-    let i = this[indexName] % images.length;
-    let path = images[i];
+    let index = this[indexName] % images.length;
+    let path = images[index];
     if (!this.imageCache[path]) {
-      console.warn(`Bildpfad nicht im Cache: ${path}`);
+      console.warn("Bildpfad nicht im Cache:", path);
       return;
     }
     this.img = this.imageCache[path];
