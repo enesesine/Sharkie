@@ -3,10 +3,10 @@ class Bubble extends MoveableObject {
     super().loadImage("Imgs/1.Sharkie/4.Attack/Bubble trap/Bubble.png"); // oder mehrere Bilder laden
     this.x = x;
     this.y = y;
-    this.width = 40;
-    this.height = 40;
+    this.width = 20;
+    this.height = 20;
     this.goingLeft = goingLeft;
-    this.speed = 3;
+    this.speed = 6;
     this.animate();
   }
 
