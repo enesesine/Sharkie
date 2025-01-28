@@ -56,6 +56,26 @@ class Character extends MoveableObject {
       this.img = this.imageCache[path];
       this.currentImage++;
     }, 150);
+
+    setInterval(() => {
+      if (this.world.keyboard.DOWN) {
+        this.y += this.speed;
+      }
+
+      if (this.world.keyboard.UP) {
+        this.y -= this.speed;
+      }
+    }, 1000 / 60);
+
+    setInterval(() => {
+      if (this.world.keyboard.UP || this.world.keyboard.DOWN) {
+      }
+
+      let i = this.currentImage % this.IMAGES_STANDING.length;
+      let path = this.IMAGES_STANDING[i];
+      this.img = this.imageCache[path];
+      this.currentImage++;
+    }, 150);
   }
 
   jump() {}
