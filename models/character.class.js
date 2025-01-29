@@ -1,3 +1,4 @@
+// character.class.js
 class Character extends MoveableObject {
   height = 220;
   width = 170;
@@ -248,7 +249,7 @@ class Character extends MoveableObject {
         if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
           this.isBubbleAttacking = false;
           this.bubbleAttackIndex = 0;
-          this.world.spawnBubble(this);
+          this.world.spawnBubble(this); // Bubble spawnen
         }
       } else if (this.world.keyboard.D) {
         this.isBubbleAttacking = true;

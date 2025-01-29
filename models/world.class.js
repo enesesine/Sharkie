@@ -1,3 +1,4 @@
+// world.class.js
 class World {
   character = new Character();
   enemies = level1.enemies;
@@ -29,7 +30,7 @@ class World {
     this.addToMap(this.character);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
-    this.addObjectsToMap(this.bubbles);
+    this.addObjectsToMap(this.bubbles); // Bubbles hinzufügen
     this.ctx.translate(-this.camera_x, 0);
     requestAnimationFrame(() => this.draw());
   }
@@ -54,14 +55,19 @@ class World {
     this.ctx.restore();
   }
 
+  // Angepasste spawnBubble Methode
   spawnBubble(sharkie) {
-    let offsetX = sharkie.otherDirection ? -30 : 50;
-    let offsetY = 50;
-    let bubble = new Bubble(
-      sharkie.x + offsetX,
-      sharkie.y + offsetY,
-      sharkie.otherDirection
-    );
+    // Anpassung der Offsets für präzisere Positionierung
+    let offsetX = sharkie.otherDirection ? -20 : 80; // Seitliche Anpassung
+    let offsetY = 120; // Vertikale Anpassung, um direkt aus dem Mund zu spawnen
+
+    let bubbleX = sharkie.x + offsetX;
+    let bubbleY = sharkie.y + offsetY;
+
+    console.log(`Sharkie Position: x=${sharkie.x}, y=${sharkie.y}`);
+    console.log(`Bubble Position: x=${bubbleX}, y=${bubbleY}`);
+
+    let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
   }
 }
