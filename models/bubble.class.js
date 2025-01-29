@@ -9,41 +9,48 @@ class Bubble extends MoveableObject {
     this.goingLeft = goingLeft;
     this.speed = 6; // Schnellere Bubble
     this.world = world; // Welt-Referenz speichern
-    this.animate();
+    this.spawnTime = Date.now(); // Zeitpunkt des Spawnings
+    this.otherDirection = false; // Verhindere Spiegelung
   }
 
-  animate() {
-    // Bewegungsintervall starten
-    this.moveInterval = setInterval(() => {
-      if (this.goingLeft) {
-        this.x -= this.speed;
-      } else {
-        this.x += this.speed;
-      }
+  /**
+   * Update-Methode, die von der World-Klasse aufgerufen wird.
+   * Bewegt die Bubble und prüft, ob sie entfernt werden muss.
+   */
+  update() {
+    // Bewegung basierend auf Richtung und Geschwindigkeit
+    if (this.goingLeft) {
+      this.x -= this.speed;
+    } else {
+      this.x += this.speed;
+    }
 
-      // Überprüfe, ob die Bubble aus dem Canvas fliegt und entferne sie
-      if (
-        this.x < -this.width ||
-        this.x > this.world.canvas.width + this.width
-      ) {
-        this.removeBubble();
-      }
-    }, 1000 / 60);
+    // Debugging-Logs
+    console.log(`Bubble Position: x=${this.x}, y=${this.y}`);
 
-    // Bubble nach 3 Sekunden entfernen
-    this.lifeTimeout = setTimeout(() => {
+    // Überprüfen, ob die Bubble aus dem Canvas fliegt
+    if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
+      console.log("Bubble verlässt den Canvas und wird entfernt.");
       this.removeBubble();
-    }, 3000);
+      return; // Frühzeitig zurückkehren, um weitere Prüfungen zu vermeiden
+    }
+
+    // Überprüfen, ob die Bubble 3 Sekunden alt ist
+    if (Date.now() - this.spawnTime >= 3000) {
+      console.log("Bubble ist 3 Sekunden alt und wird entfernt.");
+      this.removeBubble();
+      return;
+    }
   }
 
+  /**
+   * Entfernt die Bubble aus dem bubbles Array der Welt.
+   */
   removeBubble() {
-    // Entferne die Bubble aus dem bubbles Array der Welt
-    let index = this.world.bubbles.indexOf(this);
+    const index = this.world.bubbles.indexOf(this);
     if (index >= 0) {
       this.world.bubbles.splice(index, 1);
     }
-    // Stoppe das Bewegungsintervall und das Timeout
-    clearInterval(this.moveInterval);
-    clearTimeout(this.lifeTimeout);
+    // Keine Notwendigkeit, Intervalle oder Timeouts zu stoppen, da wir diese nicht mehr verwenden
   }
 }

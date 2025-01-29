@@ -130,6 +130,8 @@ class Character extends MoveableObject {
   lastMovementTime = 0;
   bubbleAttackIndex = 0;
   isBubbleAttacking = false;
+  lastBubbleTime = 0; // Für Cooldown
+  bubbleCooldown = 500; // 500ms Cooldown zwischen Bubbles
 
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
@@ -244,16 +246,26 @@ class Character extends MoveableObject {
 
   animateAttackBubble() {
     setInterval(() => {
+      const currentTime = Date.now();
+
       if (this.isBubbleAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
         if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
           this.isBubbleAttacking = false;
           this.bubbleAttackIndex = 0;
-          this.world.spawnBubble(this); // Bubble spawnen
+
+          // Überprüfen, ob Cooldown abgelaufen ist
+          if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+            this.world.spawnBubble(this); // Bubble spawnen
+            this.lastBubbleTime = currentTime;
+          }
         }
       } else if (this.world.keyboard.D) {
-        this.isBubbleAttacking = true;
-        this.bubbleAttackIndex = 0;
+        // Überprüfen, ob Cooldown abgelaufen ist, bevor ein neuer Angriff gestartet wird
+        if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+          this.isBubbleAttacking = true;
+          this.bubbleAttackIndex = 0;
+        }
       }
     }, 150);
   }
@@ -289,6 +301,11 @@ class Character extends MoveableObject {
     this.idleLongLoopIndex = 0;
   }
 
+  /**
+   * Spielt die Animation basierend auf den bereitgestellten Bildern.
+   * @param {Array} images - Array von Bildpfaden für die Animation.
+   * @param {string} indexName - Name der Index-Variable zur Nachverfolgung.
+   */
   playAnimation(images, indexName = "currentImage") {
     if (!this[indexName]) {
       this[indexName] = 0;
