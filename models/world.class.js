@@ -55,29 +55,41 @@ class World {
     }
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+
+      // Zeichne ein Rechteck um das Objekt nur, wenn es eine Instanz von Character oder Fish ist
+      if (mo instanceof Character || mo instanceof Fish) {
+        this.ctx.beginPath();
+        this.ctx.lineWidth = "5";
+        this.ctx.strokeStyle = "blue";
+        this.ctx.rect(0, 0, mo.width, mo.height); // Zeichne das Rechteck relativ zum verschobenen Kontext
+        this.ctx.stroke();
+      }
     }
     this.ctx.restore();
   }
 
-  /**
-   * Spawn-Methode für Bubbles.
-   * Positioniert die Bubble direkt aus Sharkies Mund und fügt sie dem bubbles Array hinzu.
-   */
   spawnBubble(sharkie) {
-    // Rücksetzen der Offsets auf ursprüngliche Werte
-    let offsetX = sharkie.otherDirection ? -20 : 50; // Ursprüngliche seitliche Anpassung
-    let offsetY = 120; // Ursprüngliche vertikale Anpassung
+    let offsetX = sharkie.otherDirection ? -20 : 50;
+    let offsetY = 120;
 
-    // Berechne die exakten Positionen
     let bubbleX = sharkie.x + offsetX;
     let bubbleY = sharkie.y + offsetY;
 
-    // Debugging-Logs zur Überprüfung der Position
-    console.log(`Sharkie Position: x=${sharkie.x}, y=${sharkie.y}`);
-    console.log(`Bubble Position: x=${bubbleX}, y=${bubbleY}`);
-
-    // Erstelle und füge die Bubble hinzu
     let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
+  }
+
+  /**
+   * Prüft, ob das aktuelle Objekt mit einem anderen Objekt kollidiert.
+   * @param {Object} obj - Das Objekt, mit dem kollidiert werden soll.
+   * @returns {Boolean} - True, wenn eine Kollision vorliegt, sonst False.
+   */
+  isColliding(obj) {
+    return (
+      this.x + this.width >= obj.x &&
+      this.x <= obj.x + obj.width &&
+      this.y + this.offsetY + this.height >= obj.y &&
+      this.y + this.offsetY <= obj.y + obj.height
+    );
   }
 }
