@@ -10,6 +10,7 @@ class World {
   ctx;
   keyboard;
   camera_x = 0;
+  statusBar = new StatusBar();
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -63,6 +64,7 @@ class World {
     this.addToMap(this.character);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
+    this.addToMap(this.statusBar);
 
     // Update und Zeichnen der Bubbles
     this.bubbles.forEach((bubble) => bubble.update());
