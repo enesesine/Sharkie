@@ -17,10 +17,21 @@ class World {
     this.keyboard = keyboard;
     this.draw();
     this.setWorld();
+    this.checkCollisions();
   }
 
   setWorld() {
     this.character.world = this;
+  }
+
+  checkCollisions() {
+    setInterval(() => {
+      this.level.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy)) {
+          console.log("Collision with Character", enemy);
+        }
+      });
+    }, 1000);
   }
 
   draw() {
@@ -77,19 +88,5 @@ class World {
 
     let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
-  }
-
-  /**
-   * Prüft, ob das aktuelle Objekt mit einem anderen Objekt kollidiert.
-   * @param {Object} obj - Das Objekt, mit dem kollidiert werden soll.
-   * @returns {Boolean} - True, wenn eine Kollision vorliegt, sonst False.
-   */
-  isColliding(obj) {
-    return (
-      this.x + this.width >= obj.x &&
-      this.x <= obj.x + obj.width &&
-      this.y + this.offsetY + this.height >= obj.y &&
-      this.y + this.offsetY <= obj.y + obj.height
-    );
   }
 }
