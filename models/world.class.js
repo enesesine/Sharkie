@@ -28,10 +28,32 @@ class World {
     setInterval(() => {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
-          console.log("Collision with Character", enemy);
+          if (!this.character.isHurt) {
+            // **Verhindert mehrfaches Auslösen in kurzer Zeit**
+            this.character.hit();
+            console.log(
+              "Collision with Character, energy",
+              this.character.energy
+            );
+            this.character.isHurt = true;
+            this.character.hurtStartTime = Date.now();
+
+            // **Verschiedene Hurt-Typen basierend auf dem Enemy festlegen**
+            if (enemy.damageType === "shock") {
+              this.character.currentHurtImages =
+                this.character.IMAGES_HURT_SHOCK;
+            } else if (enemy.damageType === "poison") {
+              this.character.currentHurtImages =
+                this.character.IMAGES_HURT_POISON;
+            } else {
+              // **Standard-Hurt-Array**
+              this.character.currentHurtImages =
+                this.character.IMAGES_HURT_SHOCK;
+            }
+          }
         }
       });
-    }, 1000);
+    }, 300);
   }
 
   draw() {

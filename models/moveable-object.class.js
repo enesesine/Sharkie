@@ -1,4 +1,4 @@
-class MoveableObject {
+class MoveableObject extends DrawableObject {
   x = 120;
   y = 180;
   img;
@@ -30,6 +30,17 @@ class MoveableObject {
       this.x < mo.x &&
       this.y < mo.y + mo.height
     );
+  }
+
+  hit() {
+    this.energy -= 5;
+    if (this.energy < 0) {
+      this.energy = 0;
+    }
+  }
+
+  isDead() {
+    return this.energy == 0;
   }
 
   moveRight() {

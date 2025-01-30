@@ -94,12 +94,6 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/5.Hurt/2.Electric shock/3.png",
   ];
 
-  IMAGES_DEAD_POISON = [
-    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/1.png",
-    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/2.png",
-    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/3.png",
-  ];
-
   DEAD_BY_POISON = [
     "Imgs/1.Sharkie/6.dead/1.Poisoned/1.png",
     "Imgs/1.Sharkie/6.dead/1.Poisoned/2.png",
@@ -133,6 +127,13 @@ class Character extends MoveableObject {
   lastBubbleTime = 0; // Für Cooldown
   bubbleCooldown = 500; // 500ms Cooldown zwischen Bubbles
 
+  // **Neue Variablen für Hurt-Zustand**
+  isHurt = false;
+  hurtImageIndex = 0;
+  hurtDuration = 1000; // Dauer der Hurt-Animation in ms
+  hurtStartTime = 0;
+  currentHurtImages = null; // Für verschiedene Hurt-Typen
+
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
     this.loadImages(this.IMAGES_STANDING);
@@ -143,7 +144,6 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_ATTACK_SLAP);
     this.loadImages(this.IMAGES_HURT_POISON);
     this.loadImages(this.IMAGES_HURT_SHOCK);
-    this.loadImages(this.IMAGES_DEAD_POISON);
     this.loadImages(this.DEAD_BY_POISON);
     this.loadImages(this.DEAD_BY_SHOCK);
     this.lastMovementTime = performance.now();
@@ -157,6 +157,7 @@ class Character extends MoveableObject {
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
+    this.animateHurt(); // **Hurt-Animation hinzufügen**
   }
 
   animateHorizontalMovement() {
@@ -307,6 +308,8 @@ class Character extends MoveableObject {
    * @param {string} indexName - Name der Index-Variable zur Nachverfolgung.
    */
   playAnimation(images, indexName = "currentImage") {
+    if (this.isHurt) return; // **Keine anderen Animationen spielen, wenn Sharkie verletzt ist**
+
     if (!this[indexName]) {
       this[indexName] = 0;
     }
@@ -318,5 +321,38 @@ class Character extends MoveableObject {
     }
     this.img = this.imageCache[path];
     this[indexName]++;
+  }
+
+  // **Neue Methoden für Hurt-Animation**
+
+  animateHurt() {
+    setInterval(() => {
+      if (this.isHurt) {
+        this.playHurtAnimation();
+        const currentTime = Date.now();
+        if (currentTime - this.hurtStartTime >= this.hurtDuration) {
+          this.isHurt = false;
+          this.hurtImageIndex = 0;
+          this.currentHurtImages = null; // Reset Hurt-Typ
+        }
+      }
+    }, 150);
+  }
+
+  playHurtAnimation() {
+    const images = this.currentHurtImages || this.IMAGES_HURT_SHOCK; // **Verwende das ausgewählte Hurt-Array**
+    if (this.hurtImageIndex < images.length) {
+      let path = images[this.hurtImageIndex];
+      if (!this.imageCache[path]) {
+        console.warn("Bildpfad nicht im Cache (Hurt):", path);
+        return;
+      }
+      this.img = this.imageCache[path];
+      this.hurtImageIndex++;
+    } else {
+      this.isHurt = false;
+      this.hurtImageIndex = 0;
+      this.currentHurtImages = null;
+    }
   }
 }
