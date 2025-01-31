@@ -1,6 +1,14 @@
 const level1 = new Level(
-  [new Fish(), new Fish(), new Fish(), new Endboss()],
-
+  [
+    new Fish(),
+    new Fish(),
+    new Fish(),
+    new Fish2(),
+    new Fish2(),
+    new Fish3(),
+    new Fish3(),
+    new Endboss(),
+  ],
   [
     new BackgroundObject(
       "  Imgs/3. Background/Layers/5. Water/D2.png",

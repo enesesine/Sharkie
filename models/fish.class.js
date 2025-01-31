@@ -1,7 +1,9 @@
 class Fish extends MoveableObject {
-  y = 250;
-  height = 120;
   width = 90;
+  height = 120;
+  y = Math.random() * 300; // Zufällige Höhe zwischen 0 und 300
+  speed = 0.5 + Math.random() * 1.5; // Zufällige Geschwindigkeit
+
   IMAGES_SWIMMING = [
     "Imgs/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png",
     "Imgs/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim2.png",
@@ -11,21 +13,27 @@ class Fish extends MoveableObject {
   ];
 
   constructor() {
-    super().loadImage(
-      "Imgs/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png"
-    );
+    super().loadImage(this.IMAGES_SWIMMING[0]);
     this.loadImages(this.IMAGES_SWIMMING);
 
-    this.x = 200 + Math.random() * 500;
-    this.speed = 0.15 + Math.random() * 0.25;
+    this.x = 800 + Math.random() * 2000; // Zufällige Startposition auf der X-Achse
     this.animate();
   }
 
   animate() {
-    this.moveLeft();
+    setInterval(() => {
+      this.x -= this.speed; // Fisch bewegt sich nach links
 
+      // Falls der Fisch aus dem Bildschirm schwimmt, respawn auf neuer Position
+      if (this.x < -100) {
+        this.x = 2800 + Math.random() * 500;
+        this.y = Math.random() * 300; // Neue zufällige Höhe
+      }
+    }, 1000 / 60);
+
+    // Animation aktivieren (Bildwechsel)
     setInterval(() => {
       this.playAnimation(this.IMAGES_SWIMMING);
-    }, 200);
+    }, 150);
   }
 }
