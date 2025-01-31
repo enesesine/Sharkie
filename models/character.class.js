@@ -362,4 +362,24 @@ class Character extends MoveableObject {
     this.idleLongLoopIndex = 0;
     this.lastMovementTime = performance.now(); // AFK-Zähler zurücksetzen
   }
+
+  takeDamage(amount) {
+    this.hp -= amount;
+    if (this.hp < 0) this.hp = 0;
+
+    // HP-Leiste aktualisieren
+    this.world.statusBar.setPercentage(this.hp);
+
+    if (this.hp === 0) {
+      this.die();
+    }
+  }
+
+  hit() {
+    this.isHurt = true; // Sharkie ist verletzt
+    this.hurtStartTime = Date.now();
+
+    // HP-Leiste aktualisieren
+    this.world.statusBar.setPercentage(this.energy);
+  }
 }

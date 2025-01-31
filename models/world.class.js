@@ -19,6 +19,12 @@ class World {
     this.draw();
     this.setWorld();
     this.checkCollisions();
+
+    this.level.enemies.forEach((enemy) => {
+      if (enemy instanceof Endboss) {
+        enemy.world = this; // Endboss bekommt Zugriff auf die `world`
+      }
+    });
   }
 
   setWorld() {
@@ -30,12 +36,18 @@ class World {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
           if (!this.character.isHurt) {
-            this.character.hit();
-            this.statusBar.setPercentage(this.character.energy);
+            let damageAmount = enemy instanceof Endboss ? 40 : 20; // Endboss macht mehr Schaden
+
+            this.character.hit(); // Schaden wird angewendet
+            this.character.energy -= damageAmount; // HP reduzieren
+            this.statusBar.setPercentage(this.character.energy); // Status Bar updaten
+
             console.log(
-              "Collision with Character, energy",
-              this.character.energy
+              `Collision with ${
+                enemy instanceof Endboss ? "Endboss" : "Fish"
+              }, energy: ${this.character.energy}`
             );
+
             this.character.isHurt = true;
             this.character.hurtStartTime = Date.now();
 
@@ -47,9 +59,14 @@ class World {
               this.character.currentHurtImages =
                 this.character.IMAGES_HURT_POISON;
             } else {
-              // **Standard-Hurt-Array**
               this.character.currentHurtImages =
                 this.character.IMAGES_HURT_SHOCK;
+            }
+
+            // Falls HP auf 0 fällt → Game Over
+            if (this.character.energy <= 0) {
+              this.character.energy = 0;
+              this.character.die();
             }
           }
         }
