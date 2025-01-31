@@ -5,7 +5,17 @@ class World {
   backgroundObjects = level1.backgroundObjects;
   surfaces = [new Surface()];
   level = level1;
-  bubbles = []; // Sammlung aller Bubbles
+  bubbles = [];
+  poisonBottles = [
+    new PoisonBottle(600, 250),
+    new PoisonBottle(900, 200),
+    new PoisonBottle(1200, 150),
+    new PoisonBottle(1500, 220),
+    new PoisonBottle(1800, 180),
+  ];
+  collectedPoisonBottles = 0;
+  poisonStatusBar = new PoisonStatusBar();
+
   canvas;
   ctx;
   keyboard;
@@ -18,11 +28,13 @@ class World {
     this.keyboard = keyboard;
     this.draw();
     this.setWorld();
+    this.character.animate();
     this.checkCollisions();
 
+    // Endboss erhält den Zugriff auf die Welt
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Endboss) {
-        enemy.world = this; // Endboss bekommt Zugriff auf die `world`
+        enemy.world = this;
       }
     });
   }
@@ -32,15 +44,16 @@ class World {
   }
 
   checkCollisions() {
+    // Kollisionsabfrage für Feinde
     setInterval(() => {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
           if (!this.character.isHurt) {
-            let damageAmount = enemy instanceof Endboss ? 40 : 20; // Endboss macht mehr Schaden
+            let damageAmount = enemy instanceof Endboss ? 40 : 20; // Endboss verursacht mehr Schaden
 
-            this.character.hit(); // Schaden wird angewendet
+            this.character.hit(); // Schaden anwenden
             this.character.energy -= damageAmount; // HP reduzieren
-            this.statusBar.setPercentage(this.character.energy); // Status Bar updaten
+            this.statusBar.setPercentage(this.character.energy); // HP-StatusBar updaten
 
             console.log(
               `Collision with ${
@@ -51,7 +64,7 @@ class World {
             this.character.isHurt = true;
             this.character.hurtStartTime = Date.now();
 
-            // **Verschiedene Hurt-Typen basierend auf dem Enemy festlegen**
+            // Verschiedene Hurt-Typen basierend auf dem Enemy festlegen
             if (enemy.damageType === "shock") {
               this.character.currentHurtImages =
                 this.character.IMAGES_HURT_SHOCK;
@@ -72,20 +85,41 @@ class World {
         }
       });
     }, 300);
+
+    // Kollisionsabfrage für Poison Bottles
+    setInterval(() => {
+      this.poisonBottles.forEach((bottle, index) => {
+        if (this.character.isColliding(bottle)) {
+          // Bottle einsammeln
+          this.poisonBottles.splice(index, 1);
+          this.collectedPoisonBottles++;
+          // Jede Bottle entspricht 20 % → 5 Bottles = 100 %
+          this.poisonStatusBar.setPercentage(this.collectedPoisonBottles * 20);
+          console.log(
+            `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
+          );
+        }
+      });
+    }, 100);
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // Zeichne den Level-Inhalt (Hintergrund, Gegner, Oberflächen, Poison Bottles und den Character)
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.backgroundObjects);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
+    this.addObjectsToMap(this.poisonBottles);
     this.addToMap(this.character);
 
     this.ctx.translate(-this.camera_x, 0);
+    // Zeichne die HUD-Elemente (HP-StatusBar und Poison Bottle Status Bar)
     this.addToMap(this.statusBar);
+    this.addToMap(this.poisonStatusBar);
 
+    // Aktualisiere und zeichne die Bubbles
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
 
@@ -109,12 +143,12 @@ class World {
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
 
-      // Zeichne ein Rechteck um das Objekt nur, wenn es eine Instanz von Character oder Fish ist
+      // Optional: Zeichne ein Umrandungsrechteck für Character und Fish (zur Debugging-Unterstützung)
       if (mo instanceof Character || mo instanceof Fish) {
         this.ctx.beginPath();
         this.ctx.lineWidth = "5";
         this.ctx.strokeStyle = "blue";
-        this.ctx.rect(0, 0, mo.width, mo.height); // Zeichne das Rechteck relativ zum verschobenen Kontext
+        this.ctx.rect(0, 0, mo.width, mo.height);
         this.ctx.stroke();
       }
     }

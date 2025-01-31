@@ -146,8 +146,8 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_HURT_SHOCK);
     this.loadImages(this.DEAD_BY_POISON);
     this.loadImages(this.DEAD_BY_SHOCK);
+
     this.lastMovementTime = performance.now();
-    this.animate();
   }
 
   animate() {
