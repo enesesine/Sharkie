@@ -241,6 +241,7 @@ class Character extends MoveableObject {
       } else if (this.world.keyboard.SPACE) {
         this.isAttacking = true;
         this.attackSlapIndex = 0;
+        this.resetAFKTimer(); // AFK-Timer beim Angriff zurücksetzen
       }
     }, 150);
   }
@@ -255,17 +256,16 @@ class Character extends MoveableObject {
           this.isBubbleAttacking = false;
           this.bubbleAttackIndex = 0;
 
-          // Überprüfen, ob Cooldown abgelaufen ist
           if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
             this.world.spawnBubble(this); // Bubble spawnen
             this.lastBubbleTime = currentTime;
           }
         }
       } else if (this.world.keyboard.D) {
-        // Überprüfen, ob Cooldown abgelaufen ist, bevor ein neuer Angriff gestartet wird
         if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
           this.isBubbleAttacking = true;
           this.bubbleAttackIndex = 0;
+          this.resetAFKTimer(); // AFK-Timer beim Bubble-Angriff zurücksetzen
         }
       }
     }, 150);
@@ -354,5 +354,12 @@ class Character extends MoveableObject {
       this.hurtImageIndex = 0;
       this.currentHurtImages = null;
     }
+  }
+
+  resetAFKTimer() {
+    this.longIdleIntroDone = false;
+    this.idleLongIntroIndex = 0;
+    this.idleLongLoopIndex = 0;
+    this.lastMovementTime = performance.now(); // AFK-Zähler zurücksetzen
   }
 }
