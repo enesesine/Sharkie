@@ -6,24 +6,45 @@
     <link rel="stylesheet" href="style.css" />
     <title>Sharkie</title>
 
-    <script src="./models/drawable-object.class.js"></script>
+    <!-- Scripts für das Spiel -->
+    <script src="models/drawable-object.class.js"></script>
     <script src="models/moveable-object.class.js"></script>
     <script src="models/background-object.class.js"></script>
     <script src="models/character.class.js"></script>
     <script src="models/fish.class.js"></script>
     <script src="models/water-surface.class.js"></script>
-    <script src="./models/status-bar.class.js"></script>
+    <script src="models/status-bar.class.js"></script>
     <script src="models/world.class.js"></script>
     <script src="models/keyboard.class.js"></script>
     <script src="models/levels.class.js"></script>
-    <script src="./models/endboss.class.js"></script>
-
+    <script src="models/endboss.class.js"></script>
     <script src="JavaScript/levels/level1.js"></script>
-    <script src="models\bubble.class.js"></script>
-    <script src="./JavaScript/game.js"></script>
+    <script src="models/bubble.class.js"></script>
+    <script src="JavaScript/game.js"></script>
   </head>
-  <body onload="init()">
-    <h1>Sharkie</h1>
-    <canvas id="canvas" width="720" height="480"> </canvas>
+  <body>
+    <!-- Startscreen -->
+    <div id="startscreen">
+      <h1>Sharkie - The Game</h1>
+      <button onclick="startGame()">Start</button>
+      <button onclick="openPopup('controls')">Controls</button>
+      <button onclick="openPopup('imprint')">Imprint</button>
+      <button onclick="openPopup('privacy')">Privacy Policy</button>
+    </div>
+
+    <!-- Canvas für das Spiel -->
+    <canvas id="canvas" width="720" height="480" style="display: none"></canvas>
+
+    <!-- Popup-Fenster für Controlls, Imprint, Privacy Policy -->
+    <div id="popup-overlay" onclick="closePopup()"></div>
+
+    <div id="popup-container">
+      <div id="popup">
+        <button id="close-popup" onclick="closePopup()">←</button>
+        <div id="popup-content"></div>
+      </div>
+    </div>
+
+    <script src="./JavaScript/levels/startscreen/startscreen.js"></script>
   </body>
 </html>
