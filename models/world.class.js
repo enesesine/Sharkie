@@ -30,8 +30,8 @@ class World {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
           if (!this.character.isHurt) {
-            // **Verhindert mehrfaches Auslösen in kurzer Zeit**
             this.character.hit();
+            this.statusBar.setPercentage(this.character.energy);
             console.log(
               "Collision with Character, energy",
               this.character.energy
