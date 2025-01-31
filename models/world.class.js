@@ -60,17 +60,18 @@ class World {
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.translate(this.camera_x, 0);
+
     this.addObjectsToMap(this.backgroundObjects);
-    this.addToMap(this.character);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
-    this.addToMap(this.statusBar);
-
-    // Update und Zeichnen der Bubbles
-    this.bubbles.forEach((bubble) => bubble.update());
-    this.addObjectsToMap(this.bubbles); // Bubbles zeichnen
+    this.addToMap(this.character);
 
     this.ctx.translate(-this.camera_x, 0);
+    this.addToMap(this.statusBar);
+
+    this.bubbles.forEach((bubble) => bubble.update());
+    this.addObjectsToMap(this.bubbles);
+
     requestAnimationFrame(() => this.draw());
   }
 

@@ -5,7 +5,11 @@ let keyboard = new Keyboard();
 function init() {
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
-  console.log("My Character is", world.character);
+
+  // HP-Statusbar sichtbar machen
+  world.statusBar.setPercentage(100);
+
+  console.log("Game initialized", world);
 }
 
 window.addEventListener("keydown", (event) => {
