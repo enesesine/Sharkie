@@ -1,9 +1,9 @@
 class CoinStatusBar extends DrawableObject {
   IMAGES = [
-    "Imgs/4. Marcadores/green/Coin/0_ copia 4.png",
-    "Imgs/4. Marcadores/green/Coin/20_ copia 2.png",
-    "Imgs/4. Marcadores/green/Coin/40_ copia 4.png",
-    "Imgs/4. Marcadores/green/Coin/60_ copia 4.png",
+    "Imgs/4. Marcadores/green/Coin/0_  copia 4.png",
+    "Imgs/4. Marcadores/green/Coin/20_  copia 2.png",
+    "Imgs/4. Marcadores/green/Coin/40_  copia 4.png",
+    "Imgs/4. Marcadores/green/Coin/60_  copia 4.png",
     "Imgs/4. Marcadores/green/Coin/80_ copia 4.png",
     "Imgs/4. Marcadores/green/Coin/100_ copia 4.png",
   ];
@@ -15,7 +15,7 @@ class CoinStatusBar extends DrawableObject {
     this.loadImages(this.IMAGES);
 
     this.x = 20;
-    this.y = 40;
+    this.y = 100;
     this.width = 200;
     this.height = 60;
     this.setPercentage(0);

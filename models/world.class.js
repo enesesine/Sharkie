@@ -5,15 +5,15 @@ class World {
   backgroundObjects = level1.backgroundObjects;
   surfaces = [new Surface()];
   level = level1;
-  bubbles = [];
-  poisonBottles = [
-    new PoisonBottle(600, 250),
-    new PoisonBottle(900, 200),
-    new PoisonBottle(1200, 150),
-    new PoisonBottle(1500, 220),
-    new PoisonBottle(1800, 180),
-  ];
+  bubbles = []; // Sammlung aller Bubbles
+
+  // Sammelbare Objekte kommen nun aus dem Level:
+  collectibles = level1.collectibles;
+  collectedCoins = 0;
   collectedPoisonBottles = 0;
+
+  // Status Bars für Coins und PoisonBottles:
+  coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
 
   canvas;
@@ -26,12 +26,13 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
-    this.draw();
+
     this.setWorld();
     this.character.animate();
+    this.draw();
     this.checkCollisions();
 
-    // Endboss erhält den Zugriff auf die Welt
+    // Endboss erhält Zugriff auf die Welt
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Endboss) {
         enemy.world = this;
@@ -44,27 +45,23 @@ class World {
   }
 
   checkCollisions() {
-    // Kollisionsabfrage für Feinde
+    // Kollisionsabfrage für Gegner:
     setInterval(() => {
       this.level.enemies.forEach((enemy) => {
         if (this.character.isColliding(enemy)) {
           if (!this.character.isHurt) {
-            let damageAmount = enemy instanceof Endboss ? 40 : 20; // Endboss verursacht mehr Schaden
-
-            this.character.hit(); // Schaden anwenden
-            this.character.energy -= damageAmount; // HP reduzieren
-            this.statusBar.setPercentage(this.character.energy); // HP-StatusBar updaten
-
+            let damageAmount = enemy instanceof Endboss ? 40 : 20;
+            this.character.hit();
+            this.character.energy -= damageAmount;
+            this.statusBar.setPercentage(this.character.energy);
             console.log(
               `Collision with ${
                 enemy instanceof Endboss ? "Endboss" : "Fish"
               }, energy: ${this.character.energy}`
             );
-
             this.character.isHurt = true;
             this.character.hurtStartTime = Date.now();
 
-            // Verschiedene Hurt-Typen basierend auf dem Enemy festlegen
             if (enemy.damageType === "shock") {
               this.character.currentHurtImages =
                 this.character.IMAGES_HURT_SHOCK;
@@ -76,7 +73,6 @@ class World {
                 this.character.IMAGES_HURT_SHOCK;
             }
 
-            // Falls HP auf 0 fällt → Game Over
             if (this.character.energy <= 0) {
               this.character.energy = 0;
               this.character.die();
@@ -86,18 +82,27 @@ class World {
       });
     }, 300);
 
-    // Kollisionsabfrage für Poison Bottles
+    // Kollisionsabfrage für Sammelobjekte (Collectibles):
     setInterval(() => {
-      this.poisonBottles.forEach((bottle, index) => {
-        if (this.character.isColliding(bottle)) {
-          // Bottle einsammeln
-          this.poisonBottles.splice(index, 1);
-          this.collectedPoisonBottles++;
-          // Jede Bottle entspricht 20 % → 5 Bottles = 100 %
-          this.poisonStatusBar.setPercentage(this.collectedPoisonBottles * 20);
-          console.log(
-            `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
-          );
+      this.collectibles.forEach((item, index) => {
+        if (this.character.isColliding(item)) {
+          if (item instanceof Coin) {
+            this.collectedCoins++;
+            // 5 Coins = 100 % → jede Coin = 20%
+            this.coinStatusBar.setPercentage(this.collectedCoins * 20);
+            console.log(`Coin collected! Count: ${this.collectedCoins}`);
+          } else if (item instanceof PoisonBottle) {
+            this.collectedPoisonBottles++;
+            // 5 PoisonBottles = 100 % → jede Bottle = 20%
+            this.poisonStatusBar.setPercentage(
+              this.collectedPoisonBottles * 20
+            );
+            console.log(
+              `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
+            );
+          }
+          // Entferne das eingesammelte Objekt:
+          this.collectibles.splice(index, 1);
         }
       });
     }, 100);
@@ -105,21 +110,22 @@ class World {
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // Zeichne den Level-Inhalt (Hintergrund, Gegner, Oberflächen, Poison Bottles und den Character)
+    // Zeichne Level-Inhalt (Hintergrund, Gegner, Oberflächen, Sammelobjekte und den Charakter)
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.backgroundObjects);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
-    this.addObjectsToMap(this.poisonBottles);
+    this.addObjectsToMap(this.collectibles);
     this.addToMap(this.character);
 
     this.ctx.translate(-this.camera_x, 0);
-    // Zeichne die HUD-Elemente (HP-StatusBar und Poison Bottle Status Bar)
+    // Zeichne die HUD-Elemente (HP, Coin-StatusBar, PoisonBottle-StatusBar)
     this.addToMap(this.statusBar);
+    this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
 
-    // Aktualisiere und zeichne die Bubbles
+    // Aktualisiere und zeichne Bubbles:
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
 
@@ -127,9 +133,7 @@ class World {
   }
 
   addObjectsToMap(objects) {
-    objects.forEach((o) => {
-      this.addToMap(o);
-    });
+    objects.forEach((o) => this.addToMap(o));
   }
 
   addToMap(mo) {
@@ -142,15 +146,6 @@ class World {
     }
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
-
-      // Optional: Zeichne ein Umrandungsrechteck für Character und Fish (zur Debugging-Unterstützung)
-      if (mo instanceof Character || mo instanceof Fish) {
-        this.ctx.beginPath();
-        this.ctx.lineWidth = "5";
-        this.ctx.strokeStyle = "blue";
-        this.ctx.rect(0, 0, mo.width, mo.height);
-        this.ctx.stroke();
-      }
     }
     this.ctx.restore();
   }
@@ -158,10 +153,8 @@ class World {
   spawnBubble(sharkie) {
     let offsetX = sharkie.otherDirection ? -20 : 50;
     let offsetY = 120;
-
     let bubbleX = sharkie.x + offsetX;
     let bubbleY = sharkie.y + offsetY;
-
     let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
   }

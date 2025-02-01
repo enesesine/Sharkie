@@ -150,3 +150,51 @@ body {
   top: 10px;
   left: 10px;
 }
+
+/* Container für Canvas und Fullscreen-Button */
+/* Wichtig: display: inline-block (statt "contents") sorgt dafür, dass der Container eigene Abmessungen hat */
+#game-container {
+  position: relative;
+  display: contents;
+}
+
+/* Canvas */
+/* Entferne ggf. das inline style "display: none" aus dem HTML, 
+   wenn du den Canvas später sichtbar machst – oder schalte ihn per JS ein */
+#canvas {
+  background-color: black;
+  border: 2px solid white;
+  /* Optional: Wenn du den Canvas mittig positionieren möchtest,
+     kann dies auch über den Container erfolgen */
+}
+
+/* Wenn der Container im Fullscreen-Modus ist, soll der Canvas den vollen Platz einnehmen */
+#game-container:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+#game-container:fullscreen #canvas {
+  width: 90%;
+  height: 90%;
+}
+
+/* Fullscreen-Button als kleines, weißes Icon mit Schlagschatten */
+#fullscreen-btn {
+  position: absolute;
+  bottom: 225px; /* Abstand vom unteren Rand des Containers */
+  right: 35px; /* Abstand vom rechten Rand des Containers */
+  width: 20px; /* Sehr klein – passe diesen Wert bei Bedarf an */
+  height: auto;
+  cursor: pointer;
+  /* Mit diesem Filter wird das Bild weiß dargestellt, falls das Original nicht weiß ist */
+  filter: brightness(0) invert(1);
+  border-radius: 3px;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease;
+}
+
+#fullscreen-btn:hover {
+  transform: scale(1.1);
+}

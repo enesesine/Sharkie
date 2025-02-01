@@ -6,32 +6,50 @@
     <link rel="stylesheet" href="style.css" />
     <title>Sharkie</title>
 
-    <!-- Scripts für das Spiel -->
+    <!-- ------------------ Core Klassen ------------------ -->
+    <!-- Basis-Klassen, die von allen weiteren benötigt werden -->
     <script src="models/drawable-object.class.js"></script>
     <script src="models/moveable-object.class.js"></script>
+
+    <!-- Weitere Modelle -->
     <script src="models/background-object.class.js"></script>
     <script src="models/character.class.js"></script>
-    <script src="models/fish3.class.js"></script>
-    <script src="models/fish2.class.js"></script>
     <script src="models/fish.class.js"></script>
+    <script src="models/fish2.class.js"></script>
+    <script src="models/fish3.class.js"></script>
     <script src="models/water-surface.class.js"></script>
     <script src="models/status-bar.class.js"></script>
-    <script src="models/world.class.js"></script>
-    <script src="models/keyboard.class.js"></script>
-    <script src="models/levels.class.js"></script>
     <script src="models/endboss.class.js"></script>
+    <script src="models/keyboard.class.js"></script>
+    <script src="models/bubble.class.js"></script>
+
+    <!-- ------------------ Level Infrastruktur ------------------ -->
+    <!-- Zuerst die Level-Grundlage -->
+    <script src="models/levels.class.js"></script>
+
+    <!-- ------------------ Sammelobjekte: Coins & Poison ------------------ -->
+    <!-- Diese Klassen müssen geladen werden, bevor sie in level1.js genutzt werden -->
+    <script src="models/coin.class.js"></script>
+    <script src="models/coin-statusbar.class.js"></script>
     <script src="models/poison-bottle.class.js"></script>
     <script src="models/poison-status-bar.class.js"></script>
 
+    <!-- ------------------ Level Definition ------------------ -->
+    <!-- Hier wird der globale level1 erstellt – er nutzt unter anderem Coin und PoisonBottle -->
     <script src="JavaScript/levels/level1.js"></script>
-    <script src="models/bubble.class.js"></script>
+
+    <!-- ------------------ World und Spiel-Logik ------------------ -->
+    <!-- Jetzt, da level1 existiert, kann die World darauf zugreifen -->
+    <script src="models/world.class.js"></script>
     <script src="JavaScript/game.js"></script>
+
+    <!-- ------------------ UI / Startscreen ------------------ -->
+    <script src="JavaScript/startscreen.js"></script>
   </head>
   <body>
     <!-- Startscreen -->
-    <div id="startscreen">
-      <!-- Game Over Screen -->
 
+    <div id="startscreen">
       <h1>Sharkie - The Game</h1>
       <button onclick="startGame()">Start</button>
       <button onclick="openPopup('controls')">Controls</button>
@@ -40,19 +58,28 @@
     </div>
 
     <!-- Canvas für das Spiel -->
+    <div id="game-container">
+      <canvas
+        id="canvas"
+        width="720"
+        height="480"
+        style="display: none"
+      ></canvas>
+      <!-- Fullscreen-Button als kleines Bild -->
+      <img
+        id="fullscreen-btn"
+        src="Imgs/fullscreen.png"
+        alt="Fullscreen Button"
+      />
+    </div>
 
-    <canvas id="canvas" width="720" height="480" style="display: none"></canvas>
-
-    <!-- Popup-Fenster für Controlls, Imprint, Privacy Policy -->
+    <!-- Popup-Fenster (Controls, Imprint, Privacy Policy) -->
     <div id="popup-overlay" onclick="closePopup()"></div>
-
     <div id="popup-container">
       <div id="popup">
         <button id="close-popup" onclick="closePopup()">←</button>
         <div id="popup-content"></div>
       </div>
     </div>
-
-    <script src="JavaScript/startscreen.js"></script>
   </body>
 </html>
