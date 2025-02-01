@@ -22,8 +22,8 @@
     <script src="models/endboss.class.js"></script>
     <script src="models/keyboard.class.js"></script>
     <script src="models/bubble.class.js"></script>
+    <script src="./JavaScript/levels/restart-home-game.js"></script>
 
-    <!-- ------------------ Level Infrastruktur ------------------ -->
     <!-- Zuerst die Level-Grundlage -->
     <script src="models/levels.class.js"></script>
 
@@ -79,6 +79,18 @@
       <div id="popup">
         <button id="close-popup" onclick="closePopup()">←</button>
         <div id="popup-content"></div>
+      </div>
+    </div>
+
+    <!-- Game Over Screen (initial versteckt) -->
+    <div id="game-over-screen" style="display: none">
+      <div id="game-over-overlay"></div>
+      <div id="game-over-content">
+        <h1>Game Over</h1>
+        <div class="game-over-buttons">
+          <button onclick="homeGame()">Menu</button>
+          <button onclick="restartGame()">Restart</button>
+        </div>
       </div>
     </div>
   </body>

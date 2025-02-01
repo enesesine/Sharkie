@@ -1,11 +1,17 @@
 // character.class.js
 class Character extends MoveableObject {
+  // Grundlegende Eigenschaften
   height = 220;
   width = 170;
   y = 100;
   x = 5;
   speed = 10;
 
+  // HP und Tot-Status
+  hp = 100;
+  isDead = false;
+
+  // Image-Arrays
   IMAGES_STANDING = [
     "Imgs/1.Sharkie/1.IDLE/1.png",
     "Imgs/1.Sharkie/1.IDLE/2.png",
@@ -113,6 +119,22 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/6.dead/2.Electro_shock/10.png",
   ];
 
+  DEATH_IMAGES = [
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/1.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/2.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/3.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/4.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/5.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/6.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/7.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/8.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/9.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/10.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/11.png",
+    "Imgs/1.Sharkie/6.dead/1.Poisoned/12.png",
+  ];
+
+  // Animations- und Statusvariablen
   world;
   swimImageIndex = 0;
   idleImageIndex = 0;
@@ -124,21 +146,26 @@ class Character extends MoveableObject {
   lastMovementTime = 0;
   bubbleAttackIndex = 0;
   isBubbleAttacking = false;
-  lastBubbleTime = 0; // Für Cooldown
-  bubbleCooldown = 500; // 500ms Cooldown zwischen Bubbles
+  lastBubbleTime = 0;
+  bubbleCooldown = 500;
 
-  // **Neue Variablen für Hurt-Zustand**
+  // Hurt-Variablen
   isHurt = false;
   hurtImageIndex = 0;
-  hurtDuration = 1000; // Dauer der Hurt-Animation in ms
+  hurtDuration = 1000;
   hurtStartTime = 0;
-  currentHurtImages = null; // Für verschiedene Hurt-Typen
+  currentHurtImages = null;
+
+  // Death-Animation-Index
+  deathImageIndex = 0;
+
+  // Bubble-Spawn Offsets (fest definierter Ankerpunkt für den Mund)
+  bubbleSpawnOffsetX = 140;
+  bubbleSpawnOffsetY = 130;
 
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
     this.loadImages(this.IMAGES_STANDING);
-    this.loadImages(this.IMAGES_STANDING_LONG);
-    this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
     this.loadImages(this.IMAGES_SWIMMING);
     this.loadImages(this.IMAGES_ATTACK_BUBBLE);
     this.loadImages(this.IMAGES_ATTACK_SLAP);
@@ -146,22 +173,24 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_HURT_SHOCK);
     this.loadImages(this.DEAD_BY_POISON);
     this.loadImages(this.DEAD_BY_SHOCK);
-
+    this.loadImages(this.DEATH_IMAGES);
     this.lastMovementTime = performance.now();
   }
 
   animate() {
+    if (this.isDead) return;
     this.animateHorizontalMovement();
     this.animateVerticalMovement();
     this.animateSwimming();
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
-    this.animateHurt(); // **Hurt-Animation hinzufügen**
+    this.animateHurt();
   }
 
   animateHorizontalMovement() {
     setInterval(() => {
+      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
       if (keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -182,27 +211,9 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
-  isColliding(mo) {
-    const topOffset = 100; // Verschiebe den oberen Rand der Hitbox um 100 Pixel nach unten
-    const sideOffset = 10; // Reduziere die Hitbox an beiden Seiten um 10 Pixel
-
-    // Berechne die effektive Kollisionsbox:
-    const collisionX = this.x + sideOffset;
-    const collisionY = this.y + topOffset;
-    const collisionWidth = this.width - 2 * sideOffset;
-    const collisionHeight = this.height - topOffset; // Der untere Bereich bleibt unverändert
-
-    // Zwei Rechtecke kollidieren, wenn sich ihre Bereiche überschneiden:
-    return (
-      collisionX < mo.x + mo.width &&
-      collisionX + collisionWidth > mo.x &&
-      collisionY < mo.y + mo.height &&
-      collisionY + collisionHeight > mo.y
-    );
-  }
-
   animateVerticalMovement() {
     setInterval(() => {
+      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
       if (keyboard.DOWN && this.y < 270) {
@@ -222,6 +233,7 @@ class Character extends MoveableObject {
 
   animateSwimming() {
     setInterval(() => {
+      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
         this.playAnimation(this.IMAGES_SWIMMING, "swimImageIndex");
@@ -231,10 +243,10 @@ class Character extends MoveableObject {
 
   animateIdle() {
     setInterval(() => {
+      if (this.isDead) return;
       const keyboard = this.world.keyboard;
-      if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
+      if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
         return;
-      }
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
       if (idleTime < 5000) {
@@ -251,6 +263,7 @@ class Character extends MoveableObject {
 
   animateAttackSlap() {
     setInterval(() => {
+      if (this.isDead) return;
       if (this.isAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_SLAP, "attackSlapIndex");
         if (this.attackSlapIndex >= this.IMAGES_ATTACK_SLAP.length) {
@@ -260,31 +273,31 @@ class Character extends MoveableObject {
       } else if (this.world.keyboard.SPACE) {
         this.isAttacking = true;
         this.attackSlapIndex = 0;
-        this.resetAFKTimer(); // AFK-Timer beim Angriff zurücksetzen
+        this.resetAFKTimer();
       }
     }, 150);
   }
 
   animateAttackBubble() {
     setInterval(() => {
-      const currentTime = Date.now();
-
-      if (this.isBubbleAttacking) {
+      if (this.isDead) return;
+      if (this.world.keyboard.D) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
-        if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
-          this.isBubbleAttacking = false;
-          this.bubbleAttackIndex = 0;
+        this.fireBubble();
+      }
+    }, 150);
+  }
 
-          if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
-            this.world.spawnBubble(this); // Bubble spawnen
-            this.lastBubbleTime = currentTime;
-          }
-        }
-      } else if (this.world.keyboard.D) {
-        if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
-          this.isBubbleAttacking = true;
-          this.bubbleAttackIndex = 0;
-          this.resetAFKTimer(); // AFK-Timer beim Bubble-Angriff zurücksetzen
+  animateHurt() {
+    setInterval(() => {
+      if (this.isDead) return;
+      if (this.isHurt) {
+        this.playHurtAnimation();
+        const currentTime = Date.now();
+        if (currentTime - this.hurtStartTime >= this.hurtDuration) {
+          this.isHurt = false;
+          this.hurtImageIndex = 0;
+          this.currentHurtImages = null;
         }
       }
     }, 150);
@@ -319,16 +332,11 @@ class Character extends MoveableObject {
     this.longIdleIntroDone = false;
     this.idleLongIntroIndex = 0;
     this.idleLongLoopIndex = 0;
+    this.lastMovementTime = performance.now();
   }
 
-  /**
-   * Spielt die Animation basierend auf den bereitgestellten Bildern.
-   * @param {Array} images - Array von Bildpfaden für die Animation.
-   * @param {string} indexName - Name der Index-Variable zur Nachverfolgung.
-   */
   playAnimation(images, indexName = "currentImage") {
-    if (this.isHurt) return; // **Keine anderen Animationen spielen, wenn Sharkie verletzt ist**
-
+    if (this.isHurt || this.isDead) return;
     if (!this[indexName]) {
       this[indexName] = 0;
     }
@@ -342,24 +350,8 @@ class Character extends MoveableObject {
     this[indexName]++;
   }
 
-  // **Neue Methoden für Hurt-Animation**
-
-  animateHurt() {
-    setInterval(() => {
-      if (this.isHurt) {
-        this.playHurtAnimation();
-        const currentTime = Date.now();
-        if (currentTime - this.hurtStartTime >= this.hurtDuration) {
-          this.isHurt = false;
-          this.hurtImageIndex = 0;
-          this.currentHurtImages = null; // Reset Hurt-Typ
-        }
-      }
-    }, 150);
-  }
-
   playHurtAnimation() {
-    const images = this.currentHurtImages || this.IMAGES_HURT_SHOCK; // **Verwende das ausgewählte Hurt-Array**
+    const images = this.currentHurtImages || this.IMAGES_HURT_SHOCK;
     if (this.hurtImageIndex < images.length) {
       let path = images[this.hurtImageIndex];
       if (!this.imageCache[path]) {
@@ -375,30 +367,47 @@ class Character extends MoveableObject {
     }
   }
 
-  resetAFKTimer() {
-    this.longIdleIntroDone = false;
-    this.idleLongIntroIndex = 0;
-    this.idleLongLoopIndex = 0;
-    this.lastMovementTime = performance.now(); // AFK-Zähler zurücksetzen
-  }
-
   takeDamage(amount) {
+    if (this.isDead) return;
     this.hp -= amount;
     if (this.hp < 0) this.hp = 0;
-
-    // HP-Leiste aktualisieren
     this.world.statusBar.setPercentage(this.hp);
-
-    if (this.hp === 0) {
+    if (this.hp === 0 && !this.isDead) {
       this.die();
     }
   }
 
   hit() {
-    this.isHurt = true; // Sharkie ist verletzt
+    if (this.isDead) return;
+    this.isHurt = true;
     this.hurtStartTime = Date.now();
-
-    // HP-Leiste aktualisieren
     this.world.statusBar.setPercentage(this.energy);
+  }
+
+  fireBubble() {
+    const currentTime = Date.now();
+    if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+      this.world.spawnBubble(this);
+      this.lastBubbleTime = currentTime;
+    }
+  }
+
+  die() {
+    this.isDead = true;
+    this.deathImageIndex = 0;
+    const deathInterval = setInterval(() => {
+      if (this.deathImageIndex < this.DEATH_IMAGES.length) {
+        this.img = this.imageCache[this.DEATH_IMAGES[this.deathImageIndex]];
+        this.deathImageIndex++;
+      } else {
+        clearInterval(deathInterval);
+        this.img =
+          this.imageCache[this.DEATH_IMAGES[this.DEATH_IMAGES.length - 1]];
+        // Sobald die Death-Animation fertig ist, stoppen wir das Spiel komplett:
+        if (this.world) {
+          this.world.gameOver = true;
+        }
+      }
+    }, 150);
   }
 }

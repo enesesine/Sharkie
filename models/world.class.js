@@ -7,12 +7,12 @@ class World {
   level = level1;
   bubbles = []; // Sammlung aller Bubbles
 
-  // Sammelbare Objekte kommen nun aus dem Level:
+  // Sammelbare Objekte aus dem Level
   collectibles = level1.collectibles;
   collectedCoins = 0;
   collectedPoisonBottles = 0;
 
-  // Status Bars für Coins und PoisonBottles:
+  // Status Bars
   coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
 
@@ -22,12 +22,16 @@ class World {
   camera_x = 0;
   statusBar = new StatusBar();
 
+  // Globaler Flag für Game Over
+  gameOver = false;
+
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
 
     this.setWorld();
+    // Starte die Charakteranimation erst, wenn er in die Welt eingebunden wurde
     this.character.animate();
     this.draw();
     this.checkCollisions();
@@ -52,6 +56,7 @@ class World {
           if (!this.character.isHurt) {
             let damageAmount = enemy instanceof Endboss ? 40 : 20;
             this.character.hit();
+            // Hier wird "energy" genutzt – passe das ggf. an, falls du ausschließlich hp nutzt
             this.character.energy -= damageAmount;
             this.statusBar.setPercentage(this.character.energy);
             console.log(
@@ -88,12 +93,12 @@ class World {
         if (this.character.isColliding(item)) {
           if (item instanceof Coin) {
             this.collectedCoins++;
-            // 5 Coins = 100 % → jede Coin = 20%
+            // 5 Coins = 100% (jede Coin = 20%)
             this.coinStatusBar.setPercentage(this.collectedCoins * 20);
             console.log(`Coin collected! Count: ${this.collectedCoins}`);
           } else if (item instanceof PoisonBottle) {
             this.collectedPoisonBottles++;
-            // 5 PoisonBottles = 100 % → jede Bottle = 20%
+            // 5 PoisonBottles = 100% (jede Bottle = 20%)
             this.poisonStatusBar.setPercentage(
               this.collectedPoisonBottles * 20
             );
@@ -109,8 +114,22 @@ class World {
   }
 
   draw() {
+    // Bei Game Over: Zeichne ein leicht dunkles Overlay und zeige den Game Over Screen
+    if (this.gameOver) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.save();
+      // Leicht dunkles Overlay (nicht komplett schwarz)
+      this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)"; // Alpha auf 0.3 reduziert
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.restore();
+
+      // Blende den HTML-Game-Over Screen ein
+      document.getElementById("game-over-screen").style.display = "flex";
+      return;
+    }
+
+    // Normale Zeichnungslogik:
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // Zeichne Level-Inhalt (Hintergrund, Gegner, Oberflächen, Sammelobjekte und den Charakter)
     this.ctx.translate(this.camera_x, 0);
 
     this.addObjectsToMap(this.backgroundObjects);
@@ -120,7 +139,6 @@ class World {
     this.addToMap(this.character);
 
     this.ctx.translate(-this.camera_x, 0);
-    // Zeichne die HUD-Elemente (HP, Coin-StatusBar, PoisonBottle-StatusBar)
     this.addToMap(this.statusBar);
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
@@ -146,7 +164,7 @@ class World {
     }
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
-
+      // Falls du die Hitbox (zum Debuggen) zeichnest, kannst du diesen Block auskommentieren:
       if (mo instanceof Character || mo instanceof Fish) {
         this.ctx.beginPath();
         this.ctx.lineWidth = "5";
@@ -159,10 +177,16 @@ class World {
   }
 
   spawnBubble(sharkie) {
-    let offsetX = sharkie.otherDirection ? -20 : 50;
-    let offsetY = 120;
-    let bubbleX = sharkie.x + offsetX;
-    let bubbleY = sharkie.y + offsetY;
+    let bubbleX, bubbleY;
+    if (!sharkie.otherDirection) {
+      bubbleX = sharkie.x + sharkie.bubbleSpawnOffsetX;
+    } else {
+      bubbleX = sharkie.x + (sharkie.width - sharkie.bubbleSpawnOffsetX);
+    }
+    bubbleY = sharkie.y + sharkie.bubbleSpawnOffsetY;
+
+    console.log("Bubble spawn at:", bubbleX, bubbleY);
+
     let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
   }
