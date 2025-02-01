@@ -119,7 +119,7 @@ class World {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.save();
       // Leicht dunkles Overlay (nicht komplett schwarz)
-      this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)"; // Alpha auf 0.3 reduziert
+      this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.restore();
 
@@ -189,5 +189,25 @@ class World {
 
     let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
+  }
+
+  spawnPoisonedBubble(sharkie) {
+    let bubbleX, bubbleY;
+    if (!sharkie.otherDirection) {
+      bubbleX = sharkie.x + sharkie.bubbleSpawnOffsetX;
+    } else {
+      bubbleX = sharkie.x + (sharkie.width - sharkie.bubbleSpawnOffsetX);
+    }
+    bubbleY = sharkie.y + sharkie.bubbleSpawnOffsetY;
+
+    console.log("Poisoned Bubble spawn at:", bubbleX, bubbleY);
+
+    let pBubble = new PoisonedBubble(
+      bubbleX,
+      bubbleY,
+      sharkie.otherDirection,
+      this
+    );
+    this.bubbles.push(pBubble);
   }
 }

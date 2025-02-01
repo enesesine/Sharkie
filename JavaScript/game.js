@@ -22,6 +22,7 @@ window.addEventListener("keydown", (event) => {
   if (event.code === "ArrowDown") keyboard.DOWN = true;
   if (event.code === "Space") keyboard.SPACE = true;
   if (event.code === "KeyD") keyboard.D = true;
+  if (event.code === "KeyC") keyboard.C = true;
 });
 
 window.addEventListener("keyup", (event) => {
@@ -31,6 +32,7 @@ window.addEventListener("keyup", (event) => {
   if (event.code === "ArrowDown") keyboard.DOWN = false;
   if (event.code === "Space") keyboard.SPACE = false;
   if (event.code === "KeyD") keyboard.D = false;
+  if (event.code === "KeyC") keyboard.C = false;
 });
 
 // Funktion zum Umschalten des Fullscreen-Modus

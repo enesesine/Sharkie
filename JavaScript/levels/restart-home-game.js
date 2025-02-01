@@ -1,7 +1,7 @@
 function homeGame() {
   // Blende den Game Over Screen aus
   document.getElementById("game-over-screen").style.display = "none";
-  // Blende den Canvas-Container aus
+  // Blende den Game-Container aus
   document.getElementById("game-container").style.display = "none";
   // Blende den Startscreen ein
   document.getElementById("startscreen").style.display = "flex";

@@ -1,3 +1,4 @@
+// keyboard.class.js
 class Keyboard {
   LEFT = false;
   RIGHT = false;
@@ -5,4 +6,5 @@ class Keyboard {
   DOWN = false;
   SPACE = false;
   D = false;
+  C = false;
 }

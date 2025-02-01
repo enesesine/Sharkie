@@ -134,6 +134,18 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/6.dead/1.Poisoned/12.png",
   ];
 
+  // Neue Attack-Animation für den "Poisoned Bubble" Schuss (For Whale)
+  IMAGES_ATTACK_POISONED_BUBBLE = [
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/1.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/2.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/3.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/4.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/5.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/6.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/7.png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/8.png",
+  ];
+
   // Animations- und Statusvariablen
   world;
   swimImageIndex = 0;
@@ -174,6 +186,7 @@ class Character extends MoveableObject {
     this.loadImages(this.DEAD_BY_POISON);
     this.loadImages(this.DEAD_BY_SHOCK);
     this.loadImages(this.DEATH_IMAGES);
+    this.loadImages(this.IMAGES_ATTACK_POISONED_BUBBLE);
     this.lastMovementTime = performance.now();
   }
 
@@ -185,6 +198,7 @@ class Character extends MoveableObject {
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
+    this.animateAttackPoisonedBubble(); // Neue Methode für den "C" Key
     this.animateHurt();
   }
 
@@ -284,6 +298,22 @@ class Character extends MoveableObject {
       if (this.world.keyboard.D) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
         this.fireBubble();
+      }
+    }, 150);
+  }
+
+  animateAttackPoisonedBubble() {
+    setInterval(() => {
+      if (this.isDead) return;
+      if (this.world.keyboard.C) {
+        // Nur feuern, wenn mindestens eine Poison Bottle vorhanden ist
+        if (this.world.collectedPoisonBottles > 0) {
+          this.playAnimation(
+            this.IMAGES_ATTACK_POISONED_BUBBLE,
+            "poisonBubbleAttackIndex"
+          );
+          this.firePoisonedBubble();
+        }
       }
     }, 150);
   }
@@ -389,6 +419,19 @@ class Character extends MoveableObject {
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
       this.world.spawnBubble(this);
       this.lastBubbleTime = currentTime;
+    }
+  }
+
+  firePoisonedBubble() {
+    const currentTime = Date.now();
+    if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+      this.world.spawnPoisonedBubble(this);
+      this.lastBubbleTime = currentTime;
+      // Verbrauch eine Poison Bottle
+      this.world.collectedPoisonBottles--;
+      this.world.poisonStatusBar.setPercentage(
+        this.world.collectedPoisonBottles * 20
+      );
     }
   }
 
