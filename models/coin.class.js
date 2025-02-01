@@ -16,7 +16,7 @@ class Coin extends MoveableObject {
 
     // Positioniere Coins mit Abstand von Sharkie (x >= 100) und vor dem Endboss (x <= 2400)
     const minX = 100; // Minimaler Abstand von Sharkie
-    const maxX = 2400; // Maximaler Abstand vor Endboss (Endboss bei 2500)
+    const maxX = 2000; // Maximaler Abstand vor Endboss (Endboss bei 2500)
 
     this.x = minX + Math.random() * (maxX - minX);
     this.y = 50 + Math.random() * 300; // Zufällige Y-Position
