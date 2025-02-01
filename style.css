@@ -1,7 +1,14 @@
 /* Google Font */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap");
 
-/* Allgemeine Schriftart für das gesamte Spiel */
+/* Alle Elemente: Textauswahl deaktivieren */
+* {
+  user-select: none;
+  -webkit-user-select: none; /* Für ältere Webkit-Browser */
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 body {
   font-family: "Poppins", sans-serif;
   display: flex;

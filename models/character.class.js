@@ -182,6 +182,25 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
+  isColliding(mo) {
+    const topOffset = 100; // Verschiebe den oberen Rand der Hitbox um 100 Pixel nach unten
+    const sideOffset = 10; // Reduziere die Hitbox an beiden Seiten um 10 Pixel
+
+    // Berechne die effektive Kollisionsbox:
+    const collisionX = this.x + sideOffset;
+    const collisionY = this.y + topOffset;
+    const collisionWidth = this.width - 2 * sideOffset;
+    const collisionHeight = this.height - topOffset; // Der untere Bereich bleibt unverändert
+
+    // Zwei Rechtecke kollidieren, wenn sich ihre Bereiche überschneiden:
+    return (
+      collisionX < mo.x + mo.width &&
+      collisionX + collisionWidth > mo.x &&
+      collisionY < mo.y + mo.height &&
+      collisionY + collisionHeight > mo.y
+    );
+  }
+
   animateVerticalMovement() {
     setInterval(() => {
       const keyboard = this.world.keyboard;

@@ -146,6 +146,14 @@ class World {
     }
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+
+      if (mo instanceof Character || mo instanceof Fish) {
+        this.ctx.beginPath();
+        this.ctx.lineWidth = "5";
+        this.ctx.strokeStyle = "blue";
+        this.ctx.rect(0, 0, mo.width, mo.height);
+        this.ctx.stroke();
+      }
     }
     this.ctx.restore();
   }
