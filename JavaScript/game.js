@@ -1,7 +1,12 @@
+// game.js
+
 // Global variables
 let canvas;
 let world;
-let keyboard = new Keyboard();
+let keyboard = new Keyboard(); // Die Keyboard-Klasse speichert, welche Tasten gerade gedrückt sind (z. B. LEFT, RIGHT, SPACE, C, D, etc.).
+let backgroundMusic = new Audio("Audio/backgroundSound.mp3");
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.5;
 
 // Game-Initialisierung (wird z. B. von startGame() aufgerufen)
 function init() {
@@ -12,6 +17,44 @@ function init() {
   world.statusBar.setPercentage(100);
 
   console.log("Game initialized", world);
+
+  // Versuche die Hintergrundmusik zu starten (Autoplay funktioniert meist erst nach einer Benutzerinteraktion)
+  backgroundMusic.play().catch((err) => {
+    console.error(
+      "Hintergrundmusik konnte nicht automatisch gestartet werden:",
+      err
+    );
+  });
+}
+
+// Toggle-Funktion für die Hintergrundmusik mit Änderung des Sound-Icons
+function toggleMusic() {
+  const soundToggle = document.getElementById("sound-toggle");
+  if (backgroundMusic.paused) {
+    backgroundMusic.play().catch((err) => {
+      console.error("Hintergrundmusik konnte nicht gestartet werden:", err);
+    });
+    // Zeige das "Sound-image", wenn Musik an ist
+    soundToggle.src = "Imgs/7. Other/Sound-image.png";
+  } else {
+    backgroundMusic.pause();
+    // Zeige das "Mute-image", wenn Musik aus ist
+    soundToggle.src = "Imgs/7. Other/Mute-image.png";
+  }
+}
+
+// Toggle-Funktion für den Fullscreen-Modus (nur für den Game-Container)
+function toggleFullScreen() {
+  const container = document.getElementById("game-container");
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch((err) => {
+      alert(
+        `Fehler beim Aktivieren des Fullscreens: ${err.message} (${err.name})`
+      );
+    });
+  } else {
+    document.exitFullscreen();
+  }
 }
 
 // Keyboard-Event-Listener
@@ -35,36 +78,25 @@ window.addEventListener("keyup", (event) => {
   if (event.code === "KeyC") keyboard.C = false;
 });
 
-// Funktion zum Umschalten des Fullscreen-Modus
-// Hier wird der Container mit der ID "game-container" in den Fullscreen-Modus versetzt,
-// sodass nur der Canvas-Bereich vergrößert wird.
-function toggleFullScreen() {
-  const container = document.getElementById("game-container");
-  if (!document.fullscreenElement) {
-    container.requestFullscreen().catch((err) => {
-      alert(
-        `Fehler beim Aktivieren des Fullscreens: ${err.message} (${err.name})`
-      );
-    });
-  } else {
-    document.exitFullscreen();
-  }
-}
-
-// Stelle sicher, dass der DOM vollständig geladen ist, bevor du auf den Fullscreen-Button zugreifst
+// DOMContentLoaded: Setze die Event-Listener für den Fullscreen-Button und den Sound-Toggle
 document.addEventListener("DOMContentLoaded", () => {
+  // Fullscreen-Button
   const fsBtn = document.getElementById("fullscreen-btn");
   if (fsBtn) {
     fsBtn.addEventListener("click", toggleFullScreen);
-
-    // Optional: Bild anpassen, wenn der Fullscreen-Modus ein- oder ausgeschaltet wird
     document.addEventListener("fullscreenchange", () => {
       if (document.fullscreenElement) {
-        // Falls du ein anderes Bild für "Exit Fullscreen" verwenden möchtest:
+        // Optional: Ändere das Bild für "Exit Fullscreen"
         // fsBtn.src = "Imgs/exit-fullscreen.png";
       } else {
         fsBtn.src = "Imgs/fullscreen.png";
       }
     });
+  }
+
+  // Sound Toggle (Lautsprecher)
+  const soundToggle = document.getElementById("sound-toggle");
+  if (soundToggle) {
+    soundToggle.addEventListener("click", toggleMusic);
   }
 });

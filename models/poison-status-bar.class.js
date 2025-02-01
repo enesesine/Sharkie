@@ -5,7 +5,7 @@ class PoisonStatusBar extends DrawableObject {
     "Imgs/4. Marcadores/green/poisoned bubbles/20_ copia 3.png",
     "Imgs/4. Marcadores/green/poisoned bubbles/40_ copia 2.png",
     "Imgs/4. Marcadores/green/poisoned bubbles/60_ copia 2.png",
-    "Imgs/4. Marcadores/green/poisoned bubbles/80_ copia 2.png",
+    "Imgs/4. Marcadores/green/poisoned bubbles/80percent.png",
     "Imgs/4. Marcadores/green/poisoned bubbles/100_ copia 3.png",
   ];
 

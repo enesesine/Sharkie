@@ -161,8 +161,10 @@ body {
 /* Container für Canvas und Fullscreen-Button */
 /* Wichtig: display: inline-block (statt "contents") sorgt dafür, dass der Container eigene Abmessungen hat */
 #game-container {
-  position: relative;
-  display: contents;
+  display: inline-block; /* oder inline-block */
+  width: 720px; /* gleiche Breite wie das Canvas */
+  height: 480px; /* gleiche Höhe wie das Canvas */
+  margin: 0 auto; /* Zentriert den Container horizontal */
 }
 
 /* Canvas */
@@ -264,4 +266,24 @@ body {
 .game-over-buttons button:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+#fullscreen-btn,
+#sound-toggle {
+  position: absolute;
+  bottom: 10px;
+  width: 20px;
+  height: auto;
+  cursor: pointer;
+  filter: brightness(0) invert(1);
+  border-radius: 3px;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease;
+}
+#fullscreen-btn {
+  right: 10px;
+}
+#sound-toggle {
+  right: 40px; /* Versetzt den Sound-Toggle etwas weiter vom rechten Rand, damit beide Buttons nicht überlappen */
 }

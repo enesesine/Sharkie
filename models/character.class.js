@@ -35,19 +35,19 @@ class Character extends MoveableObject {
 
   IMAGES_STANDING_LONG = [
     "Imgs/1.Sharkie/2.Long_IDLE/i1.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i2.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i3.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i4.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i5.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i6.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i7.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i8.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i9.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i10.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i11.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i12.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i13.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/i14.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I2.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I3.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I4.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I5.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I6.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I7.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I8.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I9.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I10.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I11.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I12.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I13.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/I14.png",
   ];
 
   IMAGES_STANDING_LONG_LOOP = [
@@ -198,7 +198,7 @@ class Character extends MoveableObject {
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
-    this.animateAttackPoisonedBubble(); // Neue Methode für den "C" Key
+    this.animateAttackPoisonedBubble(); // Neue Methode für den "C"-Key
     this.animateHurt();
   }
 
@@ -263,6 +263,8 @@ class Character extends MoveableObject {
         return;
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
+      // Debug: idleTime in der Konsole anzeigen
+      // console.log("Idle time: " + idleTime);
       if (idleTime < 5000) {
         this.playAnimation(this.IMAGES_STANDING, "idleImageIndex");
         return;
@@ -344,6 +346,7 @@ class Character extends MoveableObject {
     this.idleLongIntroIndex++;
     if (this.idleLongIntroIndex >= this.IMAGES_STANDING_LONG.length) {
       this.longIdleIntroDone = true;
+      this.idleLongLoopIndex = 0;
     }
   }
 
@@ -427,7 +430,7 @@ class Character extends MoveableObject {
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
       this.world.spawnPoisonedBubble(this);
       this.lastBubbleTime = currentTime;
-      // Verbrauch eine Poison Bottle
+      // Verbrauch eine Poison Bottle:
       this.world.collectedPoisonBottles--;
       this.world.poisonStatusBar.setPercentage(
         this.world.collectedPoisonBottles * 20
