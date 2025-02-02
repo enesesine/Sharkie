@@ -35,19 +35,19 @@ class Character extends MoveableObject {
 
   IMAGES_STANDING_LONG = [
     "Imgs/1.Sharkie/2.Long_IDLE/i1.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I2.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I3.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I4.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I5.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I6.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I7.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I8.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I9.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I10.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I11.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I12.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I13.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I14.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i2.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i3.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i4.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i5.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i6.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i7.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i8.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i9.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i10.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i11.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i12.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i13.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i14.png",
   ];
 
   IMAGES_STANDING_LONG_LOOP = [
@@ -187,11 +187,13 @@ class Character extends MoveableObject {
     this.loadImages(this.DEAD_BY_SHOCK);
     this.loadImages(this.DEATH_IMAGES);
     this.loadImages(this.IMAGES_ATTACK_POISONED_BUBBLE);
+    this.loadImages(this.IMAGES_STANDING_LONG);
+    this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
+
     this.lastMovementTime = performance.now();
   }
 
   animate() {
-    if (this.isDead) return;
     this.animateHorizontalMovement();
     this.animateVerticalMovement();
     this.animateSwimming();
@@ -204,7 +206,6 @@ class Character extends MoveableObject {
 
   animateHorizontalMovement() {
     setInterval(() => {
-      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
       if (keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -225,9 +226,23 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
+  isColliding(mo) {
+    const topOffset = 100;
+    const sideOffset = 10;
+    const collisionX = this.x + sideOffset;
+    const collisionY = this.y + topOffset;
+    const collisionWidth = this.width - 2 * sideOffset;
+    const collisionHeight = this.height - topOffset;
+    return (
+      collisionX < mo.x + mo.width &&
+      collisionX + collisionWidth > mo.x &&
+      collisionY < mo.y + mo.height &&
+      collisionY + collisionHeight > mo.y
+    );
+  }
+
   animateVerticalMovement() {
     setInterval(() => {
-      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
       if (keyboard.DOWN && this.y < 270) {
@@ -247,7 +262,6 @@ class Character extends MoveableObject {
 
   animateSwimming() {
     setInterval(() => {
-      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
         this.playAnimation(this.IMAGES_SWIMMING, "swimImageIndex");
@@ -257,13 +271,12 @@ class Character extends MoveableObject {
 
   animateIdle() {
     setInterval(() => {
-      if (this.isDead) return;
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
         return;
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
-      // Debug: idleTime in der Konsole anzeigen
+      // Debug: idleTime anzeigen (entferne dies nach der Fehlersuche)
       // console.log("Idle time: " + idleTime);
       if (idleTime < 5000) {
         this.playAnimation(this.IMAGES_STANDING, "idleImageIndex");
@@ -279,7 +292,6 @@ class Character extends MoveableObject {
 
   animateAttackSlap() {
     setInterval(() => {
-      if (this.isDead) return;
       if (this.isAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_SLAP, "attackSlapIndex");
         if (this.attackSlapIndex >= this.IMAGES_ATTACK_SLAP.length) {
@@ -296,19 +308,30 @@ class Character extends MoveableObject {
 
   animateAttackBubble() {
     setInterval(() => {
-      if (this.isDead) return;
-      if (this.world.keyboard.D) {
+      const currentTime = Date.now();
+      if (this.isBubbleAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
-        this.fireBubble();
+        if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
+          this.isBubbleAttacking = false;
+          this.bubbleAttackIndex = 0;
+          if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+            this.world.spawnBubble(this);
+            this.lastBubbleTime = currentTime;
+          }
+        }
+      } else if (this.world.keyboard.SPACE === false && this.world.keyboard.D) {
+        if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+          this.isBubbleAttacking = true;
+          this.bubbleAttackIndex = 0;
+          this.resetAFKTimer();
+        }
       }
     }, 150);
   }
 
   animateAttackPoisonedBubble() {
     setInterval(() => {
-      if (this.isDead) return;
       if (this.world.keyboard.C) {
-        // Nur feuern, wenn mindestens eine Poison Bottle vorhanden ist
         if (this.world.collectedPoisonBottles > 0) {
           this.playAnimation(
             this.IMAGES_ATTACK_POISONED_BUBBLE,
@@ -322,7 +345,6 @@ class Character extends MoveableObject {
 
   animateHurt() {
     setInterval(() => {
-      if (this.isDead) return;
       if (this.isHurt) {
         this.playHurtAnimation();
         const currentTime = Date.now();
@@ -346,7 +368,6 @@ class Character extends MoveableObject {
     this.idleLongIntroIndex++;
     if (this.idleLongIntroIndex >= this.IMAGES_STANDING_LONG.length) {
       this.longIdleIntroDone = true;
-      this.idleLongLoopIndex = 0;
     }
   }
 
@@ -365,11 +386,16 @@ class Character extends MoveableObject {
     this.longIdleIntroDone = false;
     this.idleLongIntroIndex = 0;
     this.idleLongLoopIndex = 0;
+    // Hier das Update der lastMovementTime hinzufügen:
     this.lastMovementTime = performance.now();
   }
 
+  resetAFKTimer() {
+    this.resetLongIdle();
+  }
+
   playAnimation(images, indexName = "currentImage") {
-    if (this.isHurt || this.isDead) return;
+    if (this.isHurt) return;
     if (!this[indexName]) {
       this[indexName] = 0;
     }
@@ -401,17 +427,15 @@ class Character extends MoveableObject {
   }
 
   takeDamage(amount) {
-    if (this.isDead) return;
     this.hp -= amount;
     if (this.hp < 0) this.hp = 0;
     this.world.statusBar.setPercentage(this.hp);
-    if (this.hp === 0 && !this.isDead) {
+    if (this.hp === 0) {
       this.die();
     }
   }
 
   hit() {
-    if (this.isDead) return;
     this.isHurt = true;
     this.hurtStartTime = Date.now();
     this.world.statusBar.setPercentage(this.energy);
@@ -430,7 +454,7 @@ class Character extends MoveableObject {
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
       this.world.spawnPoisonedBubble(this);
       this.lastBubbleTime = currentTime;
-      // Verbrauch eine Poison Bottle:
+      // Verbrauch einer Poison Bottle
       this.world.collectedPoisonBottles--;
       this.world.poisonStatusBar.setPercentage(
         this.world.collectedPoisonBottles * 20
