@@ -35,19 +35,19 @@ class Character extends MoveableObject {
 
   IMAGES_STANDING_LONG = [
     "Imgs/1.Sharkie/2.Long_IDLE/i1.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I2.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I3.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I4.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I5.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I6.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I7.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I8.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I9.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I10.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I11.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I12.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I13.png",
-    "Imgs/1.Sharkie/2.Long_IDLE/I14.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i2.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i3.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i4.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i5.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i6.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i7.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i8.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i9.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i10.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i11.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i12.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i13.png",
+    "Imgs/1.Sharkie/2.Long_IDLE/i14.png",
   ];
 
   IMAGES_STANDING_LONG_LOOP = [
@@ -146,6 +146,13 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/8.png",
   ];
 
+  // Neue Zustände für Angriff-Aktionen
+  isBubbleAttacking = false; // Für normalen Bubble-Angriff (Taste D)
+  bubbleAttackIndex = 0; // Index für die normale Bubble-Angriff-Animation
+
+  isPoisonBubbleAttacking = false; // Für Poisoned Bubble-Angriff (Taste C)
+  poisonBubbleAttackIndex = 0; // Index für die Poisoned Bubble-Angriff-Animation
+
   // Animations- und Statusvariablen
   world;
   swimImageIndex = 0;
@@ -156,8 +163,6 @@ class Character extends MoveableObject {
   attackSlapIndex = 0;
   isAttacking = false;
   lastMovementTime = 0;
-  bubbleAttackIndex = 0;
-  isBubbleAttacking = false;
   lastBubbleTime = 0;
   bubbleCooldown = 500;
 
@@ -175,9 +180,33 @@ class Character extends MoveableObject {
   bubbleSpawnOffsetX = 140;
   bubbleSpawnOffsetY = 130;
 
+  // Neue Soundeffekte (angepasst auf ogg)
+  fishSwimmingSound = new Audio("Audio/fishSwimming.ogg");
+  bubblePopSound = new Audio("Audio/Bubble_Pop_Attack.mp3");
+  coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
+
+  poisonBottleSound = new Audio("Audio/Poisoned_Bottle_Sound.ogg");
+
+  // Hilfsmethoden zum Steuern des Fish-Sounds:
+  playFishSwimmingSound() {
+    // Starte den Sound, falls nicht schon aktiv
+    if (this.fishSwimmingSound.paused) {
+      this.fishSwimmingSound.play().catch((err) => console.error(err));
+    }
+  }
+  stopFishSwimmingSound() {
+    if (!this.fishSwimmingSound.paused) {
+      this.fishSwimmingSound.pause();
+      this.fishSwimmingSound.currentTime = 0;
+    }
+  }
+
+  // Konstruktor
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
     this.loadImages(this.IMAGES_STANDING);
+    this.loadImages(this.IMAGES_STANDING_LONG);
+    this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
     this.loadImages(this.IMAGES_SWIMMING);
     this.loadImages(this.IMAGES_ATTACK_BUBBLE);
     this.loadImages(this.IMAGES_ATTACK_SLAP);
@@ -187,9 +216,17 @@ class Character extends MoveableObject {
     this.loadImages(this.DEAD_BY_SHOCK);
     this.loadImages(this.DEATH_IMAGES);
     this.loadImages(this.IMAGES_ATTACK_POISONED_BUBBLE);
-    this.loadImages(this.IMAGES_STANDING_LONG);
-    this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
     this.lastMovementTime = performance.now();
+
+    // Starte einen separaten Interval, der überwacht, ob sich irgendeine Bewegungstaste befindet
+    setInterval(() => {
+      const kb = this.world ? this.world.keyboard : null;
+      if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)) {
+        this.playFishSwimmingSound();
+      } else {
+        this.stopFishSwimmingSound();
+      }
+    }, 100);
   }
 
   animate() {
@@ -200,7 +237,7 @@ class Character extends MoveableObject {
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
-    this.animateAttackPoisonedBubble(); // Neue Methode für den "C"-Key
+    this.animateAttackPoisonedBubble(); // Neue Methode für Taste C
     this.animateHurt();
   }
 
@@ -265,8 +302,6 @@ class Character extends MoveableObject {
         return;
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
-      // Debug: idleTime in der Konsole anzeigen
-      // console.log("Idle time: " + idleTime);
       if (idleTime < 5000) {
         this.playAnimation(this.IMAGES_STANDING, "idleImageIndex");
         return;
@@ -299,9 +334,24 @@ class Character extends MoveableObject {
   animateAttackBubble() {
     setInterval(() => {
       if (this.isDead) return;
-      if (this.world.keyboard.D) {
+      const currentTime = Date.now();
+      if (this.isBubbleAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
-        this.fireBubble();
+        if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
+          this.isBubbleAttacking = false;
+          this.bubbleAttackIndex = 0;
+          if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+            this.bubblePopSound.play().catch((err) => console.error(err));
+            this.world.spawnBubble(this);
+            this.lastBubbleTime = currentTime;
+          }
+        }
+      } else if (!this.world.keyboard.SPACE && this.world.keyboard.D) {
+        if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
+          this.isBubbleAttacking = true;
+          this.bubbleAttackIndex = 0;
+          this.resetAFKTimer();
+        }
       }
     }, 150);
   }
@@ -310,13 +360,34 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.isDead) return;
       if (this.world.keyboard.C) {
-        // Nur feuern, wenn mindestens eine Poison Bottle vorhanden ist
-        if (this.world.collectedPoisonBottles > 0) {
+        if (
+          this.world.collectedPoisonBottles > 0 &&
+          !this.isPoisonBubbleAttacking
+        ) {
+          this.isPoisonBubbleAttacking = true;
+          this.poisonBubbleAttackIndex = 0;
+          this.resetAFKTimer();
+        }
+        if (this.isPoisonBubbleAttacking) {
           this.playAnimation(
             this.IMAGES_ATTACK_POISONED_BUBBLE,
             "poisonBubbleAttackIndex"
           );
-          this.firePoisonedBubble();
+          if (
+            this.poisonBubbleAttackIndex >=
+            this.IMAGES_ATTACK_POISONED_BUBBLE.length
+          ) {
+            this.isPoisonBubbleAttacking = false;
+            if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
+              this.bubblePopSound.play().catch((err) => console.error(err));
+              this.world.spawnPoisonedBubble(this);
+              this.lastBubbleTime = Date.now();
+              this.world.collectedPoisonBottles--;
+              this.world.poisonStatusBar.setPercentage(
+                this.world.collectedPoisonBottles * 20
+              );
+            }
+          }
         }
       }
     }, 150);
@@ -368,6 +439,10 @@ class Character extends MoveableObject {
     this.idleLongIntroIndex = 0;
     this.idleLongLoopIndex = 0;
     this.lastMovementTime = performance.now();
+  }
+
+  resetAFKTimer() {
+    this.resetLongIdle();
   }
 
   playAnimation(images, indexName = "currentImage") {
@@ -432,7 +507,7 @@ class Character extends MoveableObject {
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
       this.world.spawnPoisonedBubble(this);
       this.lastBubbleTime = currentTime;
-      // Verbrauch eine Poison Bottle:
+      // Verbrauch einer Poison Bottle:
       this.world.collectedPoisonBottles--;
       this.world.poisonStatusBar.setPercentage(
         this.world.collectedPoisonBottles * 20
@@ -451,7 +526,6 @@ class Character extends MoveableObject {
         clearInterval(deathInterval);
         this.img =
           this.imageCache[this.DEATH_IMAGES[this.DEATH_IMAGES.length - 1]];
-        // Sobald die Death-Animation fertig ist, stoppen wir das Spiel komplett:
         if (this.world) {
           this.world.gameOver = true;
         }

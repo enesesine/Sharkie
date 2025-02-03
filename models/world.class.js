@@ -94,6 +94,10 @@ class World {
             // 5 Coins = 100 % → jede Coin = 20%
             this.coinStatusBar.setPercentage(this.collectedCoins * 20);
             console.log(`Coin collected! Count: ${this.collectedCoins}`);
+            // Spiele den Coin-PickUp-Sound (lautstärke in der Character-Klasse eingestellt)
+            this.character.coinPickUpSound
+              .play()
+              .catch((err) => console.error(err));
           } else if (item instanceof PoisonBottle) {
             this.collectedPoisonBottles++;
             // 5 PoisonBottles = 100 % → jede Bottle = 20%
@@ -103,6 +107,10 @@ class World {
             console.log(
               `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
             );
+            // Spiele den Poisoned-Bottle-Sound
+            this.character.poisonBottleSound
+              .play()
+              .catch((err) => console.error(err));
           }
           // Entferne das eingesammelte Objekt:
           this.collectibles.splice(index, 1);
@@ -178,8 +186,8 @@ class World {
   spawnBubble(sharkie) {
     let bubbleX, bubbleY;
     if (!sharkie.otherDirection) {
-      // Wenn Sharkie nach rechts blickt, spawne an der rechten Seite
-      bubbleX = sharkie.x + sharkie.width - 20; // Offset anpassen, damit es am Mund ist
+      // Wenn Sharkie nach rechts blickt, spawne an der rechten Seite (am Mund)
+      bubbleX = sharkie.x + sharkie.width - 20;
     } else {
       // Wenn Sharkie nach links blickt, spawne an der linken Seite
       bubbleX = sharkie.x + 20;
