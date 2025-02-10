@@ -335,23 +335,17 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.isDead) return;
       const currentTime = Date.now();
-      if (this.isBubbleAttacking) {
-        this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
-        if (this.bubbleAttackIndex >= this.IMAGES_ATTACK_BUBBLE.length) {
-          this.isBubbleAttacking = false;
-          this.bubbleAttackIndex = 0;
-          if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
-            this.bubblePopSound.play().catch((err) => console.error(err));
-            this.world.spawnBubble(this);
-            this.lastBubbleTime = currentTime;
-          }
-        }
-      } else if (!this.world.keyboard.SPACE && this.world.keyboard.D) {
-        if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
-          this.isBubbleAttacking = true;
-          this.bubbleAttackIndex = 0;
-          this.resetAFKTimer();
-        }
+      // Prüfe, ob die Taste D gedrückt wurde, die Abklingzeit verstrichen ist und gerade kein Angriff läuft
+      if (
+        this.world.keyboard.D &&
+        currentTime - this.lastBubbleTime >= this.bubbleCooldown &&
+        !this.isBubbleAttacking
+      ) {
+        this.isBubbleAttacking = true;
+        this.bubbleAttackIndex = 0;
+        this.resetAFKTimer();
+        this.shootBubbleAttack();
+        this.lastBubbleTime = currentTime;
       }
     }, 150);
   }
@@ -531,5 +525,27 @@ class Character extends MoveableObject {
         }
       }
     }, 150);
+  }
+
+  shootBubbleAttack() {
+    let i = 0;
+    const totalFrames = this.IMAGES_ATTACK_BUBBLE.length;
+    const intervalId = setInterval(() => {
+      if (i < totalFrames) {
+        // Spiele den aktuellen Frame der Bubble-Attack-Animation
+        this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
+        i++;
+      } else {
+        clearInterval(intervalId);
+        // Animation abgeschlossen: Setze den Charakter zurück in den Swim-Zustand
+        this.loadImage(this.IMAGES_SWIMMING[0]);
+        // Spawne die Bubble
+        this.world.spawnBubble(this);
+        // Spiele ggf. den Bubble-Pop-Sound
+        this.bubblePopSound.play().catch((err) => console.error(err));
+        // Setze den Angriff-Status zurück
+        this.isBubbleAttacking = false;
+      }
+    }, 50); // 50ms pro Frame – passe diesen Wert an, falls nötig
   }
 }

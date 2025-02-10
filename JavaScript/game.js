@@ -10,15 +10,12 @@ backgroundMusic.volume = 0.5;
 
 // Game-Initialisierung (wird z. B. von startGame() aufgerufen)
 function init() {
+  clearAllGameIntervals(); // Alte Intervalle entfernen
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
-
-  // HP-Statusbar initial auf 100% setzen
   world.statusBar.setPercentage(100);
-
   console.log("Game initialized", world);
 
-  // Versuche die Hintergrundmusik zu starten (Autoplay funktioniert meist erst nach einer Benutzerinteraktion)
   backgroundMusic.play().catch((err) => {
     console.error(
       "Hintergrundmusik konnte nicht automatisch gestartet werden:",

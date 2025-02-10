@@ -1,4 +1,6 @@
 function homeGame() {
+  // Lösche alle aktiven Intervalle, um Konflikte zu vermeiden
+  clearAllGameIntervals();
   // Blende den Game Over Screen aus
   document.getElementById("game-over-screen").style.display = "none";
   // Blende den Game-Container aus
@@ -8,13 +10,14 @@ function homeGame() {
 }
 
 function restartGame() {
+  clearAllGameIntervals();
   // Blende den Game Over Screen aus
   document.getElementById("game-over-screen").style.display = "none";
   // Blende den Startscreen aus
   document.getElementById("startscreen").style.display = "none";
   // Stelle sicher, dass der Game-Container sichtbar ist
   document.getElementById("game-container").style.display = "block";
-  // Mache den Canvas sichtbar (falls er per Inline-Style auf "none" gesetzt wurde)
+  // Mache den Canvas sichtbar
   document.getElementById("canvas").style.display = "block";
 
   // Starte das Spiel neu:

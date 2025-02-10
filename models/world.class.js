@@ -184,17 +184,28 @@ class World {
   }
 
   spawnBubble(sharkie) {
-    let bubbleX, bubbleY;
-    if (!sharkie.otherDirection) {
-      // Wenn Sharkie nach rechts blickt, spawne an der rechten Seite (am Mund)
-      bubbleX = sharkie.x + sharkie.width - 20;
-    } else {
-      // Wenn Sharkie nach links blickt, spawne an der linken Seite
-      bubbleX = sharkie.x + 20;
-    }
-    // Vertikal: Mitte des Charakters oder leicht nach oben, je nach gewünschter Mundposition
-    bubbleY = sharkie.y + sharkie.height / 2;
-    let bubble = new Bubble(bubbleX, bubbleY, sharkie.otherDirection, this);
+    // Verwende feste Offsets, die in der Character-Klasse definiert sind (oder Standardwerte)
+    let offsetX =
+      typeof sharkie.bubbleSpawnOffsetX !== "undefined"
+        ? sharkie.bubbleSpawnOffsetX
+        : 140;
+    let offsetY =
+      typeof sharkie.bubbleSpawnOffsetY !== "undefined"
+        ? sharkie.bubbleSpawnOffsetY
+        : 130;
+
+    // Berechne den Spawnpunkt anhand von Sharkies aktueller Position (absolut in der Welt)
+    let spawnX = !sharkie.otherDirection
+      ? sharkie.x + offsetX
+      : sharkie.x + sharkie.width - offsetX;
+    let spawnY = sharkie.y + offsetY;
+
+    // Erstelle die Bubble – hier werden die initialen Koordinaten festgehalten
+    let bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
+
+    // Setze eine höhere Geschwindigkeit, damit die Bubble ihre Strecke unabhängig von der Kamerabewegung zurücklegt
+    bubble.speed = 20; // Experimentiere hier mit dem Wert, z.B. 20 oder 25
+
     this.bubbles.push(bubble);
   }
 
