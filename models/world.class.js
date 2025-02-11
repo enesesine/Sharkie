@@ -58,11 +58,11 @@ class World {
           let enemy = this.enemies[j];
 
           if (bubble.isColliding(enemy) && !enemy.isDead) {
-            console.log("Bubble hit fish! Enemy dies immediately.");
+            console.log("💥 Bubble HIT Fish → Fish dies instantly!");
 
-            enemy.die(); // 🔥 Fisch stirbt SOFORT!
-            this.bubbles.splice(i, 1); // 🔥 Bubble verschwindet sofort!
-            break; // 🔥 Verhindert, dass eine Bubble mehrere Fische trifft
+            enemy.die(); // 🔥 Fisch stirbt direkt
+            this.bubbles.splice(i, 1); // 🔥 Bubble wird entfernt
+            break; // 🔥 Eine Bubble kann nur einen Fisch treffen
           }
         }
       }
@@ -81,7 +81,7 @@ class World {
           }
         }
       });
-    }, 50);
+    }, 15); // 🔥 Kollision wird jetzt 4x pro Sekunde geprüft!
 
     // Prüfe Kollisionen mit Sammelobjekten:
     setInterval(() => {

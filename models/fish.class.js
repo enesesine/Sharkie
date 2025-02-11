@@ -54,24 +54,18 @@ class Fish extends MoveableObject {
     clearInterval(this.moveInterval);
     clearInterval(this.animationInterval);
 
+    console.log("☠️ Fisch stirbt → Animation & Hochschwimmen beginnt!");
+
     this.playAnimation(this.IMAGES_DEATH);
 
+    let moveUpSpeed = 8; // 🔥 Schnellere Bewegung nach oben
     let moveUpInterval = setInterval(() => {
-      this.y -= 5; // Fisch treibt nach oben
+      this.y -= moveUpSpeed; // 🔥 Fisch schwebt nach oben
+
       if (this.y < -this.height) {
         clearInterval(moveUpInterval);
         this.remove();
       }
-    }, 50);
-  }
-
-  /**
-   * Entfernt den Fisch aus der Welt.
-   */
-  remove() {
-    const index = this.world.enemies.indexOf(this);
-    if (index >= 0) {
-      this.world.enemies.splice(index, 1);
-    }
+    }, 30); // 🔥 Jetzt 3x pro Sekunde statt langsam!
   }
 }
