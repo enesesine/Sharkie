@@ -57,7 +57,6 @@ const level1 = new Level(
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D2.png", 720 * 3),
   ],
   [
-    // Sammelbare Objekte: 5 Coins und 5 PoisonBottles
     new Coin(),
     new Coin(),
     new Coin(),

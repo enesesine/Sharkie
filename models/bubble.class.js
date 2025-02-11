@@ -44,4 +44,14 @@ class Bubble extends MoveableObject {
       this.world.bubbles.splice(index, 1);
     }
   }
+
+  destroyBubble() {
+    if (this.world) {
+      const index = this.world.bubbles.indexOf(this);
+      if (index >= 0) {
+        console.log(`🎈💥 Bubble zerstört!`);
+        this.world.bubbles.splice(index, 1);
+      }
+    }
+  }
 }

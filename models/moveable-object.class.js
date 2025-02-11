@@ -5,10 +5,10 @@ class MoveableObject extends DrawableObject {
 
   isColliding(mo) {
     return (
-      this.x + this.width > mo.x &&
-      this.y + this.height > mo.y &&
-      this.x < mo.x &&
-      this.y < mo.y + mo.height
+      this.x + this.width > mo.x && // Prüft, ob sich die Objekte überlappen (rechts)
+      this.x < mo.x + mo.width && // Prüft, ob sich die Objekte überlappen (links)
+      this.y + this.height > mo.y && // Prüft, ob sich die Objekte überlappen (unten)
+      this.y < mo.y + mo.height // Prüft, ob sich die Objekte überlappen (oben)
     );
   }
 

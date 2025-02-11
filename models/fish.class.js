@@ -23,6 +23,9 @@ class Fish extends MoveableObject {
     this.loadImages(this.IMAGES_DEATH);
 
     this.x = 800 + Math.random() * 2000;
+
+    this.world = null;
+
     this.animate();
   }
 
@@ -48,7 +51,7 @@ class Fish extends MoveableObject {
    * Lässt den Fisch sofort sterben und treibt nach oben.
    */
   die() {
-    if (this.isDead) return; // 🔥 Verhindert mehrfaches Aufrufen!
+    if (this.isDead) return; // 🔥 Verhindert mehrfachen Tod
 
     this.isDead = true;
     clearInterval(this.moveInterval);
@@ -58,14 +61,28 @@ class Fish extends MoveableObject {
 
     this.playAnimation(this.IMAGES_DEATH);
 
-    let moveUpSpeed = 8; // 🔥 Schnellere Bewegung nach oben
+    let moveUpSpeed = 5; // 🔥 Perfekte Geschwindigkeit fürs Hochschwimmen
     let moveUpInterval = setInterval(() => {
       this.y -= moveUpSpeed; // 🔥 Fisch schwebt nach oben
-
-      if (this.y < -this.height) {
+      this.opacity -= 0.05; // 🔥 Lässt den Fisch langsam verschwinden
+      if (this.opacity <= 0) {
         clearInterval(moveUpInterval);
         this.remove();
       }
-    }, 30); // 🔥 Jetzt 3x pro Sekunde statt langsam!
+    }, 50); // 🔥 Animiert sanft und nicht zu schnell
+  }
+
+  remove() {
+    if (this.world) {
+      const index = this.world.enemies.indexOf(this);
+      if (index >= 0) {
+        console.log(`🚮 Fisch wird aus dem Array entfernt!`);
+        this.world.enemies.splice(index, 1);
+      }
+    } else {
+      console.warn(
+        "⚠️ Kein Zugriff auf this.world – Fisch kann nicht entfernt werden!"
+      );
+    }
   }
 }

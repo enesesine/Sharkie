@@ -11,6 +11,15 @@ class Character extends MoveableObject {
   hp = 100;
   isDead = false;
 
+  // Hurt-Variablen
+  isHurt = false;
+  lastDamageTime = 0;
+  hurtStartTime = 0;
+  hurtDuration = 1000;
+  damageCooldown = 1000; // 1 Sekunde Cooldown zwischen Treffern
+  hurtImageIndex = 0;
+  currentHurtImages = null;
+
   // Image-Arrays
   IMAGES_STANDING = [
     "Imgs/1.Sharkie/1.IDLE/1.png",
@@ -147,11 +156,10 @@ class Character extends MoveableObject {
   ];
 
   // Neue Zustände für Angriff-Aktionen
-  isBubbleAttacking = false; // Für normalen Bubble-Angriff (Taste D)
-  bubbleAttackIndex = 0; // Index für die normale Bubble-Angriff-Animation
-
-  isPoisonBubbleAttacking = false; // Für Poisoned Bubble-Angriff (Taste C)
-  poisonBubbleAttackIndex = 0; // Index für die Poisoned Bubble-Angriff-Animation
+  isBubbleAttacking = false;
+  bubbleAttackIndex = 0;
+  isPoisonBubbleAttacking = false;
+  poisonBubbleAttackIndex = 0;
 
   // Animations- und Statusvariablen
   world;
@@ -166,44 +174,24 @@ class Character extends MoveableObject {
   lastBubbleTime = 0;
   bubbleCooldown = 500;
 
-  // Hurt-Variablen
-  isHurt = false;
-  hurtImageIndex = 0;
-  hurtDuration = 1000;
-  hurtStartTime = 0;
-  currentHurtImages = null;
-
   // Death-Animation-Index
   deathImageIndex = 0;
 
-  // Bubble-Spawn Offsets (fest definierter Ankerpunkt für den Mund)
+  // Bubble-Spawn Offsets (fester Mund-Anker)
   bubbleSpawnOffsetX = 140;
   bubbleSpawnOffsetY = 130;
 
-  // Neue Soundeffekte (angepasst auf ogg)
+  // Soundeffekte
   fishSwimmingSound = new Audio("Audio/fishSwimming.ogg");
   bubblePopSound = new Audio("Audio/Bubble_Pop_Attack.mp3");
   coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
-
   poisonBottleSound = new Audio("Audio/Poisoned_Bottle_Sound.ogg");
-
-  // Hilfsmethoden zum Steuern des Fish-Sounds:
-  playFishSwimmingSound() {
-    // Starte den Sound, falls nicht schon aktiv
-    if (this.fishSwimmingSound.paused) {
-      this.fishSwimmingSound.play().catch((err) => console.error(err));
-    }
-  }
-  stopFishSwimmingSound() {
-    if (!this.fishSwimmingSound.paused) {
-      this.fishSwimmingSound.pause();
-      this.fishSwimmingSound.currentTime = 0;
-    }
-  }
 
   // Konstruktor
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
+
+    // Lade alle Image-Arrays
     this.loadImages(this.IMAGES_STANDING);
     this.loadImages(this.IMAGES_STANDING_LONG);
     this.loadImages(this.IMAGES_STANDING_LONG_LOOP);
@@ -216,9 +204,10 @@ class Character extends MoveableObject {
     this.loadImages(this.DEAD_BY_SHOCK);
     this.loadImages(this.DEATH_IMAGES);
     this.loadImages(this.IMAGES_ATTACK_POISONED_BUBBLE);
+
     this.lastMovementTime = performance.now();
 
-    // Starte einen separaten Interval, der überwacht, ob sich irgendeine Bewegungstaste befindet
+    // Check ob eine Bewegungstaste aktiv ist, um Fish-Sound an/auszuschalten
     setInterval(() => {
       const kb = this.world ? this.world.keyboard : null;
       if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)) {
@@ -229,6 +218,9 @@ class Character extends MoveableObject {
     }, 100);
   }
 
+  /**
+   * Hauptanimation
+   */
   animate() {
     if (this.isDead) return;
     this.animateHorizontalMovement();
@@ -237,7 +229,7 @@ class Character extends MoveableObject {
     this.animateIdle();
     this.animateAttackSlap();
     this.animateAttackBubble();
-    this.animateAttackPoisonedBubble(); // Neue Methode für Taste C
+    this.animateAttackPoisonedBubble();
     this.animateHurt();
   }
 
@@ -260,6 +252,7 @@ class Character extends MoveableObject {
         this.lastMovementTime = performance.now();
         this.resetLongIdle();
       }
+      // Kamera
       this.world.camera_x = -this.x + 5;
     }, 1000 / 60);
   }
@@ -300,6 +293,7 @@ class Character extends MoveableObject {
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
         return;
+
       let now = performance.now();
       let idleTime = now - this.lastMovementTime;
       if (idleTime < 5000) {
@@ -335,7 +329,6 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.isDead) return;
       const currentTime = Date.now();
-      // Prüfe, ob die Taste D gedrückt wurde, die Abklingzeit verstrichen ist und gerade kein Angriff läuft
       if (
         this.world.keyboard.D &&
         currentTime - this.lastBubbleTime >= this.bubbleCooldown &&
@@ -440,7 +433,9 @@ class Character extends MoveableObject {
   }
 
   playAnimation(images, indexName = "currentImage") {
+    // Verhindert Animation, wenn Sharkie gerade "hurt" oder "dead" ist
     if (this.isHurt || this.isDead) return;
+
     if (!this[indexName]) {
       this[indexName] = 0;
     }
@@ -481,11 +476,42 @@ class Character extends MoveableObject {
     }
   }
 
-  hit() {
-    if (this.isDead) return;
+  /**
+   * Sharkie nimmt Schaden
+   */
+  hit(damage) {
+    let now = Date.now();
+    // Falls tot, schon im Hurt-Status oder noch im Cooldown
+    if (
+      this.hp <= 0 ||
+      this.isHurt ||
+      now - this.lastDamageTime < this.damageCooldown
+    ) {
+      return;
+    }
+
+    this.lastDamageTime = now; // cooldown startet
+    this.hp -= damage;
+    if (this.hp < 0) this.hp = 0;
+
     this.isHurt = true;
-    this.hurtStartTime = Date.now();
-    this.world.statusBar.setPercentage(this.energy);
+    this.hurtStartTime = now;
+    this.world.statusBar.setPercentage(this.hp);
+
+    console.log(`⚠️ Sharkie getroffen! Schaden: ${damage} | HP: ${this.hp}`);
+
+    this.playAnimation(this.IMAGES_HURT);
+    console.log("🎬 Damage-Animation gestartet!");
+
+    // Nach 1 Sekunde normal
+    setTimeout(() => {
+      this.isHurt = false;
+      console.log("✅ Sharkie ist wieder normal.");
+    }, this.hurtDuration);
+
+    if (this.hp <= 0) {
+      this.die();
+    }
   }
 
   fireBubble() {
@@ -501,11 +527,33 @@ class Character extends MoveableObject {
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
       this.world.spawnPoisonedBubble(this);
       this.lastBubbleTime = currentTime;
-      // Verbrauch einer Poison Bottle:
       this.world.collectedPoisonBottles--;
       this.world.poisonStatusBar.setPercentage(
         this.world.collectedPoisonBottles * 20
       );
+    }
+  }
+
+  /******************************************
+   * START / STOP FISHSWIMMINGSOUND
+   ******************************************/
+
+  /**
+   * Spielt den Schwimm-Sound, falls nicht schon aktiv.
+   */
+  playFishSwimmingSound() {
+    if (this.fishSwimmingSound.paused) {
+      this.fishSwimmingSound.play().catch((err) => console.error(err));
+    }
+  }
+
+  /**
+   * Stoppt den Schwimm-Sound und setzt den Zeitstempel zurück.
+   */
+  stopFishSwimmingSound() {
+    if (!this.fishSwimmingSound.paused) {
+      this.fishSwimmingSound.pause();
+      this.fishSwimmingSound.currentTime = 0;
     }
   }
 
@@ -532,20 +580,18 @@ class Character extends MoveableObject {
     const totalFrames = this.IMAGES_ATTACK_BUBBLE.length;
     const intervalId = setInterval(() => {
       if (i < totalFrames) {
-        // Spiele den aktuellen Frame der Bubble-Attack-Animation
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
         i++;
       } else {
         clearInterval(intervalId);
-        // Animation abgeschlossen: Setze den Charakter zurück in den Swim-Zustand
+        // Animation abgeschlossen
         this.loadImage(this.IMAGES_SWIMMING[0]);
         // Spawne die Bubble
         this.world.spawnBubble(this);
-        // Spiele ggf. den Bubble-Pop-Sound
+        // Spiele Sound
         this.bubblePopSound.play().catch((err) => console.error(err));
-        // Setze den Angriff-Status zurück
         this.isBubbleAttacking = false;
       }
-    }, 50); // 50ms pro Frame – passe diesen Wert an, falls nötig
+    }, 50);
   }
 }

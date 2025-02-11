@@ -34,12 +34,12 @@ class World {
     this.draw();
     this.checkCollisions();
 
-    // Endboss erhält Zugriff auf die Welt:
+    // Endboss erhält Zugriff auf die Welt
     this.level.enemies.forEach((enemy) => {
-      if (enemy instanceof Endboss) {
-        enemy.world = this;
-      }
+      enemy.world = this;
     });
+
+    console.log("🌍 Gegner in der Welt geladen:", this.enemies);
   }
 
   setWorld() {
@@ -50,66 +50,69 @@ class World {
    * Prüft Kollisionen mit Gegnern, Bubbles & Sammelobjekten.
    */
   checkCollisions() {
-    setInterval(() => {
-      for (let i = this.bubbles.length - 1; i >= 0; i--) {
-        let bubble = this.bubbles[i];
+    // 🔄 Prüft Kollisionen in jedem Frame
+    requestAnimationFrame(() => this.checkCollisions());
 
-        for (let j = this.enemies.length - 1; j >= 0; j--) {
-          let enemy = this.enemies[j];
-
-          if (bubble.isColliding(enemy) && !enemy.isDead) {
-            console.log("💥 Bubble HIT Fish → Fish dies instantly!");
-
-            enemy.die(); // 🔥 Fisch stirbt direkt
-            this.bubbles.splice(i, 1); // 🔥 Bubble wird entfernt
-            break; // 🔥 Eine Bubble kann nur einen Fisch treffen
-          }
+    // ✅ 1. Kollisionsprüfung Bubbles & Gegner
+    for (let i = this.bubbles.length - 1; i >= 0; i--) {
+      let bubble = this.bubbles[i];
+      for (let j = this.enemies.length - 1; j >= 0; j--) {
+        let enemy = this.enemies[j];
+        if (bubble.isColliding(enemy) && !enemy.isDead) {
+          console.log(
+            `💥 Bubble trifft ${enemy.constructor.name} bei X: ${enemy.x}, Y: ${enemy.y}`
+          );
+          enemy.die(); // 🔥 Gegner stirbt sofort
+          this.bubbles.splice(i, 1); // 🔥 Bubble verschwindet
+          break; // Eine Bubble trifft nur einen Gegner
         }
       }
+    }
 
-      // Prüfe Kollision zwischen Sharkie und Gegnern:
-      this.level.enemies.forEach((enemy) => {
-        if (this.character.isColliding(enemy) && !enemy.isDead) {
-          let damageAmount = enemy instanceof Endboss ? 40 : 20;
-          this.character.hit();
-          this.character.energy -= damageAmount;
-          this.statusBar.setPercentage(this.character.energy);
+    // ✅ 2. Kollisionsprüfung Sharkie & Gegner
+    for (let enemy of this.enemies) {
+      if (!enemy) continue; // Falls enemy null/undefined
 
-          if (this.character.energy <= 0) {
-            this.character.energy = 0;
-            this.character.die();
-          }
+      if (this.character.isColliding(enemy) && !enemy.isDead) {
+        // Logge Kollision
+        console.log(
+          `⚠️ Sharkie kollidiert mit ${enemy.constructor.name} (X: ${enemy.x}, Y: ${enemy.y})`
+        );
+
+        let damageAmount = enemy instanceof Endboss ? 40 : 20; // Endboss 40, Rest 20
+        console.log(`🛠 Aufruf: this.character.hit(${damageAmount})`);
+
+        // Falls Sharkie keinen permanenten Schaden nimmt
+        this.character.hit(damageAmount);
+        // -> Die Character-Klasse regelt via `isHurt` oder `lastDamageTime`,
+        // ob Schaden wirklich erfolgt oder geblockt wird
+      }
+    }
+
+    // ✅ 3. Kollisionsprüfung Sammelobjekte
+    for (let i = this.collectibles.length - 1; i >= 0; i--) {
+      let item = this.collectibles[i];
+      if (this.character.isColliding(item)) {
+        if (item instanceof Coin) {
+          this.collectedCoins++;
+          this.coinStatusBar.setPercentage(this.collectedCoins * 20);
+          console.log(`Coin collected! Count: ${this.collectedCoins}`);
+          this.character.coinPickUpSound
+            .play()
+            .catch((err) => console.error(err));
+        } else if (item instanceof PoisonBottle) {
+          this.collectedPoisonBottles++;
+          this.poisonStatusBar.setPercentage(this.collectedPoisonBottles * 20);
+          console.log(
+            `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
+          );
+          this.character.poisonBottleSound
+            .play()
+            .catch((err) => console.error(err));
         }
-      });
-    }, 15); // 🔥 Kollision wird jetzt 4x pro Sekunde geprüft!
-
-    // Prüfe Kollisionen mit Sammelobjekten:
-    setInterval(() => {
-      this.collectibles.forEach((item, index) => {
-        if (this.character.isColliding(item)) {
-          if (item instanceof Coin) {
-            this.collectedCoins++;
-            this.coinStatusBar.setPercentage(this.collectedCoins * 20);
-            console.log(`Coin collected! Count: ${this.collectedCoins}`);
-            this.character.coinPickUpSound
-              .play()
-              .catch((err) => console.error(err));
-          } else if (item instanceof PoisonBottle) {
-            this.collectedPoisonBottles++;
-            this.poisonStatusBar.setPercentage(
-              this.collectedPoisonBottles * 20
-            );
-            console.log(
-              `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
-            );
-            this.character.poisonBottleSound
-              .play()
-              .catch((err) => console.error(err));
-          }
-          this.collectibles.splice(index, 1);
-        }
-      });
-    }, 100);
+        this.collectibles.splice(i, 1);
+      }
+    }
   }
 
   draw() {
@@ -135,6 +138,7 @@ class World {
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
 
+    // Bubbles aktualisieren & zeichnen
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
 

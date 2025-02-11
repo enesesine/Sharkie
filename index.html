@@ -24,28 +24,25 @@
     <script src="models/keyboard.class.js"></script>
     <script src="models/bubble.class.js"></script>
     <script src="models/poisoned-bubble.class.js"></script>
-    <script src="./JavaScript/levels/restart-home-game.js"></script>
+    <script src="JavaScript/levels/restart-home-game.js"></script>
 
-    <!-- Zuerst die Level-Grundlage -->
+    <!-- Level-Klasse MUSS VOR `level1.js` geladen werden -->
     <script src="models/levels.class.js"></script>
 
     <!-- ------------------ Sammelobjekte: Coins & Poison ------------------ -->
-    <!-- Diese Klassen müssen geladen werden, bevor sie in level1.js genutzt werden -->
     <script src="models/coin.class.js"></script>
     <script src="models/coin-statusbar.class.js"></script>
     <script src="models/poison-bottle.class.js"></script>
     <script src="models/poison-status-bar.class.js"></script>
 
-    <!-- ------------------ Level Definition ------------------ -->
-    <!-- Hier wird der globale level1 erstellt – er nutzt unter anderem Coin und PoisonBottle -->
+    <!-- ------------------ World-Klasse MUSS vor `level1.js` geladen werden -->
+    <script src="models/world.class.js"></script>
+
+    <!-- ------------------ Level 1 ------------------ -->
     <script src="JavaScript/levels/level1.js"></script>
 
-    <!-- ------------------ World und Spiel-Logik ------------------ -->
-    <!-- Jetzt, da level1 existiert, kann die World darauf zugreifen -->
-    <script src="models/world.class.js"></script>
+    <!-- ------------------ Spiel-Logik ------------------ -->
     <script src="JavaScript/game.js"></script>
-
-    <!-- ------------------ UI / Startscreen ------------------ -->
     <script src="JavaScript/startscreen.js"></script>
   </head>
   <body>
@@ -58,7 +55,7 @@
       <button onclick="openPopup('privacy')">Privacy Policy</button>
     </div>
 
-    <!-- Canvas für das Spiel -->
+    <!-- Spielfeld -->
     <div id="game-container">
       <canvas
         id="canvas"
@@ -66,19 +63,15 @@
         height="480"
         style="display: none"
       ></canvas>
-      <!-- Fullscreen-Button als kleines Bild -->
+
+      <!-- Fullscreen-Button -->
       <img
         id="fullscreen-btn"
         src="Imgs/fullscreen.png"
         alt="Fullscreen Button"
       />
 
-      <img
-        id="fullscreen-btn"
-        src="Imgs/fullscreen.png"
-        alt="Fullscreen Button"
-      />
-      <!-- Sound Toggle: Standardmäßig Sound-image, also Sound an -->
+      <!-- Sound Toggle -->
       <img
         id="sound-toggle"
         src="Imgs/7. Other/Sound-image.png"
@@ -86,7 +79,7 @@
       />
     </div>
 
-    <!-- Popup-Fenster (Controls, Imprint, Privacy Policy) -->
+    <!-- Popup-Fenster (Controls, Impressum, Datenschutz) -->
     <div id="popup-overlay" onclick="closePopup()"></div>
     <div id="popup-container">
       <div id="popup">
@@ -95,7 +88,7 @@
       </div>
     </div>
 
-    <!-- Game Over Screen (initial versteckt) -->
+    <!-- Game Over Screen -->
     <div id="game-over-screen" style="display: none">
       <div id="game-over-overlay"></div>
       <div id="game-over-content">
