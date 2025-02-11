@@ -184,45 +184,55 @@ class World {
   }
 
   spawnBubble(sharkie) {
-    // Verwende feste Offsets, die in der Character-Klasse definiert sind (oder Standardwerte)
-    let offsetX =
-      typeof sharkie.bubbleSpawnOffsetX !== "undefined"
-        ? sharkie.bubbleSpawnOffsetX
-        : 140;
-    let offsetY =
-      typeof sharkie.bubbleSpawnOffsetY !== "undefined"
-        ? sharkie.bubbleSpawnOffsetY
-        : 130;
+    let offsetX = 140; // Standardwert für Bubble-Startposition
+    let offsetY = 130;
 
-    // Berechne den Spawnpunkt anhand von Sharkies aktueller Position (absolut in der Welt)
-    let spawnX = !sharkie.otherDirection
-      ? sharkie.x + offsetX
-      : sharkie.x + sharkie.width - offsetX;
+    let spawnX = sharkie.otherDirection
+      ? sharkie.x - offsetX + this.camera_x // Korrektur: + statt -
+      : sharkie.x + offsetX + this.camera_x; // Korrektur: + statt -
+
     let spawnY = sharkie.y + offsetY;
 
-    // Erstelle die Bubble – hier werden die initialen Koordinaten festgehalten
     let bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
-
-    // Setze eine höhere Geschwindigkeit, damit die Bubble ihre Strecke unabhängig von der Kamerabewegung zurücklegt
-    bubble.speed = 20; // Experimentiere hier mit dem Wert, z.B. 20 oder 25
-
     this.bubbles.push(bubble);
+
+    console.log(
+      "Bubble corrected spawn at:",
+      spawnX,
+      spawnY,
+      "Sharkie at:",
+      sharkie.x,
+      "Camera:",
+      this.camera_x
+    );
   }
 
   spawnPoisonedBubble(sharkie) {
-    let bubbleX, bubbleY;
-    if (!sharkie.otherDirection) {
-      bubbleX = sharkie.x + sharkie.width - 20;
-    } else {
-      bubbleX = sharkie.x + 20;
-    }
-    bubbleY = sharkie.y + sharkie.height / 2;
-    let pBubble = new PoisonedBubble(
-      bubbleX,
-      bubbleY,
+    let offsetX = 140; // Standardwert für Bubble-Startposition
+    let offsetY = 130;
+
+    let spawnX = sharkie.otherDirection
+      ? sharkie.x - offsetX + this.camera_x // Korrektur: + statt -
+      : sharkie.x + offsetX + this.camera_x; // Korrektur: + statt -
+
+    let spawnY = sharkie.y + offsetY;
+
+    let poisonedBubble = new PoisonedBubble(
+      spawnX,
+      spawnY,
       sharkie.otherDirection,
       this
     );
-    this.bubbles.push(pBubble);
+    this.bubbles.push(poisonedBubble);
+
+    console.log(
+      "Poisoned Bubble corrected spawn at:",
+      spawnX,
+      spawnY,
+      "Sharkie at:",
+      sharkie.x,
+      "Camera:",
+      this.camera_x
+    );
   }
 }

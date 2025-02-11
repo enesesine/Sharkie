@@ -1,39 +1,39 @@
 class Bubble extends MoveableObject {
   constructor(x, y, goingLeft, world) {
     super().loadImage("Imgs/1.Sharkie/4.Attack/Bubble trap/Bubble.png");
-    // Speichere die initialen Weltkoordinaten
+
+    this.world = world;
+    // Speichere den Punkt, an dem die Bubble gespawnt wird
     this.initialX = x;
     this.initialY = y;
+
+    // Setze die Startposition
     this.x = x;
     this.y = y;
-    this.width = 20;
-    this.height = 20;
+
+    // Größe anpassen, wenn du sie größer willst (z. B. 50x50):
+    this.width = 40;
+    this.height = 40;
+
+    // Richtung & Grundgeschwindigkeit
     this.goingLeft = goingLeft;
-    this.speed = 6; // Wird später in spawnBubble überschrieben
-    this.world = world;
+    this.speed = 5; // Kannst du beliebig anpassen
   }
 
   update() {
-    // Bewege die Bubble in X-Richtung unabhängig von Sharkie
     if (this.goingLeft) {
       this.x -= this.speed;
     } else {
       this.x += this.speed;
     }
 
-    // Berechne die horizontale Distanz, die seit dem Spawn zurückgelegt wurde
+    // Entferne diesen Code, falls er existiert:
+    // this.x -= this.world.camera_x;
+
     let distance = this.x - this.initialX;
+    this.y = this.initialY + Math.sin(distance / 35) * 5;
 
-    // Organische Oszillation der Y-Position basierend auf der zurückgelegten Distanz
-    let amplitude = 5; // Kann angepasst werden
-    this.y = this.initialY + Math.sin(distance / 35) * amplitude;
-
-    // Entferne die Bubble, wenn sie zu weit fliegt oder außerhalb des Canvas ist
-    if (
-      this.x < -this.width ||
-      this.x > this.world.canvas.width + this.width ||
-      Math.abs(distance) > 500 // z.B. nach 500 Pixeln
-    ) {
+    if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
       this.removeBubble();
     }
   }
