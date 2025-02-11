@@ -1,46 +1,50 @@
-// poisoned-bubble.class.js
 class PoisonedBubble extends MoveableObject {
+  IMAGES = [
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame2).png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame3).png",
+    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame4).png",
+  ]; // Füge hier die richtigen Frames für die Animation ein
+
   constructor(x, y, goingLeft, world) {
-    super().loadImage(
-      "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png"
-    );
+    super().loadImage(this.IMAGES[0]);
+    this.loadImages(this.IMAGES);
+
+    this.world = world;
+    this.initialX = x;
+    this.initialY = y;
+
     this.x = x;
     this.y = y;
-    this.initialY = y; // Speichert die Ausgangs-y-Position
-    this.width = 20; // Anpassen, falls nötig
-    this.height = 20; // Anpassen, falls nötig
+
+    this.width = 40;
+    this.height = 40;
+
     this.goingLeft = goingLeft;
-    this.speed = 6; // Anpassen, falls nötig
-    this.world = world;
-    this.spawnTime = Date.now();
-    this.otherDirection = false;
+    this.speed = 5;
+
+    this.animate();
   }
 
   update() {
-    // Horizontale Bewegung:
     if (this.goingLeft) {
       this.x -= this.speed;
     } else {
       this.x += this.speed;
     }
 
-    // Vertikale Oszillation (optional; anpassen, falls gewünscht)
-    const elapsed = (Date.now() - this.spawnTime) / 1000;
-    const amplitude = 3; // kleinere Amplitude als normale Bubble
-    const period = 2;
-    const yOffset = amplitude * Math.sin((2 * Math.PI * elapsed) / period);
-    // Für eine gleichmäßigere Oszillation kannst du den initialen y-Wert speichern:
-    this.y = this.initialY + yOffset;
+    let distance = this.x - this.initialX;
+    this.y = this.initialY + Math.sin(distance / 35) * 5;
 
-    // Entferne die Projectile, wenn sie außerhalb des Canvas sind oder nach 3 Sekunden
     if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
       this.removeBubble();
-      return;
     }
-    if (Date.now() - this.spawnTime >= 3000) {
-      this.removeBubble();
-      return;
-    }
+  }
+
+  animate() {
+    setInterval(() => {
+      this.playAnimation(this.IMAGES); // Spiele die Animation kontinuierlich
+    }, 150);
   }
 
   removeBubble() {

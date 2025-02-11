@@ -17,7 +17,7 @@ class Bubble extends MoveableObject {
 
     // Richtung & Grundgeschwindigkeit
     this.goingLeft = goingLeft;
-    this.speed = 5; // Kannst du beliebig anpassen
+    this.speed = 2.5; // Kannst du beliebig anpassen
   }
 
   update() {

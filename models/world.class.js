@@ -1,18 +1,17 @@
-// world.class.js
 class World {
   character = new Character();
   enemies = level1.enemies;
   backgroundObjects = level1.backgroundObjects;
   surfaces = [new Surface()];
   level = level1;
-  bubbles = []; // Sammlung aller Bubbles
+  bubbles = []; // Alle Bubbles
 
-  // Sammelbare Objekte kommen nun aus dem Level:
+  // Sammelbare Objekte:
   collectibles = level1.collectibles;
   collectedCoins = 0;
   collectedPoisonBottles = 0;
 
-  // Status Bars für Coins und PoisonBottles:
+  // Status Bars:
   coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
 
@@ -22,7 +21,7 @@ class World {
   camera_x = 0;
   statusBar = new StatusBar();
 
-  // Globaler Flag für Game Over
+  // Game Over Flag:
   gameOver = false;
 
   constructor(canvas, keyboard) {
@@ -35,7 +34,7 @@ class World {
     this.draw();
     this.checkCollisions();
 
-    // Endboss erhält Zugriff auf die Welt
+    // Endboss erhält Zugriff auf die Welt:
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Endboss) {
         enemy.world = this;
@@ -47,72 +46,66 @@ class World {
     this.character.world = this;
   }
 
+  /**
+   * Prüft Kollisionen mit Gegnern, Bubbles & Sammelobjekten.
+   */
   checkCollisions() {
-    // Kollisionsabfrage für Gegner:
     setInterval(() => {
+      for (let i = this.bubbles.length - 1; i >= 0; i--) {
+        let bubble = this.bubbles[i];
+
+        for (let j = this.enemies.length - 1; j >= 0; j--) {
+          let enemy = this.enemies[j];
+
+          if (bubble.isColliding(enemy) && !enemy.isDead) {
+            console.log("Bubble hit fish! Enemy dies immediately.");
+
+            enemy.die(); // 🔥 Fisch stirbt SOFORT!
+            this.bubbles.splice(i, 1); // 🔥 Bubble verschwindet sofort!
+            break; // 🔥 Verhindert, dass eine Bubble mehrere Fische trifft
+          }
+        }
+      }
+
+      // Prüfe Kollision zwischen Sharkie und Gegnern:
       this.level.enemies.forEach((enemy) => {
-        if (this.character.isColliding(enemy)) {
-          if (!this.character.isHurt) {
-            let damageAmount = enemy instanceof Endboss ? 40 : 20;
-            this.character.hit();
-            this.character.energy -= damageAmount;
-            this.statusBar.setPercentage(this.character.energy);
-            console.log(
-              `Collision with ${
-                enemy instanceof Endboss ? "Endboss" : "Fish"
-              }, energy: ${this.character.energy}`
-            );
-            this.character.isHurt = true;
-            this.character.hurtStartTime = Date.now();
+        if (this.character.isColliding(enemy) && !enemy.isDead) {
+          let damageAmount = enemy instanceof Endboss ? 40 : 20;
+          this.character.hit();
+          this.character.energy -= damageAmount;
+          this.statusBar.setPercentage(this.character.energy);
 
-            if (enemy.damageType === "shock") {
-              this.character.currentHurtImages =
-                this.character.IMAGES_HURT_SHOCK;
-            } else if (enemy.damageType === "poison") {
-              this.character.currentHurtImages =
-                this.character.IMAGES_HURT_POISON;
-            } else {
-              this.character.currentHurtImages =
-                this.character.IMAGES_HURT_SHOCK;
-            }
-
-            if (this.character.energy <= 0) {
-              this.character.energy = 0;
-              this.character.die();
-            }
+          if (this.character.energy <= 0) {
+            this.character.energy = 0;
+            this.character.die();
           }
         }
       });
-    }, 300);
+    }, 50);
 
-    // Kollisionsabfrage für Sammelobjekte (Collectibles):
+    // Prüfe Kollisionen mit Sammelobjekten:
     setInterval(() => {
       this.collectibles.forEach((item, index) => {
         if (this.character.isColliding(item)) {
           if (item instanceof Coin) {
             this.collectedCoins++;
-            // 5 Coins = 100 % → jede Coin = 20%
             this.coinStatusBar.setPercentage(this.collectedCoins * 20);
             console.log(`Coin collected! Count: ${this.collectedCoins}`);
-            // Spiele den Coin-PickUp-Sound (lautstärke in der Character-Klasse eingestellt)
             this.character.coinPickUpSound
               .play()
               .catch((err) => console.error(err));
           } else if (item instanceof PoisonBottle) {
             this.collectedPoisonBottles++;
-            // 5 PoisonBottles = 100 % → jede Bottle = 20%
             this.poisonStatusBar.setPercentage(
               this.collectedPoisonBottles * 20
             );
             console.log(
               `Poison Bottle collected! Count: ${this.collectedPoisonBottles}`
             );
-            // Spiele den Poisoned-Bottle-Sound
             this.character.poisonBottleSound
               .play()
               .catch((err) => console.error(err));
           }
-          // Entferne das eingesammelte Objekt:
           this.collectibles.splice(index, 1);
         }
       });
@@ -120,21 +113,14 @@ class World {
   }
 
   draw() {
-    // Wenn Game Over, zeichne ein leicht dunkles Overlay und zeige den Game Over Screen
     if (this.gameOver) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.save();
-      // Leicht dunkles Overlay (nicht komplett schwarz)
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.restore();
-
-      // Blende den HTML-Game-Over Screen ein
       document.getElementById("game-over-screen").style.display = "flex";
       return;
     }
 
-    // Normale Zeichnungslogik:
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.translate(this.camera_x, 0);
 
@@ -145,12 +131,10 @@ class World {
     this.addToMap(this.character);
 
     this.ctx.translate(-this.camera_x, 0);
-    // Zeichne die HUD-Elemente (HP, Coin-StatusBar, PoisonBottle-StatusBar)
     this.addToMap(this.statusBar);
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
 
-    // Aktualisiere und zeichne Bubbles:
     this.bubbles.forEach((bubble) => bubble.update());
     this.addObjectsToMap(this.bubbles);
 
@@ -171,26 +155,19 @@ class World {
     }
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
-
-      if (mo instanceof Character || mo instanceof Fish) {
-        this.ctx.beginPath();
-        this.ctx.lineWidth = "5";
-        this.ctx.strokeStyle = "blue";
-        this.ctx.rect(0, 0, mo.width, mo.height);
-        this.ctx.stroke();
-      }
     }
     this.ctx.restore();
   }
 
+  /**
+   * Spawnt eine normale Bubble.
+   */
   spawnBubble(sharkie) {
-    let offsetX = 140; // Standardwert für Bubble-Startposition
+    let offsetX = 140;
     let offsetY = 130;
-
     let spawnX = sharkie.otherDirection
-      ? sharkie.x - offsetX + this.camera_x // Korrektur: + statt -
-      : sharkie.x + offsetX + this.camera_x; // Korrektur: + statt -
-
+      ? sharkie.x - offsetX + this.camera_x
+      : sharkie.x + offsetX + this.camera_x;
     let spawnY = sharkie.y + offsetY;
 
     let bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
@@ -207,14 +184,15 @@ class World {
     );
   }
 
+  /**
+   * Spawnt eine vergiftete Bubble (gleiche Physik wie normale Bubble).
+   */
   spawnPoisonedBubble(sharkie) {
-    let offsetX = 140; // Standardwert für Bubble-Startposition
+    let offsetX = 140;
     let offsetY = 130;
-
     let spawnX = sharkie.otherDirection
-      ? sharkie.x - offsetX + this.camera_x // Korrektur: + statt -
-      : sharkie.x + offsetX + this.camera_x; // Korrektur: + statt -
-
+      ? sharkie.x - offsetX + this.camera_x
+      : sharkie.x + offsetX + this.camera_x;
     let spawnY = sharkie.y + offsetY;
 
     let poisonedBubble = new PoisonedBubble(
