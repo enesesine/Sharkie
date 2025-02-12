@@ -1,23 +1,29 @@
 class Bubble extends MoveableObject {
+  // Füge ein Offset hinzu, damit isColliding() keine undefined-Werte bekommt
+  offset = {
+    top: 5,
+    right: 5,
+    bottom: 5,
+    left: 5,
+  };
+
   constructor(x, y, goingLeft, world) {
     super().loadImage("Imgs/1.Sharkie/4.Attack/Bubble trap/Bubble.png");
-
     this.world = world;
-    // Speichere den Punkt, an dem die Bubble gespawnt wird
+
+    // Startposition
+    this.x = x;
+    this.y = y;
     this.initialX = x;
     this.initialY = y;
 
-    // Setze die Startposition
-    this.x = x;
-    this.y = y;
-
-    // Größe anpassen, wenn du sie größer willst (z. B. 50x50):
+    // Größe
     this.width = 40;
     this.height = 40;
 
     // Richtung & Grundgeschwindigkeit
     this.goingLeft = goingLeft;
-    this.speed = 2.5; // Kannst du beliebig anpassen
+    this.speed = 2.5;
   }
 
   update() {
@@ -27,12 +33,10 @@ class Bubble extends MoveableObject {
       this.x += this.speed;
     }
 
-    // Entferne diesen Code, falls er existiert:
-    // this.x -= this.world.camera_x;
-
     let distance = this.x - this.initialX;
     this.y = this.initialY + Math.sin(distance / 35) * 5;
 
+    // Falls Bubble den Canvas verlässt:
     if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
       this.removeBubble();
     }

@@ -1,7 +1,14 @@
 class Fish2 extends MoveableObject {
-  width = 100;
-  height = 90;
+  width = 80;
+  height = 70;
   isDead = false; // Eigener Dead-Status
+
+  offset = {
+    top: 25,
+    right: 20,
+    bottom: 25,
+    left: 20,
+  };
 
   IMAGES_SWIMMING = [
     "Imgs/2.Enemy/2 Jelly fish/Regular damage/Lila 1.png",
@@ -12,10 +19,10 @@ class Fish2 extends MoveableObject {
 
   // Eigenes Death-Animation-Array (ohne Fade/Hochschwimmen)
   IMAGES_DEAD = [
-    "Imgs/2.Enemy/2 Jelly fish/Dead/Yellow/y1.png",
-    "Imgs/2.Enemy/2 Jelly fish/Dead/Yellow/y2.png",
-    "Imgs/2.Enemy/2 Jelly fish/Dead/Yellow/y3.png",
-    "Imgs/2.Enemy/2 Jelly fish/Dead/Yellow/y4.png",
+    "Imgs/2.Enemy/2 Jelly fish/Dead/Lila/L1.png",
+    "Imgs/2.Enemy/2 Jelly fish/Dead/Lila/L2.png",
+    "Imgs/2.Enemy/2 Jelly fish/Dead/Lila/L3.png",
+    "Imgs/2.Enemy/2 Jelly fish/Dead/Lila/L4.png",
     // Falls du mehr Frames hast, füge sie hier hinzu
   ];
 

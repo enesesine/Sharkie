@@ -1,9 +1,16 @@
 class Fish extends MoveableObject {
-  width = 90;
-  height = 120;
+  width = 70;
+  height = 100;
   y = Math.random() * 300;
   speed = 0.5 + Math.random() * 1.5;
   isDead = false;
+
+  offset = {
+    top: 20,
+    bottom: 20,
+    left: 25,
+    right: 25,
+  };
 
   IMAGES_SWIMMING = [
     "Imgs/2.Enemy/1.Puffer fish (3 color options)/1.Swim/1.swim1.png",

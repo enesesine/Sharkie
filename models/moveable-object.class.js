@@ -4,11 +4,15 @@ class MoveableObject extends DrawableObject {
   energy = 100;
 
   isColliding(mo) {
+    // Falls offset fehlt, setze default
+    if (!this.offset) this.offset = { top: 0, right: 0, bottom: 0, left: 0 };
+    if (!mo.offset) mo.offset = { top: 0, right: 0, bottom: 0, left: 0 };
+
     return (
-      this.x + this.width > mo.x && // Prüft, ob sich die Objekte überlappen (rechts)
-      this.x < mo.x + mo.width && // Prüft, ob sich die Objekte überlappen (links)
-      this.y + this.height > mo.y && // Prüft, ob sich die Objekte überlappen (unten)
-      this.y < mo.y + mo.height // Prüft, ob sich die Objekte überlappen (oben)
+      this.x + this.width - this.offset.right > mo.x + mo.offset.left &&
+      this.x + this.offset.left < mo.x + mo.width - mo.offset.right &&
+      this.y + this.height - this.offset.bottom > mo.y + mo.offset.top &&
+      this.y + this.offset.top < mo.y + mo.height - mo.offset.bottom
     );
   }
 
