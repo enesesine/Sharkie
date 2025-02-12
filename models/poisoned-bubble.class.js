@@ -21,7 +21,7 @@ class PoisonedBubble extends MoveableObject {
     this.height = 40;
 
     this.goingLeft = goingLeft;
-    this.speed = 5;
+    this.speed = 2.5;
 
     this.animate();
   }

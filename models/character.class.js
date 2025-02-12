@@ -290,6 +290,8 @@ class Character extends MoveableObject {
   animateIdle() {
     setInterval(() => {
       if (this.isDead) return;
+      if (this.isHurt) return; //  <== NEU!  Keine Idle, wenn er „hurt“ ist
+
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
         return;
@@ -481,7 +483,6 @@ class Character extends MoveableObject {
    */
   hit(damage) {
     let now = Date.now();
-    // Falls tot, schon im Hurt-Status oder noch im Cooldown
     if (
       this.hp <= 0 ||
       this.isHurt ||
@@ -490,7 +491,13 @@ class Character extends MoveableObject {
       return;
     }
 
-    this.lastDamageTime = now; // cooldown startet
+    // Sobald Schaden kommt: Idle-Logik zurücksetzen
+    this.lastMovementTime = performance.now();
+    if (this.resetLongIdle) {
+      this.resetLongIdle();
+    }
+
+    this.lastDamageTime = now; // cooldown
     this.hp -= damage;
     if (this.hp < 0) this.hp = 0;
 
@@ -503,7 +510,6 @@ class Character extends MoveableObject {
     this.playAnimation(this.IMAGES_HURT);
     console.log("🎬 Damage-Animation gestartet!");
 
-    // Nach 1 Sekunde normal
     setTimeout(() => {
       this.isHurt = false;
       console.log("✅ Sharkie ist wieder normal.");
