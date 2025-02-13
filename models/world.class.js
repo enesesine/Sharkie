@@ -14,11 +14,12 @@ class World {
   // Status Bars (UI, fix am Bildschirmrand):
   coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
+  statusBar = new StatusBar();
 
   canvas;
   ctx;
   keyboard;
-  camera_x = 0; // Kamera-Verschiebung in Weltkoordinaten (negativer Wert, wenn Welt nach links verschoben wird)
+  camera_x = 0; // Kamera-Verschiebung in Weltkoordinaten
   gameOver = false;
 
   constructor(canvas, keyboard) {
@@ -98,8 +99,8 @@ class World {
 
   /**
    * Zeichnet die Spielwelt.
-   * Weltobjekte (Hintergrund, Gegner, Charakter, Bubbles, etc.) werden in Weltkoordinaten gezeichnet,
-   * UI-Elemente (Status Bars) bleiben fix.
+   * Weltobjekte werden in Weltkoordinaten gezeichnet (mit Kamera-Verschiebung),
+   * UI-Elemente (Status Bars) bleiben fix am Bildschirmrand.
    */
   draw() {
     if (this.gameOver) {
@@ -112,23 +113,22 @@ class World {
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Kamera aktualisieren: Sharkie wird zentriert
+    // Aktualisiere die Kameraposition: Sharkie soll immer bei x = 50 auf dem Bildschirm sein
     this.updateCameraPosition();
 
-    // Welt zeichnen (mit Kamera-Verschiebung)
+    // Weltobjekte zeichnen (mit Kameraverschiebung)
     this.ctx.save();
     this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.backgroundObjects);
     this.addObjectsToMap(this.enemies);
     this.addObjectsToMap(this.surfaces);
     this.addObjectsToMap(this.collectibles);
     this.addObjectsToMap(this.bubbles);
     this.addToMap(this.character);
-
     this.ctx.restore();
 
-    // UI-Elemente (Status Bars) fix am Bildschirmrand zeichnen (ohne Kameraverschiebung)
+    // UI-Elemente fix am Bildschirmrand zeichnen (ohne Kameraverschiebung)
+    this.addToMap(this.statusBar);
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
 
@@ -136,19 +136,13 @@ class World {
   }
 
   /**
-   * Aktualisiert die Kamera-Position, sodass Sharkie in der Mitte des Bildschirms ist.
+   * Setzt die Kamera so, dass Sharkie immer bei x = 50 erscheint.
+   * Hier gibt es kein Smoothing, damit die Kamera nicht wackelt.
    */
   updateCameraPosition() {
-    // Berechne den Mittelpunkt des Canvas
-    let centerX = this.canvas.width / 2;
-    // Berechne den Mittelpunkt von Sharkie (in Weltkoordinaten)
-    let sharkieCenterX = this.character.x + this.character.width / 2;
-    // Setze den Kameraverschiebungswert so, dass Sharkie zentriert ist:
-    this.camera_x = -(sharkieCenterX - centerX);
-
-    // Optional: Begrenze die Kamera, wenn die Weltbegrenzungen erreicht sind
-    // z.B.: this.camera_x = Math.min(this.camera_x, 0);
-    //          this.camera_x = Math.max(this.camera_x, -(this.level.level_end_x - this.canvas.width));
+    const fixedScreenX = 50; // Sharkie soll hier auf dem Bildschirm sein
+    this.camera_x = fixedScreenX - this.character.x;
+    // Optional: Kamera-Grenzen einbauen, falls nötig.
   }
 
   /**
@@ -160,21 +154,25 @@ class World {
 
   /**
    * Zeichnet ein einzelnes Objekt.
-   * Wenn es sich um ein Weltobjekt handelt, wird der Kameraverschiebungswert addiert.
-   * UI-Elemente (z. B. Status Bars) werden ohne Kameraverschiebung gezeichnet.
+   * Weltobjekte werden mit der globalen Kameratranslation gezeichnet,
+   * UI-Elemente (Status Bars) werden fix gezeichnet.
    */
   addToMap(mo) {
     this.ctx.save();
-    if (mo instanceof CoinStatusBar || mo instanceof PoisonStatusBar) {
-      // UI-Elemente bleiben fix:
+    if (
+      mo instanceof StatusBar ||
+      mo instanceof CoinStatusBar ||
+      mo instanceof PoisonStatusBar
+    ) {
+      // UI-Elemente: Fix an Bildschirmposition
       this.ctx.translate(mo.x, mo.y);
     } else {
-      // Weltobjekte: Füge den Kameraverschiebungswert hinzu.
-      this.ctx.translate(mo.x + this.camera_x, mo.y);
+      // Weltobjekte: Es wird bereits global durch draw() verschoben, also nur mo.x, mo.y
+      this.ctx.translate(mo.x, mo.y);
     }
 
     if (mo.otherDirection) {
-      // Falls das Objekt nach links schaut, spiegele es:
+      // Falls das Objekt nach links schaut, spiegel es:
       this.ctx.scale(-1, 1);
       this.ctx.translate(-mo.width, 0);
     }
@@ -182,7 +180,6 @@ class World {
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
     }
-
     this.ctx.restore();
   }
 
@@ -238,7 +235,7 @@ class World {
       } else {
         bubble.x += bubbleSpeed;
       }
-      // Verwende die Weltgrenze (level_end_x) als rechte Grenze
+      // Entferne die Bubble, wenn sie außerhalb der Welt ist:
       if (
         bubble.x < -bubble.width ||
         bubble.x > this.level.level_end_x + bubble.width
