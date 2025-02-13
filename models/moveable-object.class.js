@@ -4,7 +4,6 @@ class MoveableObject extends DrawableObject {
   energy = 100;
 
   isColliding(mo) {
-    // Falls offset fehlt, setze default
     if (!this.offset) this.offset = { top: 0, right: 0, bottom: 0, left: 0 };
     if (!mo.offset) mo.offset = { top: 0, right: 0, bottom: 0, left: 0 };
 

@@ -1,15 +1,18 @@
 class Fish extends MoveableObject {
-  width = 70;
-  height = 100;
+  // Mache den Fisch größer, z. B. 120×150
+  width = 120;
+  height = 150;
+
   y = Math.random() * 300;
   speed = 0.5 + Math.random() * 1.5;
   isDead = false;
 
+  // Offset auf 0 lassen, damit die Hitbox so groß ist wie das Sprite
   offset = {
-    top: 20,
-    bottom: 20,
-    left: 25,
-    right: 25,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   };
 
   IMAGES_SWIMMING = [
@@ -29,9 +32,12 @@ class Fish extends MoveableObject {
     this.loadImages(this.IMAGES_SWIMMING);
     this.loadImages(this.IMAGES_DEATH);
 
+    // Startposition:
     this.x = 800 + Math.random() * 2000;
-
     this.world = null;
+
+    // Damit das Fade-Out in die() funktioniert:
+    this.opacity = 1;
 
     this.animate();
   }
@@ -66,17 +72,18 @@ class Fish extends MoveableObject {
 
     console.log("☠️ Fisch stirbt → Animation & Hochschwimmen beginnt!");
 
+    // Spiele das erste Death-Bild
     this.playAnimation(this.IMAGES_DEATH);
 
-    let moveUpSpeed = 5; // 🔥 Perfekte Geschwindigkeit fürs Hochschwimmen
+    let moveUpSpeed = 5;
     let moveUpInterval = setInterval(() => {
-      this.y -= moveUpSpeed; // 🔥 Fisch schwebt nach oben
-      this.opacity -= 0.05; // 🔥 Lässt den Fisch langsam verschwinden
+      this.y -= moveUpSpeed; // Fisch schwebt nach oben
+      this.opacity -= 0.05; // Fisch wird langsam unsichtbar
       if (this.opacity <= 0) {
         clearInterval(moveUpInterval);
         this.remove();
       }
-    }, 50); // 🔥 Animiert sanft und nicht zu schnell
+    }, 50);
   }
 
   remove() {

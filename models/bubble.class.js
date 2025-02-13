@@ -23,7 +23,7 @@ class Bubble extends MoveableObject {
 
     // Richtung & Grundgeschwindigkeit
     this.goingLeft = goingLeft;
-    this.speed = 2.5;
+    this.speed = 1;
   }
 
   update() {
@@ -34,10 +34,16 @@ class Bubble extends MoveableObject {
     }
 
     let distance = this.x - this.initialX;
-    this.y = this.initialY + Math.sin(distance / 35) * 5;
+    this.y = this.initialY + Math.sin(distance / 30) * 15;
+
+    // 🚀 WICHTIG: KEINE Kamera-Korrektur hier! Bubbles bleiben in Welt-Koordinaten.
+    console.log(`🎈 Bubble bewegt sich - X=${this.x}, Y=${this.y}`);
 
     // Falls Bubble den Canvas verlässt:
-    if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
+    if (
+      this.x < -this.width ||
+      this.x > this.world.level.level_end_x + this.width
+    ) {
       this.removeBubble();
     }
   }
