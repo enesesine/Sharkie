@@ -59,7 +59,12 @@ class World {
           console.log(
             `💥 Kollision! Bubble X: ${bubble.x}, Gegner X: ${enemy.x}`
           );
-          enemy.die();
+          // Unterscheidung: Endboss bekommt Schaden, sonst sterben normale Gegner
+          if (enemy instanceof Endboss) {
+            enemy.receiveDamage();
+          } else {
+            enemy.die();
+          }
           this.bubbles.splice(i, 1);
           break;
         }
@@ -244,5 +249,11 @@ class World {
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
       }
     }, 1000 / 60);
+  }
+
+  displayWinScreen() {
+    this.gameOver = true;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    document.getElementById("win-screen").style.display = "flex";
   }
 }
