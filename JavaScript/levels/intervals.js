@@ -15,8 +15,19 @@ function setGameInterval(fn, delay) {
 
 /**
  * Löscht alle in window.gameIntervals gespeicherten Intervalle.
+ * Zusätzlich wird, falls vorhanden, der swimSoundInterval des Characters beendet.
  */
 function clearAllGameIntervals() {
+  // Falls es einen globalen world und einen Character gibt, beende dessen swimSoundInterval
+  if (
+    window.world &&
+    window.world.character &&
+    window.world.character.swimSoundInterval
+  ) {
+    clearInterval(window.world.character.swimSoundInterval);
+    window.world.character.swimSoundInterval = null;
+  }
+
   window.gameIntervals.forEach((id) => clearInterval(id));
   window.gameIntervals = [];
 }

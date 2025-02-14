@@ -240,23 +240,23 @@ class World {
 
   /**
    * Bewegt eine Bubble in Weltkoordinaten.
+   * Hier wird setGameInterval() verwendet, damit der Interval zentral registriert wird.
    */
   animateBubble(bubble) {
     let bubbleSpeed = 5;
-    let moveInterval = setInterval(() => {
+    let moveInterval = setGameInterval(() => {
       if (bubble.goingLeft) {
         bubble.x -= bubbleSpeed;
       } else {
         bubble.x += bubbleSpeed;
       }
-      // Entferne die Bubble, wenn sie außerhalb der Welt ist:
-      if (
-        bubble.x < -bubble.width ||
-        bubble.x > this.level.level_end_x + bubble.width * 2
-      ) {
+      // Entferne die Bubble, wenn sie links außerhalb des Bildschirms ist.
+      if (bubble.x < -bubble.width) {
         clearInterval(moveInterval);
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
       }
+      // Den rechten Rand ignorieren – daher wird die Bedingung hier entfernt.
+      // Falls du später Speicherprobleme bekommst, kannst du hier einen weit entfernten Wert einfügen.
     }, 1000 / 60);
   }
 

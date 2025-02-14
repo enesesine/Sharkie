@@ -1,19 +1,19 @@
 class PoisonedBubble extends MoveableObject {
+  // Nur ein einziges Image
   IMAGES = [
     "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png",
-    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame2).png",
-    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame3).png",
-    "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (frame4).png",
-  ]; // Füge hier die richtigen Frames für die Animation ein
+  ];
 
   constructor(x, y, goingLeft, world) {
+    // Lade das einzige Bild
     super().loadImage(this.IMAGES[0]);
-    this.loadImages(this.IMAGES);
 
     this.world = world;
+    // Speichere die Startpositionen (falls benötigt)
     this.initialX = x;
     this.initialY = y;
 
+    // Setze Startposition
     this.x = x;
     this.y = y;
 
@@ -21,31 +21,17 @@ class PoisonedBubble extends MoveableObject {
     this.height = 40;
 
     this.goingLeft = goingLeft;
-    this.speed = 2.5;
+    // Setze die Geschwindigkeit exakt gleich wie bei der normalen Bubble
+    this.speed = 5;
 
-    this.animate();
+    // Da es nur ein Bild gibt, brauchen wir keine Frame-Animation.
+    // Falls du dennoch einen Timer benötigst, kannst du die animate()-Methode leer lassen.
   }
 
-  update() {
-    if (this.goingLeft) {
-      this.x -= this.speed;
-    } else {
-      this.x += this.speed;
-    }
+  // Keine eigene update()-Methode – die Bewegung wird über die World gesteuert.
 
-    let distance = this.x - this.initialX;
-    this.y = this.initialY + Math.sin(distance / 35) * 5;
-
-    if (this.x < -this.width || this.x > this.world.canvas.width + this.width) {
-      this.removeBubble();
-    }
-  }
-
-  animate() {
-    setInterval(() => {
-      this.playAnimation(this.IMAGES); // Spiele die Animation kontinuierlich
-    }, 150);
-  }
+  // Leere animate()-Methode, da kein Framewechsel nötig ist.
+  animate() {}
 
   removeBubble() {
     const index = this.world.bubbles.indexOf(this);

@@ -3,7 +3,7 @@
 // Global variables
 let canvas;
 let world;
-let keyboard = new Keyboard(); // Die Keyboard-Klasse speichert, welche Tasten gerade gedrückt sind (z. B. LEFT, RIGHT, SPACE, C, D, etc.).
+let keyboard = new Keyboard(); // Die Keyboard-Klasse speichert, welche Tasten gerade gedrückt sind.
 let backgroundMusic = new Audio("Audio/backgroundSound.mp3");
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5;
@@ -24,6 +24,31 @@ function init() {
   });
 }
 
+// Reset-Funktion: Setzt den gesamten Spielzustand zurück, ohne die Seite neu zu laden.
+function resetGame() {
+  // Alle aktiven Intervalle löschen
+  clearAllGameIntervals();
+
+  // UI-Elemente ausblenden (Game Over und Win-Screen)
+  document.getElementById("game-over-screen").style.display = "none";
+  document.getElementById("win-screen").style.display = "none";
+
+  // Wichtig: Neuer Level-Zustand wird erzeugt:
+  level1 = createLevel1(); // Stelle sicher, dass createLevel1() alle Objekte frisch initialisiert
+
+  // Neues World-Objekt erstellen – dadurch wird die komplette Welt neu aufgebaut
+  canvas = document.getElementById("canvas");
+  world = new World(canvas, keyboard);
+  world.statusBar.setPercentage(100);
+
+  // Hintergrundmusik zurücksetzen und neu starten
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+  backgroundMusic.play().catch((err) => console.error(err));
+
+  console.log("Game has been reset", world);
+}
+
 // Toggle-Funktion für die Hintergrundmusik mit Änderung des Sound-Icons
 function toggleMusic() {
   const soundToggle = document.getElementById("sound-toggle");
@@ -31,11 +56,9 @@ function toggleMusic() {
     backgroundMusic.play().catch((err) => {
       console.error("Hintergrundmusik konnte nicht gestartet werden:", err);
     });
-    // Zeige das "Sound-image", wenn Musik an ist
     soundToggle.src = "Imgs/7. Other/Sound-image.png";
   } else {
     backgroundMusic.pause();
-    // Zeige das "Mute-image", wenn Musik aus ist
     soundToggle.src = "Imgs/7. Other/Mute-image.png";
   }
 }
@@ -54,26 +77,8 @@ function toggleFullScreen() {
   }
 }
 
-// Keyboard-Event-Listener
-window.addEventListener("keydown", (event) => {
-  if (event.code === "ArrowRight") keyboard.RIGHT = true;
-  if (event.code === "ArrowLeft") keyboard.LEFT = true;
-  if (event.code === "ArrowUp") keyboard.UP = true;
-  if (event.code === "ArrowDown") keyboard.DOWN = true;
-  if (event.code === "Space") keyboard.SPACE = true;
-  if (event.code === "KeyD") keyboard.D = true;
-  if (event.code === "KeyC") keyboard.C = true;
-});
-
-window.addEventListener("keyup", (event) => {
-  if (event.code === "ArrowRight") keyboard.RIGHT = false;
-  if (event.code === "ArrowLeft") keyboard.LEFT = false;
-  if (event.code === "ArrowUp") keyboard.UP = false;
-  if (event.code === "ArrowDown") keyboard.DOWN = false;
-  if (event.code === "Space") keyboard.SPACE = false;
-  if (event.code === "KeyD") keyboard.D = false;
-  if (event.code === "KeyC") keyboard.C = false;
-});
+// Hinweis: Die Keyboard-Event-Listener sind nun in der Keyboard-Klasse implementiert,
+// daher wurden die Listener in diesem File entfernt.
 
 // DOMContentLoaded: Setze die Event-Listener für den Fullscreen-Button und den Sound-Toggle
 document.addEventListener("DOMContentLoaded", () => {
@@ -83,8 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fsBtn.addEventListener("click", toggleFullScreen);
     document.addEventListener("fullscreenchange", () => {
       if (document.fullscreenElement) {
-        // Optional: Ändere das Bild für "Exit Fullscreen"
-        // fsBtn.src = "Imgs/exit-fullscreen.png";
+        // Optional: Bild für "Exit Fullscreen" ändern
       } else {
         fsBtn.src = "Imgs/7. Other/fullscreen.png";
       }

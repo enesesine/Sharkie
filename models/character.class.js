@@ -187,6 +187,12 @@ class Character extends MoveableObject {
   coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
   poisonBottleSound = new Audio("Audio/Poisoned_Bottle_Sound.ogg");
 
+  // Variable für den Swimming Sound Interval
+  swimSoundInterval = null;
+
+  // Variable für Debounce beim Poisoned Bubble-Angriff
+  wasPoisonKeyPressed = false;
+
   // Konstruktor
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
@@ -207,8 +213,9 @@ class Character extends MoveableObject {
 
     this.lastMovementTime = performance.now();
 
-    // Check ob eine Bewegungstaste aktiv ist, um Fish-Sound an/auszuschalten
-    setInterval(() => {
+    // Starte den Intervall für den Fish-Swimming-Sound über setGameInterval,
+    // damit er automatisch in window.gameIntervals aufgenommen wird
+    this.swimSoundInterval = setGameInterval(() => {
       const kb = this.world ? this.world.keyboard : null;
       if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)) {
         this.playFishSwimmingSound();
@@ -234,7 +241,7 @@ class Character extends MoveableObject {
   }
 
   animateHorizontalMovement() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
@@ -258,7 +265,7 @@ class Character extends MoveableObject {
   }
 
   animateVerticalMovement() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
@@ -278,7 +285,7 @@ class Character extends MoveableObject {
   }
 
   animateSwimming() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN) {
@@ -288,9 +295,9 @@ class Character extends MoveableObject {
   }
 
   animateIdle() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
-      if (this.isHurt) return; //  <== NEU!  Keine Idle, wenn er „hurt“ ist
+      if (this.isHurt) return; // Keine Idle, wenn er "hurt" ist
 
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
@@ -311,7 +318,7 @@ class Character extends MoveableObject {
   }
 
   animateAttackSlap() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       if (this.isAttacking) {
         this.playAnimation(this.IMAGES_ATTACK_SLAP, "attackSlapIndex");
@@ -328,7 +335,7 @@ class Character extends MoveableObject {
   }
 
   animateAttackBubble() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       const currentTime = Date.now();
       if (
@@ -346,9 +353,12 @@ class Character extends MoveableObject {
   }
 
   animateAttackPoisonedBubble() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
-      if (this.world.keyboard.C) {
+
+      // Prüfe, ob KeyC gedrückt wurde, aber nur wenn er vorher nicht schon registriert war.
+      if (this.world.keyboard.C && !this.wasPoisonKeyPressed) {
+        this.wasPoisonKeyPressed = true;
         if (
           this.world.collectedPoisonBottles > 0 &&
           !this.isPoisonBubbleAttacking
@@ -357,25 +367,29 @@ class Character extends MoveableObject {
           this.poisonBubbleAttackIndex = 0;
           this.resetAFKTimer();
         }
-        if (this.isPoisonBubbleAttacking) {
-          this.playAnimation(
-            this.IMAGES_ATTACK_POISONED_BUBBLE,
-            "poisonBubbleAttackIndex"
-          );
-          if (
-            this.poisonBubbleAttackIndex >=
-            this.IMAGES_ATTACK_POISONED_BUBBLE.length
-          ) {
-            this.isPoisonBubbleAttacking = false;
-            if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
-              this.bubblePopSound.play().catch((err) => console.error(err));
-              this.world.spawnPoisonedBubble(this);
-              this.lastBubbleTime = Date.now();
-              this.world.collectedPoisonBottles--;
-              this.world.poisonStatusBar.setPercentage(
-                this.world.collectedPoisonBottles * 20
-              );
-            }
+      } else if (!this.world.keyboard.C) {
+        // Sobald die Taste losgelassen wird, erlauben wir einen erneuten Angriff.
+        this.wasPoisonKeyPressed = false;
+      }
+
+      if (this.isPoisonBubbleAttacking) {
+        this.playAnimation(
+          this.IMAGES_ATTACK_POISONED_BUBBLE,
+          "poisonBubbleAttackIndex"
+        );
+        if (
+          this.poisonBubbleAttackIndex >=
+          this.IMAGES_ATTACK_POISONED_BUBBLE.length
+        ) {
+          this.isPoisonBubbleAttacking = false;
+          if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
+            this.bubblePopSound.play().catch((err) => console.error(err));
+            this.world.spawnPoisonedBubble(this);
+            this.lastBubbleTime = Date.now();
+            this.world.collectedPoisonBottles--;
+            this.world.poisonStatusBar.setPercentage(
+              this.world.collectedPoisonBottles * 20
+            );
           }
         }
       }
@@ -383,7 +397,7 @@ class Character extends MoveableObject {
   }
 
   animateHurt() {
-    setInterval(() => {
+    setGameInterval(() => {
       if (this.isDead) return;
       if (this.isHurt) {
         this.playHurtAnimation();
@@ -543,19 +557,12 @@ class Character extends MoveableObject {
   /******************************************
    * START / STOP FISHSWIMMINGSOUND
    ******************************************/
-
-  /**
-   * Spielt den Schwimm-Sound, falls nicht schon aktiv.
-   */
   playFishSwimmingSound() {
     if (this.fishSwimmingSound.paused) {
       this.fishSwimmingSound.play().catch((err) => console.error(err));
     }
   }
 
-  /**
-   * Stoppt den Schwimm-Sound und setzt den Zeitstempel zurück.
-   */
   stopFishSwimmingSound() {
     if (!this.fishSwimmingSound.paused) {
       this.fishSwimmingSound.pause();
@@ -566,7 +573,7 @@ class Character extends MoveableObject {
   die() {
     this.isDead = true;
     this.deathImageIndex = 0;
-    const deathInterval = setInterval(() => {
+    const deathInterval = setGameInterval(() => {
       if (this.deathImageIndex < this.DEATH_IMAGES.length) {
         this.img = this.imageCache[this.DEATH_IMAGES[this.deathImageIndex]];
         this.deathImageIndex++;
@@ -584,7 +591,7 @@ class Character extends MoveableObject {
   shootBubbleAttack() {
     let i = 0;
     const totalFrames = this.IMAGES_ATTACK_BUBBLE.length;
-    const intervalId = setInterval(() => {
+    const intervalId = setGameInterval(() => {
       if (i < totalFrames) {
         this.playAnimation(this.IMAGES_ATTACK_BUBBLE, "bubbleAttackIndex");
         i++;
