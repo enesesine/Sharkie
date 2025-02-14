@@ -1,7 +1,7 @@
 class Fish extends MoveableObject {
   // Mache den Fisch größer, z. B. 120×150
-  width = 120;
-  height = 150;
+  width = 90;
+  height = 100;
 
   y = Math.random() * 300;
   speed = 0.5 + Math.random() * 1.5;
