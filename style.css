@@ -14,6 +14,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* Vertikale Zentrierung */
+  min-height: 100vh; /* Sorgt dafür, dass der Body mindestens die Höhe des Viewports hat */
   background: url("Imgs/3. Background/Legacy/Dark/2.png");
   color: white;
   margin: 0;
@@ -22,6 +24,7 @@ body {
 /* ---- Startscreen ---- */
 #startscreen {
   position: absolute;
+  z-index: 3000; /* Startscreen ganz oben */
   width: 100%;
   height: 100vh;
   background: url("Imgs/3. Background/Legacy/Dark/1.png") no-repeat center
@@ -32,7 +35,6 @@ body {
   justify-content: center;
 }
 
-/* Titel im Startscreen */
 #startscreen h1 {
   font-size: 3rem;
   font-weight: 800;
@@ -41,8 +43,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Buttons im Startscreen */
-/* ---- Startscreen Buttons ---- */
 #startscreen button {
   font-family: "Poppins", sans-serif;
   font-size: 1.3rem;
@@ -61,15 +61,13 @@ body {
   overflow: hidden;
 }
 
-/* ---- Neuer Hover-Effekt ---- */
 #startscreen button:hover {
-  background: #0077ff; /* Orange */
+  background: #0077ff;
   color: white;
-  transform: scale(1.1); /* Button wird größer */
-  box-shadow: 0px 0px 15px rgba(2, 209, 255, 0.7); /* Glow Effekt */
+  transform: scale(1.1);
+  box-shadow: 0px 0px 15px rgba(2, 209, 255, 0.7);
 }
 
-/* ---- Coole animierte Linie beim Hover ---- */
 #startscreen button::after {
   content: "";
   position: absolute;
@@ -82,33 +80,29 @@ body {
   transition: transform 0.3s ease-in-out;
 }
 
-/* ---- Die Linie wird beim Hover sichtbar ---- */
 #startscreen button:hover::after {
   transform: scaleX(1);
 }
 
 /* ---- Canvas ---- */
-/* ---- Canvas perfekt zentrieren ---- */
 #canvas {
   background-color: black;
   display: none;
   border: 2px solid white;
-
-  /* Positionierung in der Mitte */
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-/* ---- Popup Overlay (dunkler Hintergrund) ---- */
+/* ---- Popup Overlay ---- */
 #popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7); /* Dunkler Hintergrund */
+  background: rgba(0, 0, 0, 0.7);
   display: none;
   z-index: 98;
 }
@@ -130,7 +124,6 @@ body {
   z-index: 99;
 }
 
-/* Titel in Popups */
 #popup-content h2 {
   font-size: 1.5rem;
   font-weight: 800;
@@ -138,7 +131,6 @@ body {
   margin-bottom: 15px;
 }
 
-/* Text in Popups */
 #popup-content p {
   font-size: 1rem;
   font-weight: 600;
@@ -146,7 +138,6 @@ body {
   margin: 10px 0;
 }
 
-/* ---- Schließen-Button (Zurück) ---- */
 #close-popup {
   background: none;
   border: none;
@@ -158,26 +149,22 @@ body {
   left: 10px;
 }
 
-/* Container für Canvas und Fullscreen-Button */
-/* Wichtig: display: inline-block (statt "contents") sorgt dafür, dass der Container eigene Abmessungen hat */
+/* ---- Game Container ---- */
 #game-container {
-  display: inline-block; /* oder inline-block */
-  width: 720px; /* gleiche Breite wie das Canvas */
-  height: 480px; /* gleiche Höhe wie das Canvas */
-  margin: 0 auto; /* Zentriert den Container horizontal */
+  position: relative; /* Damit absolute Elemente hier relativ positioniert werden */
+  display: inline-block;
+  width: 720px;
+  height: 480px;
+  margin: 0 auto;
 }
 
-/* Canvas */
-/* Entferne ggf. das inline style "display: none" aus dem HTML, 
-   wenn du den Canvas später sichtbar machst – oder schalte ihn per JS ein */
+/* Canvas (im Game Container) */
 #canvas {
   background-color: black;
   border: 2px solid white;
-  /* Optional: Wenn du den Canvas mittig positionieren möchtest,
-     kann dies auch über den Container erfolgen */
 }
 
-/* Wenn der Container im Fullscreen-Modus ist, soll der Canvas den vollen Platz einnehmen */
+/* Fullscreen Modus */
 #game-container:fullscreen {
   width: 100vw;
   height: 100vh;
@@ -188,34 +175,49 @@ body {
   height: 90%;
 }
 
-/* Fullscreen-Button als kleines, weißes Icon mit Schlagschatten */
+/* Fullscreen Button */
 #fullscreen-btn {
   position: absolute;
-  bottom: 225px; /* Abstand vom unteren Rand des Containers */
-  right: 35px; /* Abstand vom rechten Rand des Containers */
-  width: 20px; /* Sehr klein – passe diesen Wert bei Bedarf an */
+  bottom: 10px; /* gleicher Abstand wie der Sound-Button */
+  right: 40px; /* 40px vom rechten Rand, also links vom Sound-Button (der bei 10px ist) */
+  width: 20px;
   height: auto;
   cursor: pointer;
-  /* Mit diesem Filter wird das Bild weiß dargestellt, falls das Original nicht weiß ist */
   filter: brightness(0) invert(1);
   border-radius: 3px;
   padding: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
   transition: transform 0.2s ease;
+  z-index: 10;
 }
 
 #fullscreen-btn:hover {
   transform: scale(1.1);
 }
+/* Sound Toggle Button - innerhalb des Game Containers */
+#sound-toggle {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 20px;
+  height: auto;
+  cursor: pointer;
+  filter: brightness(0) invert(1);
+  border-radius: 3px;
+  padding: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
 
-/* Game Over Screen */
+/* ---- Game Over Screen ---- */
 #game-over-screen {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: none; /* initial versteckt */
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 2000;
@@ -227,7 +229,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3); /* leicht dunkles Overlay */
+  background: rgba(0, 0, 0, 0.3);
 }
 
 #game-over-content {
@@ -243,7 +245,6 @@ body {
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-/* Styling der Game Over Buttons */
 .game-over-buttons {
   display: flex;
   gap: 20px;
@@ -268,22 +269,72 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }
 
-#fullscreen-btn,
-#sound-toggle {
+/* ---- You Win Screen - exakt 720x480 ---- */
+#win-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 720px !important;
+  height: 480px !important;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  display: none;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+#win-overlay {
   position: absolute;
-  bottom: 10px;
-  width: 20px;
-  height: auto;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+#win-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#win-content img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.win-buttons {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 2001;
+}
+
+.win-buttons button {
+  font-size: 20px;
+  padding: 10px 20px;
   cursor: pointer;
-  filter: brightness(0) invert(1);
-  border-radius: 3px;
-  padding: 2px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-  transition: transform 0.2s ease;
+  background: linear-gradient(45deg, #0077ff, #00aaff);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  text-transform: uppercase;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-#fullscreen-btn {
-  right: 10px;
-}
-#sound-toggle {
-  right: 40px; /* Versetzt den Sound-Toggle etwas weiter vom rechten Rand, damit beide Buttons nicht überlappen */
+
+.win-buttons button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }

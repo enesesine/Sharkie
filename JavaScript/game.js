@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Optional: Ändere das Bild für "Exit Fullscreen"
         // fsBtn.src = "Imgs/exit-fullscreen.png";
       } else {
-        fsBtn.src = "Imgs/fullscreen.png";
+        fsBtn.src = "Imgs/7. Other/fullscreen.png";
       }
     });
   }

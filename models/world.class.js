@@ -21,6 +21,7 @@ class World {
   keyboard;
   camera_x = 0; // Kamera-Verschiebung in Weltkoordinaten
   gameOver = false;
+  gameWon = false; // Neu: Flag, das anzeigt, ob der Spieler gewonnen hat
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -108,6 +109,14 @@ class World {
    * UI-Elemente (Status Bars) bleiben fix am Bildschirmrand.
    */
   draw() {
+    // Zuerst prüfen wir, ob der Spieler gewonnen hat:
+    if (this.gameWon) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      document.getElementById("win-screen").style.display = "flex";
+      return;
+    }
+
+    // Falls nicht gewonnen, aber gameOver:
     if (this.gameOver) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
@@ -243,7 +252,7 @@ class World {
       // Entferne die Bubble, wenn sie außerhalb der Welt ist:
       if (
         bubble.x < -bubble.width ||
-        bubble.x > this.level.level_end_x + bubble.width
+        bubble.x > this.level.level_end_x + bubble.width * 2
       ) {
         clearInterval(moveInterval);
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
@@ -252,7 +261,7 @@ class World {
   }
 
   displayWinScreen() {
-    this.gameOver = true;
+    this.gameWon = true;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     document.getElementById("win-screen").style.display = "flex";
   }
