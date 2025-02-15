@@ -13,6 +13,7 @@ function init() {
   clearAllGameIntervals(); // Alte Intervalle entfernen
   canvas = document.getElementById("canvas");
   world = new World(canvas, keyboard);
+  window.world = world; // Hier wird world global verfügbar gemacht
   world.statusBar.setPercentage(100);
   console.log("Game initialized", world);
 

@@ -83,27 +83,31 @@ function initJoystick() {
   document.addEventListener("touchend", onEnd);
 }
 
-// Nach DOMContentLoaded den Joystick initialisieren
 document.addEventListener("DOMContentLoaded", () => {
-  // Bestehende Listener für Fullscreen und Sound bleiben unverändert...
-  const fsBtn = document.getElementById("fullscreen-btn");
-  if (fsBtn) {
-    fsBtn.addEventListener("click", toggleFullScreen);
-    document.addEventListener("fullscreenchange", () => {
-      if (document.fullscreenElement) {
-        // Optional: Bild für "Exit Fullscreen" ändern
-      } else {
-        fsBtn.src = "Imgs/7. Other/fullscreen.png";
-      }
-    });
-  }
-  const soundToggle = document.getElementById("sound-toggle");
-  if (soundToggle) {
-    soundToggle.addEventListener("click", toggleMusic);
-  }
+  const attackBubbleBtn = document.getElementById("attack-bubble");
+  const attackPoisonBtn = document.getElementById("attack-poison");
 
-  // Initialisiere den Joystick (nur für Bildschirme zwischen 500px und 1200px)
-  // Original:
+  attackBubbleBtn.addEventListener("click", () => {
+    const character = window.world.character;
+    if (!character.isBubbleAttacking) {
+      // Setze den Zustand und starte die Attack-Animation, die am Ende die Bubble feuert.
+      character.isBubbleAttacking = true;
+      character.bubbleAttackIndex = 0;
+      character.shootBubbleAttack();
+    }
+  });
+
+  attackPoisonBtn.addEventListener("click", () => {
+    const character = window.world.character;
+    if (
+      !character.isPoisonBubbleAttacking &&
+      window.world.collectedPoisonBottles > 0
+    ) {
+      character.isPoisonBubbleAttacking = true;
+      character.poisonBubbleAttackIndex = 0;
+      character.resetAFKTimer();
+    }
+  });
 
   initJoystick();
 });

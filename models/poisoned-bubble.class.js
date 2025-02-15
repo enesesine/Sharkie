@@ -17,8 +17,8 @@ class PoisonedBubble extends MoveableObject {
     this.x = x;
     this.y = y;
 
-    this.width = 40;
-    this.height = 40;
+    this.width = 65;
+    this.height = 65;
 
     this.goingLeft = goingLeft;
     // Setze die Geschwindigkeit exakt gleich wie bei der normalen Bubble

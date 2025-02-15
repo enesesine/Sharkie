@@ -299,6 +299,16 @@ class Character extends MoveableObject {
       if (this.isDead) return;
       if (this.isHurt) return; // Keine Idle, wenn er "hurt" ist
 
+      // Wenn ein Angriff aktiv ist, setzen wir den AFK-Timer zurück und verlassen die Funktion:
+      if (
+        this.isAttacking ||
+        this.isBubbleAttacking ||
+        this.isPoisonBubbleAttacking
+      ) {
+        this.lastMovementTime = performance.now();
+        return;
+      }
+
       const keyboard = this.world.keyboard;
       if (keyboard.LEFT || keyboard.RIGHT || keyboard.UP || keyboard.DOWN)
         return;
