@@ -411,19 +411,31 @@ body {
     pointer-events: none; /* Standardmäßig deaktiviert – du aktivierst sie über JS, wenn nötig */
   }
   /* Joystick unten links im Canvas */
+  /* Joystick-Container (unten links im Canvas) */
   #joystick-container {
     position: absolute;
     left: 20px;
     bottom: 20px;
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.5);
+    width: 50px; /* Deutlich kleiner als vorher */
+    height: 50px; /* Deutlich kleiner als vorher */
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: auto; /* Damit der Joystick klickbar/interaktiv ist */
+    pointer-events: auto;
   }
+
+  /* Joystick selbst (als <div> mit Hintergrundbild) */
+  #joystick {
+    width: 100%;
+    height: 100%;
+    background: url("Imgs/7. Other/joystick.png") no-repeat center center;
+    background-size: contain;
+    /* Filter, damit das Bild weiß erscheint */
+    filter: brightness(0) invert(1);
+  }
+
   /* Attack-Buttons unten rechts im Canvas */
   #attack-buttons {
     position: absolute;

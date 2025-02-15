@@ -5,7 +5,7 @@ class Character extends MoveableObject {
   width = 170;
   y = 100;
   x = 5;
-  speed = 10;
+  speed = 6;
 
   // HP und Tot-Status
   hp = 100;
