@@ -19,6 +19,9 @@ body {
   background: url("Imgs/3. Background/Legacy/Dark/2.png");
   color: white;
   margin: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 /* ---- Startscreen ---- */
@@ -36,7 +39,7 @@ body {
 }
 
 #startscreen h1 {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 800;
   color: white;
   text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
@@ -337,4 +340,103 @@ body {
 .win-buttons button:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Standardmäßig beide Steuerelemente ausblenden */
+#mobile-message,
+#on-screen-controls {
+  display: none;
+}
+
+/* Für sehr kleine Bildschirme (unter 500px): Mobile Message Overlay */
+@media only screen and (max-width: 500px) {
+  #mobile-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8); /* halbtransparent */
+    color: white;
+    z-index: 3000;
+    padding: 20px;
+    text-align: center;
+  }
+  .mobile-message-top,
+  .mobile-message-bottom {
+    font-size: 1.5em;
+  }
+  .mobile-message-middle img {
+    max-width: 80%;
+    height: auto;
+    animation: rotate 3s linear infinite;
+  }
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .mobile-message-middle img {
+    max-width: 80%;
+    height: auto;
+    animation: rotate 3s linear infinite;
+    filter: brightness(0) invert(1);
+  }
+
+  .mobile-message-bottom {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    padding: 10px;
+  }
+}
+
+/* Für Bildschirme zwischen 500px und 1200px: On-Screen Controls */
+@media only screen and (min-width: 500px) and (max-width: 1200px) {
+  #on-screen-controls {
+    display: block;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    pointer-events: none; /* Standardmäßig deaktiviert – du aktivierst sie über JS, wenn nötig */
+  }
+  /* Joystick unten links im Canvas */
+  #joystick-container {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto; /* Damit der Joystick klickbar/interaktiv ist */
+  }
+  /* Attack-Buttons unten rechts im Canvas */
+  #attack-buttons {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+  }
+  #attack-buttons button {
+    width: 80px;
+    height: 40px;
+    font-size: 1em;
+  }
 }
