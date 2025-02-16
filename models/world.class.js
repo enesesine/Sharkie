@@ -86,8 +86,17 @@ class World {
         this.character.isColliding(enemy) &&
         !enemy.isDead
       ) {
-        let damageAmount = enemy instanceof Endboss ? 40 : 20;
-        this.character.hit(damageAmount, enemy);
+        // Berechne den vertikalen Mittelpunkt von Sharkie und dem Gegner:
+        const sharkieCenterY = this.character.y + this.character.height / 2;
+        const enemyCenterY = enemy.y + enemy.height / 2;
+        const verticalDiff = Math.abs(sharkieCenterY - enemyCenterY);
+
+        // Schwellwert: Nur wenn der vertikale Unterschied kleiner als 50 Pixel ist,
+        // wird Schaden ausgelöst.
+        if (verticalDiff < 30) {
+          let damageAmount = enemy instanceof Endboss ? 40 : 20;
+          this.character.hit(damageAmount, enemy);
+        }
       }
     }
 
@@ -99,6 +108,7 @@ class World {
         !enemy.isDead &&
         this.character.isSlapColliding(enemy)
       ) {
+        let slapDamage = 20;
         // Für kleine Gegner: sofort sterben
         if (!(enemy instanceof Endboss)) {
           enemy.die();
@@ -110,8 +120,6 @@ class World {
             ")"
           );
         } else {
-          // Beim Endboss eventuell weiterhin Schaden über hit() verteilen
-          let slapDamage = 20;
           enemy.hit(slapDamage);
           console.log(
             "Slap-Angriff: Endboss getroffen! (enemy.x =",
@@ -122,7 +130,7 @@ class World {
           );
         }
         // Optional: Falls ein Gegner mehrfach pro Frame getroffen werden soll,
-        // kann hier ein Flag gesetzt werden (z.B. enemy.slapHit = true;)
+        // kann hier ein Flag gesetzt werden (z. B. enemy.slapHit = true;)
       }
     }
 
