@@ -507,33 +507,45 @@ class Character extends MoveableObject {
    */
   hit(damage) {
     let now = Date.now();
-    if (
-      this.hp <= 0 ||
-      this.isHurt ||
-      now - this.lastDamageTime < this.damageCooldown
-    ) {
-      return;
+    if (this.hp <= 0) return;
+
+    // HP-Abzug nur, wenn der Cooldown abgelaufen ist:
+    if (now - this.lastDamageTime >= this.damageCooldown) {
+      this.lastDamageTime = now;
+      this.hp -= damage;
+      if (this.hp < 0) this.hp = 0;
+      this.world.statusBar.setPercentage(this.hp);
+      console.log(`⚠️ Sharkie getroffen! Schaden: ${damage} | HP: ${this.hp}`);
     }
 
-    // Sobald Schaden kommt: Idle-Logik zurücksetzen
-    this.lastMovementTime = performance.now();
-    if (this.resetLongIdle) {
-      this.resetLongIdle();
+    // Starte die Damage-Animation, falls sie gerade nicht läuft:
+    if (!this.isHurt) {
+      this.isHurt = true;
+      this.hurtStartTime = now;
+      this.hurtImageIndex = 0; // Animation immer von 0 beginnen
+
+      // Starte einen Intervall, der die Hurt-Frames regelmäßig aktualisiert
+      let hurtInterval = setGameInterval(() => {
+        this.playAnimation(this.IMAGES_HURT_SHOCK, "hurtImageIndex");
+      }, 150); // Passe den Wert an, um die gewünschte Geschwindigkeit zu erreichen
+
+      console.log("🎬 Damage-Animation gestartet!");
+
+      // Nach hurtDuration wird der Intervall gestoppt und der Hurt-Zustand zurückgesetzt:
+      setTimeout(() => {
+        clearInterval(hurtInterval);
+        this.isHurt = false;
+        console.log("✅ Damage-Animation beendet.");
+      }, this.hurtDuration);
     }
 
-    this.lastDamageTime = now; // cooldown
-    this.hp -= damage;
-    if (this.hp < 0) this.hp = 0;
+    if (this.hp <= 0) {
+      this.die();
+    }
 
+    // Setze isHurt, damit eventuell andere Animationen blockiert werden, und
+    // setze ihn nach hurtDuration zurück
     this.isHurt = true;
-    this.hurtStartTime = now;
-    this.world.statusBar.setPercentage(this.hp);
-
-    console.log(`⚠️ Sharkie getroffen! Schaden: ${damage} | HP: ${this.hp}`);
-
-    this.playAnimation(this.IMAGES_HURT);
-    console.log("🎬 Damage-Animation gestartet!");
-
     setTimeout(() => {
       this.isHurt = false;
       console.log("✅ Sharkie ist wieder normal.");
