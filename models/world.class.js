@@ -93,7 +93,7 @@ class World {
 
         // Schwellwert: Nur wenn der vertikale Unterschied kleiner als 50 Pixel ist,
         // wird Schaden ausgelöst.
-        if (verticalDiff < 30) {
+        if (verticalDiff < 50) {
           let damageAmount = enemy instanceof Endboss ? 40 : 20;
           this.character.hit(damageAmount, enemy);
         }
@@ -171,8 +171,9 @@ class World {
 
     // Falls gameOver:
     if (this.gameOver) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+      // Statt das Canvas komplett zu leeren, zeichne ein halbtransparentes Overlay:
+      //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Diese Zeile kannst du entfernen oder auskommentieren
+      this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // 0.5 = 50% Deckkraft; passe diesen Wert nach Bedarf an
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("game-over-screen").style.display = "flex";
       return;

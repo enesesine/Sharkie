@@ -318,7 +318,8 @@ body {
 
 .win-buttons {
   position: absolute;
-  bottom: 30px;
+  right: 140px;
+  bottom: 100px; /* oder ein anderer passender Wert */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
