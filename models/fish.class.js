@@ -75,15 +75,15 @@ class Fish extends MoveableObject {
     // Spiele das erste Death-Bild
     this.playAnimation(this.IMAGES_DEATH);
 
-    let moveUpSpeed = 5;
+    let moveUpSpeed = 8;
     let moveUpInterval = setInterval(() => {
       this.y -= moveUpSpeed; // Fisch schwebt nach oben
-      this.opacity -= 0.05; // Fisch wird langsam unsichtbar
+      this.opacity -= 0.03; // Fisch wird langsam unsichtbar
       if (this.opacity <= 0) {
         clearInterval(moveUpInterval);
         this.remove();
       }
-    }, 50);
+    }, 60);
   }
 
   remove() {

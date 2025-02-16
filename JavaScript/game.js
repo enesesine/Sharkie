@@ -60,7 +60,7 @@ function toggleMusic() {
     soundToggle.src = "Imgs/7. Other/Sound-image.png";
   } else {
     backgroundMusic.pause();
-    soundToggle.src = "Imgs/7. Other/Mute-image.png";
+    soundToggle.src = "Imgs/7. Other/mute.png";
   }
 }
 

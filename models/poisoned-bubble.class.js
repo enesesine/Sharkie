@@ -22,7 +22,7 @@ class PoisonedBubble extends MoveableObject {
 
     this.goingLeft = goingLeft;
     // Setze die Geschwindigkeit exakt gleich wie bei der normalen Bubble
-    this.speed = 5;
+    this.speed = 10;
 
     // Da es nur ein Bild gibt, brauchen wir keine Frame-Animation.
     // Falls du dennoch einen Timer benötigst, kannst du die animate()-Methode leer lassen.
