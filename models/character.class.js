@@ -211,7 +211,8 @@ class Character extends MoveableObject {
     this.loadImages(this.DEAD_BY_SHOCK);
     this.loadImages(this.DEATH_IMAGES);
     this.loadImages(this.IMAGES_ATTACK_POISONED_BUBBLE);
-
+    this.x = 5; // Beispiel-Spawnpunkt
+    this.spawnX = this.x; // Speichere den Spawnpunkt
     this.lastMovementTime = performance.now();
 
     // Starte den Intervall für den Fish-Swimming-Sound über setGameInterval,
@@ -246,12 +247,14 @@ class Character extends MoveableObject {
       if (this.isDead) return;
       const keyboard = this.world.keyboard;
       let moved = false;
+      // Bewegung nach rechts:
       if (keyboard.RIGHT && this.x < this.world.level.level_end_x) {
         this.x += this.speed;
         this.otherDirection = false;
         moved = true;
       }
-      if (keyboard.LEFT && this.x > -300) {
+      // Bewegung nach links: Nur zulassen, wenn er über seinem Spawnpunkt ist
+      if (keyboard.LEFT && this.x > this.spawnX) {
         this.x -= this.speed;
         this.otherDirection = true;
         moved = true;
@@ -260,7 +263,7 @@ class Character extends MoveableObject {
         this.lastMovementTime = performance.now();
         this.resetLongIdle();
       }
-      // Kamera
+      // Kamera-Anpassung
       this.world.camera_x = -this.x + 5;
     }, 1000 / 60);
   }
