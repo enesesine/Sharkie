@@ -37,7 +37,9 @@ function openPopup(type) {
     content = `
             <h2>Steuerung</h2>
             <p>🡆 Pfeiltasten: Bewegung</p>
+            
             <p>🡆 D: Bubble Attack</p>
+                 <p>🡆 C: Poisoned Bubble Attack</p>
             <p>🡆 Space: Slap Attack</p>
         `;
   } else if (type === "imprint") {
