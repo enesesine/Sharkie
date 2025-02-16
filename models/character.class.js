@@ -101,6 +101,7 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/5.Hurt/1.Poisoned/1.png",
     "Imgs/1.Sharkie/5.Hurt/1.Poisoned/2.png",
     "Imgs/1.Sharkie/5.Hurt/1.Poisoned/3.png",
+    "Imgs/1.Sharkie/5.Hurt/1.Poisoned/4.png",
   ];
 
   IMAGES_HURT_SHOCK = [
