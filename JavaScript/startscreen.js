@@ -46,7 +46,7 @@ function openPopup(type) {
     content = `
             <h2>Impressum</h2>
             <p>Entwickelt von Enes Hadzic</p>
-            <p>Kontakt: eneslucker@gmail.com</p>
+            <p>Kontakt: contacthadzic@gmail.com</p>
         `;
   } else if (type === "privacy") {
     content = `

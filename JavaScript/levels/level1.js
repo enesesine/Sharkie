@@ -18,26 +18,21 @@ function spawnFish3() {
   return fish3;
 }
 
-// Level-Definition
-let endboss = new Endboss();
-// Setze den Endboss weit rechts, damit er erst spawnt, wenn Sharkie weit genug nach rechts gelaufen ist.
-endboss.x = 2500; // Passe diesen Wert nach Bedarf an
+function spawnFishLevel1() {
+  return [
+    spawnFish(),
+    spawnFish(),
+    spawnFish(),
+    spawnFish2(),
+    spawnFish2(),
+    spawnFish3(),
+    spawnFish3(),
+    new Endboss(),
+  ];
+}
 
-let level1 = new Level(
-  // Gegner
-  [
-    spawnFish(),
-    spawnFish(),
-    spawnFish(),
-    spawnFish2(),
-    spawnFish2(),
-    spawnFish3(),
-    spawnFish3(),
-    endboss,
-  ],
-  // Hintergrund-Objekte (BackgroundObjects)
-  [
-    // Sehr linker Bereich (Layer 1)
+function setBackgroundsLevel1() {
+  return [
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D2.png", -720 * 2),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D1.png",
@@ -48,8 +43,6 @@ let level1 = new Level(
       -720 * 2
     ),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D1.png", -720 * 2),
-
-    // Nächster Block (Layer 2)
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D1.png", -720),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D2.png",
@@ -57,8 +50,6 @@ let level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D2.png", -720),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D2.png", -720),
-
-    // Mittlerer Bereich (Layer 3)
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D2.png", 0),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D1.png",
@@ -66,8 +57,6 @@ let level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D1.png", 0),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D1.png", 0),
-
-    // Bereich rechts vom Ursprung (Layer 4)
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D1.png", 720),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D2.png",
@@ -75,8 +64,6 @@ let level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D2.png", 720),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D2.png", 720),
-
-    // Noch weiter rechts (Layer 5)
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D2.png", 720 * 2),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D1.png",
@@ -84,8 +71,6 @@ let level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D1.png", 720 * 2),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D1.png", 720 * 2),
-
-    // Sehr rechter Bereich (Layer 6)
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D1.png", 720 * 3),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D2.png",
@@ -93,25 +78,34 @@ let level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D2.png", 720 * 3),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D2.png", 720 * 3),
-  ],
-  // Sammelobjekte
-  [
+  ];
+}
+
+function spawnCollectiblesLevel1() {
+  return [
     new Coin(),
     new Coin(),
     new Coin(),
     new Coin(),
     new Coin(),
-    // Initial platzierte PoisonBottle-Objekte
+    // Hier werden die PoisonBottle-Objekte initial platziert.
     new PoisonBottle(600, 250),
     new PoisonBottle(900, 200),
     new PoisonBottle(1200, 150),
     new PoisonBottle(1500, 220),
     new PoisonBottle(1800, 180),
-  ]
+  ];
+}
+
+// Level-Definition
+let level1 = new Level(
+  spawnFishLevel1(),
+  setBackgroundsLevel1(),
+  spawnCollectiblesLevel1()
 );
 
 // Respawn-Logik für PoisonBottles
-// Alle 10 Sekunden prüfen: Wenn weniger als 5 PoisonBottles vorhanden sind, wird eine neue gespawnt.
+// Alle 10 Sekunden prüfen: Wenn weniger als 5 PoisonBottle vorhanden sind, wird eine neu gespawnt.
 setInterval(() => {
   let currentPoison = level1.collectibles.filter(
     (item) => item instanceof PoisonBottle

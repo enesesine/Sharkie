@@ -215,8 +215,7 @@ class Character extends MoveableObject {
     this.spawnX = this.x; // Speichere den Spawnpunkt
     this.lastMovementTime = performance.now();
 
-    // Starte den Intervall für den Fish-Swimming-Sound über setGameInterval,
-    // damit er automatisch in window.gameIntervals aufgenommen wird
+    // Starte den Intervall für den Fish-Swimming-Sound
     this.swimSoundInterval = setGameInterval(() => {
       const kb = this.world ? this.world.keyboard : null;
       if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)) {
@@ -344,8 +343,9 @@ class Character extends MoveableObject {
         this.isAttacking = true;
         this.attackSlapIndex = 0;
         this.resetAFKTimer();
+        console.log("Slap attack started");
       }
-    }, 150);
+    }, 60);
   }
 
   animateAttackBubble() {
@@ -578,6 +578,33 @@ class Character extends MoveableObject {
         this.world.collectedPoisonBottles * 20
       );
     }
+  }
+
+  isSlapColliding(enemy) {
+    const attackWidth = 30;
+    const attackHeight = this.height - 40;
+    let attackX = this.otherDirection
+      ? this.x - attackWidth
+      : this.x + this.width;
+    let attackY = this.y + 20;
+    let attackBox = {
+      x: attackX,
+      y: attackY,
+      width: attackWidth,
+      height: attackHeight,
+    };
+    let enemyBox = {
+      x: enemy.x,
+      y: enemy.y,
+      width: enemy.width,
+      height: enemy.height,
+    };
+    return (
+      attackBox.x < enemyBox.x + enemyBox.width &&
+      attackBox.x + attackBox.width > enemyBox.x &&
+      attackBox.y < enemyBox.y + enemyBox.height &&
+      attackBox.y + attackBox.height > enemyBox.y
+    );
   }
 
   /******************************************

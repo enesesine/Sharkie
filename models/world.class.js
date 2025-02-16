@@ -21,7 +21,7 @@ class World {
   keyboard;
   camera_x = 0; // Kamera-Verschiebung in Weltkoordinaten
   gameOver = false;
-  gameWon = false; // Neu: Flag, das anzeigt, ob der Spieler gewonnen hat
+  gameWon = false; // Flag, das anzeigt, ob der Spieler gewonnen hat
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
@@ -33,9 +33,10 @@ class World {
     this.draw();
     this.checkCollisions();
 
-    // Den Gegnern Zugriff auf die Welt geben:
+    // Den Gegnern Zugriff auf die Welt geben und initialisiere das Slap-Flag
     this.level.enemies.forEach((enemy) => {
       enemy.world = this;
+      enemy.slapHit = false; // Flag zur Verhinderung mehrfacher Treffer pro Slap
     });
 
     console.log("🌍 Gegner in der Welt geladen:", this.enemies);
@@ -51,6 +52,11 @@ class World {
   checkCollisions() {
     requestAnimationFrame(() => this.checkCollisions());
 
+    // Setze das Slap-Flag für alle Gegner am Anfang jedes Frames zurück
+    this.enemies.forEach((enemy) => {
+      if (enemy) enemy.slapHit = false;
+    });
+
     // Kollision Bubbles ↔ Gegner
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
       let bubble = this.bubbles[i];
@@ -60,7 +66,7 @@ class World {
           console.log(
             `💥 Kollision! Bubble X: ${bubble.x}, Gegner X: ${enemy.x}`
           );
-          // Unterscheidung: Endboss bekommt Schaden, sonst sterben normale Gegner
+          // Endboss bekommt Schaden, sonst sterben normale Gegner
           if (enemy instanceof Endboss) {
             enemy.receiveDamage();
           } else {
@@ -72,12 +78,51 @@ class World {
       }
     }
 
-    // Kollision Sharkie ↔ Gegner
+    // Kollision Sharkie ↔ Gegner (Normaler Kontakt, wenn nicht im Angriff)
     for (let enemy of this.enemies) {
       if (!enemy) continue;
-      if (this.character.isColliding(enemy) && !enemy.isDead) {
+      if (
+        !this.character.isAttacking &&
+        this.character.isColliding(enemy) &&
+        !enemy.isDead
+      ) {
         let damageAmount = enemy instanceof Endboss ? 40 : 20;
-        this.character.hit(damageAmount);
+        this.character.hit(damageAmount, enemy);
+      }
+    }
+
+    // Slap-Angriff: Wenn Sharkie angreift (Space-Taste) und die Slap-Hitbox einen Gegner trifft
+    for (let enemy of this.enemies) {
+      if (!enemy) continue;
+      if (
+        this.character.isAttacking &&
+        !enemy.isDead &&
+        this.character.isSlapColliding(enemy)
+      ) {
+        // Für kleine Gegner: sofort sterben
+        if (!(enemy instanceof Endboss)) {
+          enemy.die();
+          console.log(
+            "Slap-Angriff: Kleiner Gegner sofort tot! (enemy.x =",
+            enemy.x,
+            ", character.x =",
+            this.character.x,
+            ")"
+          );
+        } else {
+          // Beim Endboss eventuell weiterhin Schaden über hit() verteilen
+          let slapDamage = 20;
+          enemy.hit(slapDamage);
+          console.log(
+            "Slap-Angriff: Endboss getroffen! (enemy.x =",
+            enemy.x,
+            ", character.x =",
+            this.character.x,
+            ")"
+          );
+        }
+        // Optional: Falls ein Gegner mehrfach pro Frame getroffen werden soll,
+        // kann hier ein Flag gesetzt werden (z.B. enemy.slapHit = true;)
       }
     }
 
@@ -105,18 +150,18 @@ class World {
 
   /**
    * Zeichnet die Spielwelt.
-   * Weltobjekte werden in Weltkoordinaten gezeichnet (mit Kamera-Verschiebung),
+   * Weltobjekte werden in Weltkoordinaten gezeichnet (mit Kameraverschiebung),
    * UI-Elemente (Status Bars) bleiben fix am Bildschirmrand.
    */
   draw() {
-    // Zuerst prüfen wir, ob der Spieler gewonnen hat:
+    // Prüfe, ob der Spieler gewonnen hat:
     if (this.gameWon) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("win-screen").style.display = "flex";
       return;
     }
 
-    // Falls nicht gewonnen, aber gameOver:
+    // Falls gameOver:
     if (this.gameOver) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
@@ -127,10 +172,10 @@ class World {
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Aktualisiere die Kameraposition: Sharkie soll immer bei x = 50 auf dem Bildschirm sein
+    // Aktualisiere die Kameraposition: Sharkie soll immer bei x = 50 sein
     this.updateCameraPosition();
 
-    // Weltobjekte zeichnen (mit Kameraverschiebung)
+    // Zeichne Weltobjekte (mit Kameraverschiebung)
     this.ctx.save();
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.backgroundObjects);
@@ -141,7 +186,7 @@ class World {
     this.addToMap(this.character);
     this.ctx.restore();
 
-    // UI-Elemente fix am Bildschirmrand zeichnen (ohne Kameraverschiebung)
+    // Zeichne UI-Elemente fix am Bildschirmrand
     this.addToMap(this.statusBar);
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
@@ -151,12 +196,10 @@ class World {
 
   /**
    * Setzt die Kamera so, dass Sharkie immer bei x = 50 erscheint.
-   * Hier gibt es kein Smoothing, damit die Kamera nicht wackelt.
    */
   updateCameraPosition() {
     const fixedScreenX = 50; // Sharkie soll hier auf dem Bildschirm sein
     this.camera_x = fixedScreenX - this.character.x;
-    // Optional: Kamera-Grenzen einbauen, falls nötig.
   }
 
   /**
@@ -169,7 +212,7 @@ class World {
   /**
    * Zeichnet ein einzelnes Objekt.
    * Weltobjekte werden mit der globalen Kameratranslation gezeichnet,
-   * UI-Elemente (Status Bars) werden fix gezeichnet.
+   * UI-Elemente werden fix gezeichnet.
    */
   addToMap(mo) {
     this.ctx.save();
@@ -181,12 +224,12 @@ class World {
       // UI-Elemente: Fix an Bildschirmposition
       this.ctx.translate(mo.x, mo.y);
     } else {
-      // Weltobjekte: Es wird bereits global durch draw() verschoben, also nur mo.x, mo.y
+      // Weltobjekte: Bereits global durch draw() verschoben, also nur mo.x, mo.y
       this.ctx.translate(mo.x, mo.y);
     }
 
     if (mo.otherDirection) {
-      // Falls das Objekt nach links schaut, spiegel es:
+      // Wenn das Objekt nach links schaut, spiegel es:
       this.ctx.scale(-1, 1);
       this.ctx.translate(-mo.width, 0);
     }
@@ -255,8 +298,6 @@ class World {
         clearInterval(moveInterval);
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
       }
-      // Den rechten Rand ignorieren – daher wird die Bedingung hier entfernt.
-      // Falls du später Speicherprobleme bekommst, kannst du hier einen weit entfernten Wert einfügen.
     }, 1000 / 60);
   }
 
