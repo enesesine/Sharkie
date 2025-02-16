@@ -20,6 +20,8 @@ function showPrivacy() {
 
 function startGame() {
   document.getElementById("startscreen").style.display = "none";
+  // Neu: Den Game-Container einblenden
+  document.getElementById("game-container").style.display = "block";
   document.getElementById("canvas").style.display = "block";
   init(); // Startet das Spiel
 }

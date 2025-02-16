@@ -18,9 +18,8 @@ function spawnFish3() {
   return fish3;
 }
 
-// Level-Definition
-const level1 = new Level(
-  [
+function spawnFishLevel1() {
+  return [
     spawnFish(),
     spawnFish(),
     spawnFish(),
@@ -29,8 +28,11 @@ const level1 = new Level(
     spawnFish3(),
     spawnFish3(),
     new Endboss(),
-  ],
-  [
+  ];
+}
+
+function setBackgroundsLevel1() {
+  return [
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D2.png", -720 * 2),
     new BackgroundObject(
       "Imgs/3. Background/Legacy/Layers/3.Fondo 1/D1.png",
@@ -76,8 +78,11 @@ const level1 = new Level(
     ),
     new BackgroundObject("Imgs/3. Background/Layers/4.Fondo 2/D2.png", 720 * 3),
     new BackgroundObject("Imgs/3. Background/Layers/2. Floor/D2.png", 720 * 3),
-  ],
-  [
+  ];
+}
+
+function spawnCollectiblesLevel1() {
+  return [
     new Coin(),
     new Coin(),
     new Coin(),
@@ -89,7 +94,14 @@ const level1 = new Level(
     new PoisonBottle(1200, 150),
     new PoisonBottle(1500, 220),
     new PoisonBottle(1800, 180),
-  ]
+  ];
+}
+
+// Level-Definition
+let level1 = new Level(
+  spawnFishLevel1(),
+  setBackgroundsLevel1(),
+  spawnCollectiblesLevel1()
 );
 
 // Respawn-Logik für PoisonBottles
