@@ -8,7 +8,7 @@ class CoinStatusBar extends DrawableObject {
     "Imgs/4. Marcadores/green/Coin/20_  copia 2.png",
     "Imgs/4. Marcadores/green/Coin/40_  copia 4.png",
     "Imgs/4. Marcadores/green/Coin/60_  copia 4.png",
-    "Imgs/4. Marcadores/green/Coin/80_ copia 4.png",
+    "Imgs/4. Marcadores/green/Coin/80_  copia 4.png",
     "Imgs/4. Marcadores/green/Coin/100_ copia 4.png",
   ];
   percentage = 0;
