@@ -3,7 +3,6 @@
  * @extends MoveableObject
  */
 class Character extends MoveableObject {
-  // Basic properties
   height = 220;
   width = 170;
   x = 5;
@@ -11,8 +10,6 @@ class Character extends MoveableObject {
   speed = 6;
   hp = 100;
   isDead = false;
-
-  // Hurt state
   isHurt = false;
   lastDamageTime = 0;
   hurtStartTime = 0;
@@ -20,8 +17,7 @@ class Character extends MoveableObject {
   damageCooldown = 1000;
   hurtImageIndex = 0;
   currentHurtImages = null;
-
-  // Animation image arrays
+  // Animation arrays
   IMAGES_STANDING = [
     "Imgs/1.Sharkie/1.IDLE/1.png",
     "Imgs/1.Sharkie/1.IDLE/2.png",
@@ -144,13 +140,11 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/7.png",
     "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/8.png",
   ];
-
   // Attack states
   isBubbleAttacking = false;
   bubbleAttackIndex = 0;
   isPoisonBubbleAttacking = false;
   poisonBubbleAttackIndex = 0;
-
   // Animation states
   world;
   swimImageIndex = 0;
@@ -164,18 +158,15 @@ class Character extends MoveableObject {
   lastBubbleTime = 0;
   bubbleCooldown = 500;
   deathImageIndex = 0;
-
   // Offsets
   bubbleSpawnOffsetX = 140;
   bubbleSpawnOffsetY = 140;
-
   // Sounds
   fishSwimmingSound = new Audio("Audio/fishSwimming.ogg");
   bubblePopSound = new Audio("Audio/Bubble_Pop_Attack.mp3");
   coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
   poisonBottleSound = new Audio("Audio/Poisoned_Bottle_Sound.ogg");
   electricitySound = new Audio("Audio/electricity-sound.mp3");
-
   swimSoundInterval = null;
   wasPoisonKeyPressed = false;
 
@@ -201,15 +192,13 @@ class Character extends MoveableObject {
     this.lastMovementTime = performance.now();
     this.swimSoundInterval = setGameInterval(() => {
       const kb = this.world ? this.world.keyboard : null;
-      if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN))
-        this.playFishSwimmingSound();
-      else this.stopFishSwimmingSound();
+      kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)
+        ? this.playFishSwimmingSound()
+        : this.stopFishSwimmingSound();
     }, 100);
   }
 
-  /**
-   * Starts the main animation loop.
-   */
+  /** Starts the main animation loop. */
   animate() {
     if (this.isDead) return;
     this.animateHorizontalMovement();
@@ -222,9 +211,7 @@ class Character extends MoveableObject {
     this.animateHurt();
   }
 
-  /**
-   * Animates horizontal movement.
-   */
+  /** Animates horizontal movement. */
   animateHorizontalMovement() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -248,9 +235,7 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
-  /**
-   * Animates vertical movement.
-   */
+  /** Animates vertical movement. */
   animateVerticalMovement() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -271,9 +256,7 @@ class Character extends MoveableObject {
     }, 1000 / 60);
   }
 
-  /**
-   * Plays the swimming animation.
-   */
+  /** Plays the swimming animation. */
   animateSwimming() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -283,9 +266,7 @@ class Character extends MoveableObject {
     }, 150);
   }
 
-  /**
-   * Plays idle animations.
-   */
+  /** Plays idle animations. */
   animateIdle() {
     setGameInterval(() => {
       if (this.isDead || this.isHurt) return;
@@ -300,19 +281,15 @@ class Character extends MoveableObject {
       const kb = this.world.keyboard;
       if (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN) return;
       const idleTime = performance.now() - this.lastMovementTime;
-      if (idleTime < 5000) {
-        this.playAnimation(this.IMAGES_STANDING, "idleImageIndex");
-      } else if (!this.longIdleIntroDone) {
-        this.playLongIdleIntro();
-      } else {
-        this.playLongIdleLoop();
-      }
+      idleTime < 5000
+        ? this.playAnimation(this.IMAGES_STANDING, "idleImageIndex")
+        : !this.longIdleIntroDone
+        ? this.playLongIdleIntro()
+        : this.playLongIdleLoop();
     }, 150);
   }
 
-  /**
-   * Handles the slap attack animation.
-   */
+  /** Handles the slap attack animation. */
   animateAttackSlap() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -330,9 +307,7 @@ class Character extends MoveableObject {
     }, 60);
   }
 
-  /**
-   * Handles the bubble attack triggered by the D key.
-   */
+  /** Handles the bubble attack (D key). */
   animateAttackBubble() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -351,9 +326,7 @@ class Character extends MoveableObject {
     }, 150);
   }
 
-  /**
-   * Handles the poisoned bubble attack triggered by the C key.
-   */
+  /** Handles the poisoned bubble attack (C key). */
   animateAttackPoisonedBubble() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -394,9 +367,7 @@ class Character extends MoveableObject {
     }, 150);
   }
 
-  /**
-   * Plays the hurt animation if the character is hurt.
-   */
+  /** Plays the hurt animation. */
   animateHurt() {
     setGameInterval(() => {
       if (this.isDead) return;
@@ -411,9 +382,7 @@ class Character extends MoveableObject {
     }, 150);
   }
 
-  /**
-   * Plays the long idle intro animation.
-   */
+  /** Plays the long idle intro animation. */
   playLongIdleIntro() {
     const index = this.idleLongIntroIndex % this.IMAGES_STANDING_LONG.length;
     const path = this.IMAGES_STANDING_LONG[index];
@@ -426,9 +395,7 @@ class Character extends MoveableObject {
     }
   }
 
-  /**
-   * Plays the long idle loop animation.
-   */
+  /** Plays the long idle loop animation. */
   playLongIdleLoop() {
     const index =
       this.idleLongLoopIndex % this.IMAGES_STANDING_LONG_LOOP.length;
@@ -438,28 +405,18 @@ class Character extends MoveableObject {
     this.idleLongLoopIndex++;
   }
 
-  /**
-   * Resets the idle animation timers.
-   */
+  /** Resets idle timers. */
   resetLongIdle() {
     this.longIdleIntroDone = false;
     this.idleLongIntroIndex = 0;
     this.idleLongLoopIndex = 0;
     this.lastMovementTime = performance.now();
   }
-
-  /**
-   * Resets the AFK timer.
-   */
   resetAFKTimer() {
     this.resetLongIdle();
   }
 
-  /**
-   * Plays an animation sequence.
-   * @param {string[]} images - Array of image paths.
-   * @param {string} [indexName="currentImage"] - Property name for frame tracking.
-   */
+  /** Plays an animation sequence. */
   playAnimation(images, indexName = "currentImage") {
     if (this.isHurt || this.isDead) return;
     if (!this[indexName]) this[indexName] = 0;
@@ -470,9 +427,7 @@ class Character extends MoveableObject {
     this[indexName]++;
   }
 
-  /**
-   * Plays the hurt animation sequence.
-   */
+  /** Plays the hurt animation sequence. */
   playHurtAnimation() {
     const images = this.currentHurtImages || this.IMAGES_HURT_SHOCK;
     if (this.hurtImageIndex < images.length) {
@@ -487,10 +442,7 @@ class Character extends MoveableObject {
     }
   }
 
-  /**
-   * Reduces HP by a given amount and triggers death if HP reaches 0.
-   * @param {number} amount - Damage amount.
-   */
+  /** Reduces HP and triggers death if needed. */
   takeDamage(amount) {
     if (this.isDead) return;
     this.hp -= amount;
@@ -499,10 +451,7 @@ class Character extends MoveableObject {
     if (this.hp === 0 && !this.isDead) this.die();
   }
 
-  /**
-   * Processes damage from collisions and plays the electricity sound.
-   * @param {number} damage - Damage amount.
-   */
+  /** Processes damage and plays electricity sound. */
   hit(damage) {
     const now = Date.now();
     if (this.hp <= 0) return;
@@ -532,9 +481,7 @@ class Character extends MoveableObject {
     if (this.hp <= 0) this.die();
   }
 
-  /**
-   * Fires a bubble attack.
-   */
+  /** Fires a bubble attack. */
   fireBubble() {
     const currentTime = Date.now();
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
@@ -542,10 +489,7 @@ class Character extends MoveableObject {
       this.lastBubbleTime = currentTime;
     }
   }
-
-  /**
-   * Fires a poisoned bubble attack.
-   */
+  /** Fires a poisoned bubble attack. */
   firePoisonedBubble() {
     const currentTime = Date.now();
     if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
@@ -557,15 +501,10 @@ class Character extends MoveableObject {
       );
     }
   }
-
-  /**
-   * Returns whether the slap hitbox collides with an enemy.
-   * @param {Object} enemy - The enemy object.
-   * @returns {boolean} True if colliding.
-   */
+  /** Checks if the slap hitbox collides with an enemy. */
   isSlapColliding(enemy) {
-    const attackWidth = 30;
-    const attackHeight = this.height - 40;
+    const attackWidth = 30,
+      attackHeight = this.height - 40;
     const attackX = this.otherDirection
       ? this.x - attackWidth
       : this.x + this.width;
@@ -589,29 +528,19 @@ class Character extends MoveableObject {
       attackBox.y + attackBox.height > enemyBox.y
     );
   }
-
-  /**
-   * Plays the fish swimming sound.
-   */
+  /** Plays the fish swimming sound. */
   playFishSwimmingSound() {
-    if (this.fishSwimmingSound.paused) {
+    if (this.fishSwimmingSound.paused)
       this.fishSwimmingSound.play().catch(() => {});
-    }
   }
-
-  /**
-   * Stops the fish swimming sound.
-   */
+  /** Stops the fish swimming sound. */
   stopFishSwimmingSound() {
     if (!this.fishSwimmingSound.paused) {
       this.fishSwimmingSound.pause();
       this.fishSwimmingSound.currentTime = 0;
     }
   }
-
-  /**
-   * Triggers the death sequence.
-   */
+  /** Triggers the death sequence. */
   die() {
     this.isDead = true;
     this.deathImageIndex = 0;
@@ -623,16 +552,11 @@ class Character extends MoveableObject {
         clearInterval(deathInterval);
         this.img =
           this.imageCache[this.DEATH_IMAGES[this.DEATH_IMAGES.length - 1]];
-        if (this.world) {
-          this.world.gameOver = true;
-        }
+        if (this.world) this.world.gameOver = true;
       }
     }, 150);
   }
-
-  /**
-   * Executes the bubble attack animation and spawns a bubble.
-   */
+  /** Executes the bubble attack animation and spawns a bubble. */
   shootBubbleAttack() {
     let i = 0;
     const totalFrames = this.IMAGES_ATTACK_BUBBLE.length;

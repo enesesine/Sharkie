@@ -163,6 +163,8 @@ class World {
     if (this.gameWon) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("win-screen").style.display = "flex";
+      // Stop background music and play win sound
+      backgroundMusic.pause();
       this.winSound.play().catch(() => {});
       return;
     }
@@ -170,6 +172,8 @@ class World {
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("game-over-screen").style.display = "flex";
+      // Stop background music and play lose sound
+      backgroundMusic.pause();
       this.loseSound.play().catch(() => {});
       return;
     }
@@ -282,6 +286,7 @@ class World {
     this.gameWon = true;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     document.getElementById("win-screen").style.display = "flex";
+    backgroundMusic.pause();
     this.winSound.play().catch(() => {});
   }
 }
