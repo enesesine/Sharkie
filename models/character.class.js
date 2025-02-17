@@ -174,6 +174,7 @@ class Character extends MoveableObject {
   bubblePopSound = new Audio("Audio/Bubble_Pop_Attack.mp3");
   coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
   poisonBottleSound = new Audio("Audio/Poisoned_Bottle_Sound.ogg");
+  electricitySound = new Audio("Audio/electricity-sound.mp3");
 
   swimSoundInterval = null;
   wasPoisonKeyPressed = false;
@@ -198,8 +199,6 @@ class Character extends MoveableObject {
     this.x = 5;
     this.spawnX = this.x;
     this.lastMovementTime = performance.now();
-    // Neuer Sound: jedes Mal wenn Sharkie Schaden bekommt, soll dieser Sound abgespielt werden.
-    this.electricitySound = new Audio("Audio/electricity-sound.mp3");
     this.swimSoundInterval = setGameInterval(() => {
       const kb = this.world ? this.world.keyboard : null;
       if (kb && (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN))
@@ -482,7 +481,7 @@ class Character extends MoveableObject {
       this.img = this.imageCache[path];
       this.hurtImageIndex++;
     } else {
-      this.isHurt = false;
+      this.isBeingHit = false;
       this.hurtImageIndex = 0;
       this.currentHurtImages = null;
     }
@@ -501,7 +500,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Processes collision damage and plays the electricity sound.
+   * Processes damage from collisions and plays the electricity sound.
    * @param {number} damage - Damage amount.
    */
   hit(damage) {
@@ -512,10 +511,13 @@ class Character extends MoveableObject {
       this.hp -= damage;
       if (this.hp < 0) this.hp = 0;
       this.world.statusBar.setPercentage(this.hp);
-      // Spiele den Elektrizitätssound bei Schaden
       this.electricitySound.play().catch(() => {});
+      if (this.hp === 0) {
+        this.die();
+        return;
+      }
     }
-    if (!this.isHurt) {
+    if (!this.isHurt && this.hp > 0) {
       this.isHurt = true;
       this.hurtStartTime = now;
       this.hurtImageIndex = 0;
@@ -557,7 +559,7 @@ class Character extends MoveableObject {
   }
 
   /**
-   * Checks if the slap hitbox collides with an enemy.
+   * Returns whether the slap hitbox collides with an enemy.
    * @param {Object} enemy - The enemy object.
    * @returns {boolean} True if colliding.
    */

@@ -14,6 +14,11 @@ class World {
   coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
   statusBar = new StatusBar();
+
+  // Sound properties for win and lose
+  winSound = new Audio("Audio/win-sound.mp3");
+  loseSound = new Audio("Audio/lose-sound.mp3");
+
   canvas;
   ctx;
   keyboard;
@@ -30,6 +35,7 @@ class World {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
+
     this.setWorld();
     this.character.animate();
     this.draw();
@@ -157,12 +163,14 @@ class World {
     if (this.gameWon) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("win-screen").style.display = "flex";
+      this.winSound.play().catch(() => {});
       return;
     }
     if (this.gameOver) {
       this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("game-over-screen").style.display = "flex";
+      this.loseSound.play().catch(() => {});
       return;
     }
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -199,8 +207,8 @@ class World {
   }
 
   /**
-   * Draws a single object.
-   * @param {Object} mo - A drawable object.
+   * Draws a single drawable object.
+   * @param {DrawableObject} mo - A drawable object.
    */
   addToMap(mo) {
     this.ctx.save();
@@ -253,7 +261,7 @@ class World {
   }
 
   /**
-   * Animates a bubble.
+   * Animates a bubble in world coordinates.
    * @param {Bubble} bubble - The bubble to animate.
    */
   animateBubble(bubble) {
@@ -274,5 +282,6 @@ class World {
     this.gameWon = true;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     document.getElementById("win-screen").style.display = "flex";
+    this.winSound.play().catch(() => {});
   }
 }
