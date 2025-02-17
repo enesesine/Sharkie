@@ -1,5 +1,5 @@
 /**
- * Zeigt den Game Over Screen und versteckt das Spielfeld.
+ * Displays the game over screen and hides the game canvas.
  */
 function showGameOverScreen() {
   document.getElementById("canvas").style.display = "none";
@@ -7,16 +7,16 @@ function showGameOverScreen() {
 }
 
 /**
- * Startet das Spiel neu.
+ * Restarts the game by hiding the game over screen, showing the canvas, and reinitializing the game.
  */
 function restartGame() {
   document.getElementById("gameover-screen").style.display = "none";
   document.getElementById("canvas").style.display = "block";
-  init(); // Neues Spiel starten
+  init();
 }
 
 /**
- * Geht zurück zum Startscreen.
+ * Returns to the home screen by hiding the game over screen and displaying the start screen.
  */
 function goToHome() {
   document.getElementById("gameover-screen").style.display = "none";

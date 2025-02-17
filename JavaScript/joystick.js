@@ -1,70 +1,62 @@
-// Joystick-Initialisierung
+/**
+ * Initializes the on-screen joystick.
+ */
 function initJoystick() {
-  const joystickContainer = document.getElementById("joystick-container");
+  const container = document.getElementById("joystick-container");
   const joystick = document.getElementById("joystick");
-
-  // Setze das Bild als Hintergrund, falls noch nicht in CSS gemacht
   joystick.style.background =
     'url("Imgs/7. Other/joystick.png") no-repeat center center';
   joystick.style.backgroundSize = "contain";
-
-  let active = false;
-  let startX = 0,
+  let active = false,
+    startX = 0,
     startY = 0;
-  const maxDistance = 40; // Maximale Verschiebung des Joysticks
+  const maxDistance = 40;
 
+  /**
+   * Handles the start of joystick interaction.
+   * @param {Event} event - The event object.
+   */
   function onStart(event) {
     active = true;
-    let clientX, clientY;
-    if (event.touches) {
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else {
-      clientX = event.clientX;
-      clientY = event.clientY;
-    }
-    // Berechne den Mittelpunkt des Joystick-Containers
-    const rect = joystickContainer.getBoundingClientRect();
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const rect = container.getBoundingClientRect();
     startX = rect.left + rect.width / 2;
     startY = rect.top + rect.height / 2;
     event.preventDefault();
   }
 
+  /**
+   * Handles joystick movement.
+   * @param {Event} event - The event object.
+   */
   function onMove(event) {
     if (!active) return;
-    let clientX, clientY;
-    if (event.touches) {
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else {
-      clientX = event.clientX;
-      clientY = event.clientY;
-    }
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
     let deltaX = clientX - startX;
     let deltaY = clientY - startY;
-    let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     if (distance > maxDistance) {
       const ratio = maxDistance / distance;
       deltaX *= ratio;
       deltaY *= ratio;
     }
-    // Setze die Position des Joysticks innerhalb des Containers
     joystick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-
-    // Bestimme Richtungen anhand der Verschiebung (Schwellenwert z. B. 10px)
     keyboard.RIGHT = deltaX > 10;
     keyboard.LEFT = deltaX < -10;
     keyboard.DOWN = deltaY > 10;
     keyboard.UP = deltaY < -10;
-
     event.preventDefault();
   }
 
+  /**
+   * Handles the end of joystick interaction.
+   * @param {Event} event - The event object.
+   */
   function onEnd(event) {
     active = false;
-    // Zurücksetzen der Joystick-Position
     joystick.style.transform = "translate(0px, 0px)";
-    // Lösche alle Richtungs-Flags im Keyboard
     keyboard.RIGHT = false;
     keyboard.LEFT = false;
     keyboard.UP = false;
@@ -72,13 +64,10 @@ function initJoystick() {
     event.preventDefault();
   }
 
-  // Event-Listener für Maus und Touch
-  joystickContainer.addEventListener("mousedown", onStart);
-  joystickContainer.addEventListener("touchstart", onStart);
-
+  container.addEventListener("mousedown", onStart);
+  container.addEventListener("touchstart", onStart);
   document.addEventListener("mousemove", onMove);
   document.addEventListener("touchmove", onMove, { passive: false });
-
   document.addEventListener("mouseup", onEnd);
   document.addEventListener("touchend", onEnd);
 }
@@ -90,7 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
   attackBubbleBtn.addEventListener("click", () => {
     const character = window.world.character;
     if (!character.isBubbleAttacking) {
-      // Setze den Zustand und starte die Attack-Animation, die am Ende die Bubble feuert.
       character.isBubbleAttacking = true;
       character.bubbleAttackIndex = 0;
       character.shootBubbleAttack();

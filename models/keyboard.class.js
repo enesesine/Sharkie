@@ -1,4 +1,6 @@
-// keyboard.class.js
+/**
+ * Handles keyboard input.
+ */
 class Keyboard {
   LEFT = false;
   RIGHT = false;
@@ -7,97 +9,40 @@ class Keyboard {
   SPACE = false;
   D = false;
   C = false;
-
-  // Dieses Objekt speichert, ob ein Key bereits als gedrückt registriert wurde
   keyPressed = {};
 
+  /**
+   * Creates a new Keyboard instance and attaches key event listeners.
+   */
   constructor() {
-    window.addEventListener("keydown", (e) => this.onKeyDown(e));
-    window.addEventListener("keyup", (e) => this.onKeyUp(e));
+    window.addEventListener("keydown", (e) => this.setKeyState(e, true));
+    window.addEventListener("keyup", (e) => this.setKeyState(e, false));
   }
 
-  onKeyDown(event) {
-    // Für Pfeiltasten, Space, D und C wird geprüft, ob der Key bereits gedrückt wurde.
-    switch (event.code) {
-      case "ArrowLeft":
-        if (!this.keyPressed["ArrowLeft"]) {
-          this.LEFT = true;
-          this.keyPressed["ArrowLeft"] = true;
-        }
-        break;
-      case "ArrowRight":
-        if (!this.keyPressed["ArrowRight"]) {
-          this.RIGHT = true;
-          this.keyPressed["ArrowRight"] = true;
-        }
-        break;
-      case "ArrowUp":
-        if (!this.keyPressed["ArrowUp"]) {
-          this.UP = true;
-          this.keyPressed["ArrowUp"] = true;
-        }
-        break;
-      case "ArrowDown":
-        if (!this.keyPressed["ArrowDown"]) {
-          this.DOWN = true;
-          this.keyPressed["ArrowDown"] = true;
-        }
-        break;
-      case "Space":
-        if (!this.keyPressed["Space"]) {
-          this.SPACE = true;
-          this.keyPressed["Space"] = true;
-        }
-        break;
-      case "KeyD":
-        if (!this.keyPressed["KeyD"]) {
-          this.D = true;
-          this.keyPressed["KeyD"] = true;
-        }
-        break;
-      case "KeyC":
-        if (!this.keyPressed["KeyC"]) {
-          this.C = true;
-          this.keyPressed["KeyC"] = true;
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
-  onKeyUp(event) {
-    switch (event.code) {
-      case "ArrowLeft":
-        this.LEFT = false;
-        this.keyPressed["ArrowLeft"] = false;
-        break;
-      case "ArrowRight":
-        this.RIGHT = false;
-        this.keyPressed["ArrowRight"] = false;
-        break;
-      case "ArrowUp":
-        this.UP = false;
-        this.keyPressed["ArrowUp"] = false;
-        break;
-      case "ArrowDown":
-        this.DOWN = false;
-        this.keyPressed["ArrowDown"] = false;
-        break;
-      case "Space":
-        this.SPACE = false;
-        this.keyPressed["Space"] = false;
-        break;
-      case "KeyD":
-        this.D = false;
-        this.keyPressed["KeyD"] = false;
-        break;
-      case "KeyC":
-        this.C = false;
-        this.keyPressed["KeyC"] = false;
-        break;
-      default:
-        break;
+  /**
+   * Updates the state of a key based on the keyboard event.
+   * @param {KeyboardEvent} event - The keyboard event.
+   * @param {boolean} state - True for keydown, false for keyup.
+   */
+  setKeyState(event, state) {
+    const keyMap = {
+      ArrowLeft: "LEFT",
+      ArrowRight: "RIGHT",
+      ArrowUp: "UP",
+      ArrowDown: "DOWN",
+      Space: "SPACE",
+      KeyD: "D",
+      KeyC: "C",
+    };
+    const keyName = keyMap[event.code];
+    if (keyName) {
+      if (state && !this.keyPressed[event.code]) {
+        this[keyName] = true;
+        this.keyPressed[event.code] = true;
+      } else if (!state) {
+        this[keyName] = false;
+        this.keyPressed[event.code] = false;
+      }
     }
   }
 }

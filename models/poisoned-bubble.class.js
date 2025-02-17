@@ -1,38 +1,40 @@
+/**
+ * Represents a poisoned bubble with a single image.
+ * Movement is managed by the game world.
+ */
 class PoisonedBubble extends MoveableObject {
-  // Nur ein einziges Image
   IMAGES = [
     "Imgs/1.Sharkie/4.Attack/Bubble trap/Poisoned Bubble (for whale).png",
   ];
 
+  /**
+   * Creates a poisoned bubble.
+   * @param {number} x - The initial x-position.
+   * @param {number} y - The initial y-position.
+   * @param {boolean} goingLeft - Direction of travel (true if left).
+   * @param {World} world - Reference to the game world.
+   */
   constructor(x, y, goingLeft, world) {
-    // Lade das einzige Bild
     super().loadImage(this.IMAGES[0]);
-
     this.world = world;
-    // Speichere die Startpositionen (falls benötigt)
     this.initialX = x;
     this.initialY = y;
-
-    // Setze Startposition
     this.x = x;
     this.y = y;
-
     this.width = 65;
     this.height = 65;
-
     this.goingLeft = goingLeft;
-    // Setze die Geschwindigkeit exakt gleich wie bei der normalen Bubble
     this.speed = 10;
-
-    // Da es nur ein Bild gibt, brauchen wir keine Frame-Animation.
-    // Falls du dennoch einen Timer benötigst, kannst du die animate()-Methode leer lassen.
   }
 
-  // Keine eigene update()-Methode – die Bewegung wird über die World gesteuert.
-
-  // Leere animate()-Methode, da kein Framewechsel nötig ist.
+  /**
+   * No frame animation is needed.
+   */
   animate() {}
 
+  /**
+   * Removes this bubble from the world's bubbles array.
+   */
   removeBubble() {
     const index = this.world.bubbles.indexOf(this);
     if (index >= 0) {

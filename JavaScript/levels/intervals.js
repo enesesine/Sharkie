@@ -1,11 +1,14 @@
-// intervals.js
+/**
+ * Global array to store game interval IDs.
+ * @global
+ */
 window.gameIntervals = [];
 
 /**
- * Ruft setInterval auf und speichert die Timer-ID in window.gameIntervals.
- * @param {Function} fn - Die Funktion, die ausgeführt werden soll.
- * @param {number} delay - Das Intervall in Millisekunden.
- * @returns {number} - Die ID des Intervalls.
+ * Calls setInterval and stores the timer ID.
+ * @param {Function} fn - The function to execute.
+ * @param {number} delay - The delay in milliseconds.
+ * @returns {number} The timer ID.
  */
 function setGameInterval(fn, delay) {
   const id = setInterval(fn, delay);
@@ -14,11 +17,9 @@ function setGameInterval(fn, delay) {
 }
 
 /**
- * Löscht alle in window.gameIntervals gespeicherten Intervalle.
- * Zusätzlich wird, falls vorhanden, der swimSoundInterval des Characters beendet.
+ * Clears all game intervals and stops the character's swim sound if active.
  */
 function clearAllGameIntervals() {
-  // Falls es einen globalen world und einen Character gibt, beende dessen swimSoundInterval
   if (
     window.world &&
     window.world.character &&
@@ -27,7 +28,6 @@ function clearAllGameIntervals() {
     clearInterval(window.world.character.swimSoundInterval);
     window.world.character.swimSoundInterval = null;
   }
-
   window.gameIntervals.forEach((id) => clearInterval(id));
   window.gameIntervals = [];
 }

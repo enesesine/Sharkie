@@ -1,4 +1,7 @@
-// bubble-status-bar.class.js
+/**
+ * Represents the bubble status bar for poisoned bubbles.
+ * @extends DrawableObject
+ */
 class BubbleStatusBar extends DrawableObject {
   IMAGES = [
     "Imgs/4. Marcadores/green/poisoned bubbles/0_ copia 2.png",
@@ -8,26 +11,35 @@ class BubbleStatusBar extends DrawableObject {
     "Imgs/4. Marcadores/green/poisoned bubbles/80_ copia 2.png",
     "Imgs/4. Marcadores/green/poisoned bubbles/100_ copia 2.png",
   ];
-
   percentage = 0;
 
+  /**
+   * Creates a new BubbleStatusBar instance.
+   */
   constructor() {
     super();
     this.loadImages(this.IMAGES);
-
     this.x = 20;
-    this.y = 100; // Position unter der Coin Status Bar
+    this.y = 100;
     this.width = 200;
     this.height = 60;
     this.setPercentage(0);
   }
 
+  /**
+   * Sets the current percentage and updates the displayed image.
+   * @param {number} percentage - The new percentage (0-100).
+   */
   setPercentage(percentage) {
     this.percentage = percentage;
-    let path = this.IMAGES[this.resolveImageIndex()];
+    const path = this.IMAGES[this.resolveImageIndex()];
     this.img = this.imageCache[path];
   }
 
+  /**
+   * Determines the image index based on the current percentage.
+   * @returns {number} The index for the corresponding image.
+   */
   resolveImageIndex() {
     if (this.percentage >= 100) return 5;
     if (this.percentage > 80) return 4;

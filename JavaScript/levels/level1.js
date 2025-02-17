@@ -1,23 +1,37 @@
-// Helper-Funktionen zum Spawnen der normalen Feinde an sicheren Positionen
+/**
+ * Spawns a Fish enemy.
+ * @returns {Fish} A Fish instance.
+ */
 function spawnFish() {
-  let fish = new Fish();
-  // Überschreibe die x-Position, falls nötig (z. B. mindestens 500)
+  const fish = new Fish();
   fish.x = 500 + Math.random() * 2000;
   return fish;
 }
 
+/**
+ * Spawns a Fish2 enemy.
+ * @returns {Fish2} A Fish2 instance.
+ */
 function spawnFish2() {
-  let fish2 = new Fish2();
+  const fish2 = new Fish2();
   fish2.x = 500 + Math.random() * 2000;
   return fish2;
 }
 
+/**
+ * Spawns a Fish3 enemy.
+ * @returns {Fish3} A Fish3 instance.
+ */
 function spawnFish3() {
-  let fish3 = new Fish3();
+  const fish3 = new Fish3();
   fish3.x = 500 + Math.random() * 2000;
   return fish3;
 }
 
+/**
+ * Creates an array of enemies for Level 1.
+ * @returns {Array<Object>} Array of enemy instances.
+ */
 function spawnFishLevel1() {
   return [
     spawnFish(),
@@ -31,6 +45,10 @@ function spawnFishLevel1() {
   ];
 }
 
+/**
+ * Creates an array of background objects for Level 1.
+ * @returns {Array<BackgroundObject>} Array of background object instances.
+ */
 function setBackgroundsLevel1() {
   return [
     new BackgroundObject("Imgs/3. Background/Layers/5. Water/D2.png", -720 * 2),
@@ -81,6 +99,10 @@ function setBackgroundsLevel1() {
   ];
 }
 
+/**
+ * Creates an array of collectibles for Level 1.
+ * @returns {Array<Object>} Array of collectible instances.
+ */
 function spawnCollectiblesLevel1() {
   return [
     new Coin(),
@@ -88,7 +110,6 @@ function spawnCollectiblesLevel1() {
     new Coin(),
     new Coin(),
     new Coin(),
-    // Hier werden die PoisonBottle-Objekte initial platziert.
     new PoisonBottle(600, 250),
     new PoisonBottle(900, 200),
     new PoisonBottle(1200, 150),
@@ -97,23 +118,26 @@ function spawnCollectiblesLevel1() {
   ];
 }
 
-// Level-Definition
+/**
+ * Creates a new Level 1 instance.
+ * @returns {Level} Level 1 instance.
+ */
 let level1 = new Level(
   spawnFishLevel1(),
   setBackgroundsLevel1(),
   spawnCollectiblesLevel1()
 );
 
-// Respawn-Logik für PoisonBottles
-// Alle 10 Sekunden prüfen: Wenn weniger als 5 PoisonBottle vorhanden sind, wird eine neu gespawnt.
+/**
+ * Respawns poison bottles if fewer than 5 are present.
+ */
 setInterval(() => {
-  let currentPoison = level1.collectibles.filter(
+  const currentPoison = level1.collectibles.filter(
     (item) => item instanceof PoisonBottle
   ).length;
   if (currentPoison < 5) {
-    let x = 500 + Math.random() * 2000; // Mindestens 500, damit Sharkie nicht betroffen ist
-    let y = 150 + Math.random() * 150; // Beispielwert für Y
+    const x = 500 + Math.random() * 2000;
+    const y = 150 + Math.random() * 150;
     level1.collectibles.push(new PoisonBottle(x, y));
-    console.log(`🔄 PoisonBottle respawnt bei X=${x}, Y=${y}`);
   }
 }, 10000);

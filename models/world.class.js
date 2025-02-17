@@ -1,155 +1,137 @@
+/**
+ * Represents the game world.
+ */
 class World {
   character = new Character();
   enemies = level1.enemies;
   backgroundObjects = level1.backgroundObjects;
   surfaces = [new Surface()];
   level = level1;
-  bubbles = []; // Alle Bubbles
-
-  // Sammelbare Objekte:
+  bubbles = [];
   collectibles = level1.collectibles;
   collectedCoins = 0;
   collectedPoisonBottles = 0;
-
-  // Status Bars (UI, fix am Bildschirmrand):
   coinStatusBar = new CoinStatusBar();
   poisonStatusBar = new PoisonStatusBar();
   statusBar = new StatusBar();
-
   canvas;
   ctx;
   keyboard;
-  camera_x = 0; // Kamera-Verschiebung in Weltkoordinaten
+  camera_x = 0;
   gameOver = false;
-  gameWon = false; // Flag, das anzeigt, ob der Spieler gewonnen hat
+  gameWon = false;
 
+  /**
+   * Creates an instance of World.
+   * @param {HTMLCanvasElement} canvas - The canvas element.
+   * @param {Keyboard} keyboard - The keyboard handler.
+   */
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext("2d");
     this.canvas = canvas;
     this.keyboard = keyboard;
-
     this.setWorld();
     this.character.animate();
     this.draw();
     this.checkCollisions();
-
-    // Den Gegnern Zugriff auf die Welt geben und initialisiere das Slap-Flag
-    this.level.enemies.forEach((enemy) => {
-      enemy.world = this;
-      enemy.slapHit = false; // Flag zur Verhinderung mehrfacher Treffer pro Slap
-    });
-
-    console.log("🌍 Gegner in der Welt geladen:", this.enemies);
+    this.initializeEnemies();
   }
 
+  /**
+   * Sets the world reference for the character.
+   */
   setWorld() {
     this.character.world = this;
   }
 
   /**
-   * Prüft Kollisionen zwischen Bubbles, Gegnern, Sharkie und Sammelobjekten.
+   * Initializes each enemy with a world reference and resets its slap flag.
    */
-  checkCollisions() {
-    requestAnimationFrame(() => this.checkCollisions());
+  initializeEnemies() {
+    this.level.enemies.forEach((enemy) => {
+      enemy.world = this;
+      enemy.slapHit = false;
+    });
+  }
 
-    // Setze das Slap-Flag für alle Gegner am Anfang jedes Frames zurück
+  /**
+   * Resets the slap flag for all enemies.
+   */
+  resetEnemySlapFlags() {
     this.enemies.forEach((enemy) => {
       if (enemy) enemy.slapHit = false;
     });
+  }
 
-    // Kollision Bubbles ↔ Gegner
+  /**
+   * Processes collisions between bubbles and enemies.
+   */
+  processBubbleCollisions() {
     for (let i = this.bubbles.length - 1; i >= 0; i--) {
-      let bubble = this.bubbles[i];
+      const bubble = this.bubbles[i];
       for (let j = this.enemies.length - 1; j >= 0; j--) {
-        let enemy = this.enemies[j];
+        const enemy = this.enemies[j];
         if (bubble.isColliding(enemy)) {
-          console.log(
-            `💥 Kollision! Bubble X: ${bubble.x}, Gegner X: ${enemy.x}`
-          );
-          // Endboss bekommt Schaden, sonst sterben normale Gegner
-          if (enemy instanceof Endboss) {
-            enemy.receiveDamage();
-          } else {
-            enemy.die();
-          }
+          if (enemy instanceof Endboss) enemy.receiveDamage();
+          else enemy.die();
           this.bubbles.splice(i, 1);
           break;
         }
       }
     }
+  }
 
-    // Kollision Sharkie ↔ Gegner (Normaler Kontakt, wenn nicht im Angriff)
-    for (let enemy of this.enemies) {
-      if (!enemy) continue;
-      if (
-        !this.character.isAttacking &&
-        this.character.isColliding(enemy) &&
-        !enemy.isDead
-      ) {
-        // Berechne den vertikalen Mittelpunkt von Sharkie und dem Gegner:
+  /**
+   * Processes normal collisions between the character and enemies.
+   */
+  processNormalCollisions() {
+    for (const enemy of this.enemies) {
+      if (!enemy || enemy.isDead) continue;
+      if (!this.character.isAttacking && this.character.isColliding(enemy)) {
         const sharkieCenterY = this.character.y + this.character.height / 2;
         const enemyCenterY = enemy.y + enemy.height / 2;
-        const verticalDiff = Math.abs(sharkieCenterY - enemyCenterY);
-
-        // Schwellwert: Nur wenn der vertikale Unterschied kleiner als 50 Pixel ist,
-        // wird Schaden ausgelöst.
-        if (verticalDiff < 50) {
-          let damageAmount = enemy instanceof Endboss ? 40 : 20;
+        if (Math.abs(sharkieCenterY - enemyCenterY) < 50) {
+          const damageAmount = enemy instanceof Endboss ? 40 : 20;
           this.character.hit(damageAmount, enemy);
         }
       }
     }
+  }
 
-    // Slap-Angriff: Wenn Sharkie angreift (Space-Taste) und die Slap-Hitbox einen Gegner trifft
-    for (let enemy of this.enemies) {
-      if (!enemy) continue;
-      if (
-        this.character.isAttacking &&
-        !enemy.isDead &&
-        this.character.isSlapColliding(enemy)
-      ) {
-        let slapDamage = 20;
-        // Für kleine Gegner: sofort sterben
-        if (!(enemy instanceof Endboss)) {
-          enemy.die();
-          console.log(
-            "Slap-Angriff: Kleiner Gegner sofort tot! (enemy.x =",
-            enemy.x,
-            ", character.x =",
-            this.character.x,
-            ")"
-          );
-        } else {
-          enemy.hit(slapDamage);
-          console.log(
-            "Slap-Angriff: Endboss getroffen! (enemy.x =",
-            enemy.x,
-            ", character.x =",
-            this.character.x,
-            ")"
-          );
+  /**
+   * Processes slap attack collisions.
+   */
+  processSlapCollisions() {
+    for (const enemy of this.enemies) {
+      if (!enemy || enemy.isDead) continue;
+      if (this.character.isAttacking && this.character.isSlapColliding(enemy)) {
+        if (!enemy.slapHit) {
+          enemy.slapHit = true;
+          if (!(enemy instanceof Endboss)) {
+            enemy.die();
+          } else {
+            enemy.hit(20);
+          }
         }
-        // Optional: Falls ein Gegner mehrfach pro Frame getroffen werden soll,
-        // kann hier ein Flag gesetzt werden (z. B. enemy.slapHit = true;)
       }
     }
+  }
 
-    // Kollision Sharkie ↔ Sammelobjekte
+  /**
+   * Processes collisions between the character and collectibles.
+   */
+  processCollectibleCollisions() {
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
-      let item = this.collectibles[i];
+      const item = this.collectibles[i];
       if (this.character.isColliding(item)) {
         if (item instanceof Coin) {
           this.collectedCoins++;
           this.coinStatusBar.setPercentage(this.collectedCoins * 20);
-          this.character.coinPickUpSound
-            .play()
-            .catch((err) => console.error(err));
+          this.character.coinPickUpSound.play().catch(() => {});
         } else if (item instanceof PoisonBottle) {
           this.collectedPoisonBottles++;
           this.poisonStatusBar.setPercentage(this.collectedPoisonBottles * 20);
-          this.character.poisonBottleSound
-            .play()
-            .catch((err) => console.error(err));
+          this.character.poisonBottleSound.play().catch(() => {});
         }
         this.collectibles.splice(i, 1);
       }
@@ -157,34 +139,34 @@ class World {
   }
 
   /**
-   * Zeichnet die Spielwelt.
-   * Weltobjekte werden in Weltkoordinaten gezeichnet (mit Kameraverschiebung),
-   * UI-Elemente (Status Bars) bleiben fix am Bildschirmrand.
+   * Checks all collisions.
+   */
+  checkCollisions() {
+    requestAnimationFrame(() => this.checkCollisions());
+    this.resetEnemySlapFlags();
+    this.processBubbleCollisions();
+    this.processNormalCollisions();
+    this.processSlapCollisions();
+    this.processCollectibleCollisions();
+  }
+
+  /**
+   * Draws the game world and UI.
    */
   draw() {
-    // Prüfe, ob der Spieler gewonnen hat:
     if (this.gameWon) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("win-screen").style.display = "flex";
       return;
     }
-
-    // Falls gameOver:
     if (this.gameOver) {
-      // Statt das Canvas komplett zu leeren, zeichne ein halbtransparentes Overlay:
-      //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Diese Zeile kannst du entfernen oder auskommentieren
-      this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // 0.5 = 50% Deckkraft; passe diesen Wert nach Bedarf an
+      this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       document.getElementById("game-over-screen").style.display = "flex";
       return;
     }
-
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // Aktualisiere die Kameraposition: Sharkie soll immer bei x = 50 sein
     this.updateCameraPosition();
-
-    // Zeichne Weltobjekte (mit Kameraverschiebung)
     this.ctx.save();
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.backgroundObjects);
@@ -194,55 +176,39 @@ class World {
     this.addObjectsToMap(this.bubbles);
     this.addToMap(this.character);
     this.ctx.restore();
-
-    // Zeichne UI-Elemente fix am Bildschirmrand
     this.addToMap(this.statusBar);
     this.addToMap(this.coinStatusBar);
     this.addToMap(this.poisonStatusBar);
-
     requestAnimationFrame(() => this.draw());
   }
 
   /**
-   * Setzt die Kamera so, dass Sharkie immer bei x = 50 erscheint.
+   * Updates the camera position so that the character is always at x = 50.
    */
   updateCameraPosition() {
-    const fixedScreenX = 50; // Sharkie soll hier auf dem Bildschirm sein
+    const fixedScreenX = 50;
     this.camera_x = fixedScreenX - this.character.x;
   }
 
   /**
-   * Zeichnet eine Liste von Objekten mithilfe von addToMap().
+   * Draws an array of objects.
+   * @param {Array} objects - The objects to draw.
    */
   addObjectsToMap(objects) {
     objects.forEach((o) => this.addToMap(o));
   }
 
   /**
-   * Zeichnet ein einzelnes Objekt.
-   * Weltobjekte werden mit der globalen Kameratranslation gezeichnet,
-   * UI-Elemente werden fix gezeichnet.
+   * Draws a single object.
+   * @param {Object} mo - A drawable object.
    */
   addToMap(mo) {
     this.ctx.save();
-    if (
-      mo instanceof StatusBar ||
-      mo instanceof CoinStatusBar ||
-      mo instanceof PoisonStatusBar
-    ) {
-      // UI-Elemente: Fix an Bildschirmposition
-      this.ctx.translate(mo.x, mo.y);
-    } else {
-      // Weltobjekte: Bereits global durch draw() verschoben, also nur mo.x, mo.y
-      this.ctx.translate(mo.x, mo.y);
-    }
-
+    this.ctx.translate(mo.x, mo.y);
     if (mo.otherDirection) {
-      // Wenn das Objekt nach links schaut, spiegel es:
       this.ctx.scale(-1, 1);
       this.ctx.translate(-mo.width, 0);
     }
-
     if (mo.img && mo.img.complete && mo.img.naturalWidth > 0) {
       this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
     }
@@ -250,35 +216,33 @@ class World {
   }
 
   /**
-   * Spawnt eine normale Bubble aus Sharkies Mund.
+   * Spawns a normal bubble from the character.
+   * @param {Character} sharkie - The character.
    */
   spawnBubble(sharkie) {
-    let offsetX = 140;
-    let offsetY = 130;
-    let spawnX = sharkie.otherDirection
+    const offsetX = 140,
+      offsetY = 130;
+    const spawnX = sharkie.otherDirection
       ? sharkie.x - offsetX
       : sharkie.x + offsetX;
-    let spawnY = sharkie.y + offsetY;
-
-    let bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
+    const spawnY = sharkie.y + offsetY;
+    const bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
     this.animateBubble(bubble);
-
-    console.log(`🎈 Bubble erzeugt bei X=${spawnX}, Y=${spawnY}`);
   }
 
   /**
-   * Spawnt eine vergiftete Bubble.
+   * Spawns a poisoned bubble.
+   * @param {Character} sharkie - The character.
    */
   spawnPoisonedBubble(sharkie) {
-    let offsetX = 140;
-    let offsetY = 130;
-    let spawnX = sharkie.otherDirection
+    const offsetX = 140,
+      offsetY = 130;
+    const spawnX = sharkie.otherDirection
       ? sharkie.x - offsetX
       : sharkie.x + offsetX;
-    let spawnY = sharkie.y + offsetY;
-
-    let poisonedBubble = new PoisonedBubble(
+    const spawnY = sharkie.y + offsetY;
+    const poisonedBubble = new PoisonedBubble(
       spawnX,
       spawnY,
       sharkie.otherDirection,
@@ -286,23 +250,16 @@ class World {
     );
     this.bubbles.push(poisonedBubble);
     this.animateBubble(poisonedBubble);
-
-    console.log(`☠️ Poisoned Bubble erzeugt bei X=${spawnX}, Y=${spawnY}`);
   }
 
   /**
-   * Bewegt eine Bubble in Weltkoordinaten.
-   * Hier wird setGameInterval() verwendet, damit der Interval zentral registriert wird.
+   * Animates a bubble.
+   * @param {Bubble} bubble - The bubble to animate.
    */
   animateBubble(bubble) {
-    let bubbleSpeed = 5;
-    let moveInterval = setGameInterval(() => {
-      if (bubble.goingLeft) {
-        bubble.x -= bubbleSpeed;
-      } else {
-        bubble.x += bubbleSpeed;
-      }
-      // Entferne die Bubble, wenn sie links außerhalb des Bildschirms ist.
+    const bubbleSpeed = 5;
+    const moveInterval = setGameInterval(() => {
+      bubble.x += bubble.goingLeft ? -bubbleSpeed : bubbleSpeed;
       if (bubble.x < -bubble.width) {
         clearInterval(moveInterval);
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
@@ -310,6 +267,9 @@ class World {
     }, 1000 / 60);
   }
 
+  /**
+   * Displays the win screen.
+   */
   displayWinScreen() {
     this.gameWon = true;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

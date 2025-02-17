@@ -1,14 +1,15 @@
-// endboss.class.js
+/**
+ * Represents the Endboss enemy.
+ * @extends MoveableObject
+ */
 class Endboss extends MoveableObject {
   height = 500;
   width = 300;
-  baseY = -80; // Ausgangsposition für y
+  baseY = -80;
   y = -80;
-  speed = 6; // Bewegungsgeschwindigkeit
-  damage = 40; // Schaden
-  detectionRange = 800; // Reichweite, ab der der Endboss aktiv wird
-
-  // Floating-Animation (Standard "Standing")
+  speed = 6;
+  damage = 40;
+  detectionRange = 800;
   IMAGES_STANDING = [
     "Imgs/2.Enemy/3 Final Enemy/2.floating/1.png",
     "Imgs/2.Enemy/3 Final Enemy/2.floating/2.png",
@@ -24,8 +25,6 @@ class Endboss extends MoveableObject {
     "Imgs/2.Enemy/3 Final Enemy/2.floating/12.png",
     "Imgs/2.Enemy/3 Final Enemy/2.floating/13.png",
   ];
-
-  // Intro-Animation (Einmaliges Auftauchen)
   IMAGES_INTRO = [
     "Imgs/2.Enemy/3 Final Enemy/1.Introduce/1.png",
     "Imgs/2.Enemy/3 Final Enemy/1.Introduce/2.png",
@@ -38,8 +37,6 @@ class Endboss extends MoveableObject {
     "Imgs/2.Enemy/3 Final Enemy/1.Introduce/9.png",
     "Imgs/2.Enemy/3 Final Enemy/1.Introduce/10.png",
   ];
-
-  // Angriff-Animation
   IMAGES_ATTACK = [
     "Imgs/2.Enemy/3 Final Enemy/Attack/1.png",
     "Imgs/2.Enemy/3 Final Enemy/Attack/2.png",
@@ -48,16 +45,12 @@ class Endboss extends MoveableObject {
     "Imgs/2.Enemy/3 Final Enemy/Attack/5.png",
     "Imgs/2.Enemy/3 Final Enemy/Attack/6.png",
   ];
-
-  // Hurt-Animation (bei Treffer)
   IMAGES_HURT = [
     "Imgs/2.Enemy/3 Final Enemy/Hurt/1.png",
     "Imgs/2.Enemy/3 Final Enemy/Hurt/2.png",
     "Imgs/2.Enemy/3 Final Enemy/Hurt/3.png",
     "Imgs/2.Enemy/3 Final Enemy/Hurt/4.png",
   ];
-
-  // Death-Animation (bei Tod)
   IMAGES_DEAD = [
     "Imgs/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2 copia 6.png",
     "Imgs/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2 copia 7.png",
@@ -65,34 +58,28 @@ class Endboss extends MoveableObject {
     "Imgs/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2 copia 9.png",
     "Imgs/2.Enemy/3 Final Enemy/Dead/Mesa de trabajo 2 copia 10.png",
   ];
-
-  // Eigenschaften für den Lebensstatus:
   hp = 10;
   isDead = false;
-  isBeingHit = false; // Flag, das anzeigt, dass gerade die Hurt-Animation läuft
+  isBeingHit = false;
+  introDone = false;
+  introInProgress = false;
+  isAttacking = false;
+  attackInterval = 3000;
+  oscillationAmplitude = 10;
+  oscillationSpeed = 0.005;
 
-  // Flags und Parameter für andere Animationen:
-  introDone = false; // Intro-Animation vollständig
-  introInProgress = false; // Intro läuft gerade
-  isAttacking = false; // Angriff läuft gerade
-  attackInterval = 3000; // Angriff alle 3 Sekunden
-
-  // Für Oszillation (Floating) – hier zusätzlich horizontal in Richtung Sharkie bewegt
-  oscillationAmplitude = 10; // Pixel
-  oscillationSpeed = 0.005; // Faktor für die Sinusfunktion
-
+  /**
+   * Creates a new Endboss instance.
+   */
   constructor() {
     super().loadImage(this.IMAGES_STANDING[0]);
-    // Lade alle Bilder:
     this.loadImages(this.IMAGES_STANDING);
     this.loadImages(this.IMAGES_INTRO);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
-    // Setze Startposition (zum Beispiel weit rechts)
     this.x = 2500;
     this.y = this.baseY;
-    // Setze Flags zurück – wichtig für Neustarts
     this.introDone = false;
     this.introInProgress = false;
     this.isAttacking = false;
@@ -100,8 +87,21 @@ class Endboss extends MoveableObject {
     this.animate();
   }
 
+  /**
+   * Starts all animation cycles of the Endboss.
+   */
   animate() {
-    // Intro-Animation starten (nur einmal), wenn Sharkie in Reichweite ist
+    this.startIntroCheck();
+    this.startMovement();
+    this.startVerticalOscillation();
+    this.startAttackCycle();
+    this.startFloatingAnimation();
+  }
+
+  /**
+   * Checks if the intro animation should be played.
+   */
+  startIntroCheck() {
     setInterval(() => {
       if (
         !this.introDone &&
@@ -109,17 +109,18 @@ class Endboss extends MoveableObject {
         this.world &&
         this.world.character &&
         !this.isDead &&
-        !this.isBeingHit
+        !this.isBeingHit &&
+        Math.abs(this.x - this.world.character.x) < this.detectionRange
       ) {
-        let sharkie = this.world.character;
-        let distance = Math.abs(this.x - sharkie.x);
-        if (distance < this.detectionRange) {
-          this.playIntroAnimation();
-        }
+        this.playIntroAnimation();
       }
     }, 100);
+  }
 
-    // Kontinuierliche Bewegung in Richtung Sharkie (floats langsam horizontal)
+  /**
+   * Moves the Endboss horizontally toward the character.
+   */
+  startMovement() {
     setInterval(() => {
       if (
         this.introDone &&
@@ -129,11 +130,15 @@ class Endboss extends MoveableObject {
         this.world.character &&
         !this.isDead
       ) {
-        this.moveTowardsSharkie();
+        this.moveTowardsCharacter();
       }
     }, 1000 / 60);
+  }
 
-    // Vertikale Oszillation (Floating) – nur, wenn Intro abgeschlossen und nicht im Angriff
+  /**
+   * Applies vertical oscillation when conditions allow.
+   */
+  startVerticalOscillation() {
     setInterval(() => {
       if (
         this.introDone &&
@@ -141,32 +146,37 @@ class Endboss extends MoveableObject {
         !this.isDead &&
         !this.isBeingHit
       ) {
-        let t = Date.now();
+        const t = Date.now();
         this.y =
           this.baseY +
           this.oscillationAmplitude * Math.sin(t * this.oscillationSpeed);
       }
     }, 50);
+  }
 
-    // Angriffsphase alle 3 Sekunden, wenn Sharkie in Reichweite ist und Intro abgeschlossen
+  /**
+   * Initiates the attack cycle when the character is in range.
+   */
+  startAttackCycle() {
     setInterval(() => {
       if (
         this.introDone &&
         this.world &&
         this.world.character &&
         !this.isDead &&
-        !this.isBeingHit
+        !this.isBeingHit &&
+        Math.abs(this.x - this.world.character.x) < this.detectionRange
       ) {
-        let sharkie = this.world.character;
-        let distance = Math.abs(this.x - sharkie.x);
-        if (distance < this.detectionRange) {
-          this.playAttackAnimation();
-          this.moveTowardsSharkie();
-        }
+        this.playAttackAnimation();
+        this.moveTowardsCharacter();
       }
     }, this.attackInterval);
+  }
 
-    // Fortlaufende "Floating"-Animation (Standard Standing), wenn nicht im Intro oder Angriff
+  /**
+   * Continuously plays the standing (floating) animation.
+   */
+  startFloatingAnimation() {
     setInterval(() => {
       if (
         this.introDone &&
@@ -179,11 +189,14 @@ class Endboss extends MoveableObject {
     }, 200);
   }
 
+  /**
+   * Plays the intro animation.
+   */
   playIntroAnimation() {
     if (this.introInProgress || this.introDone) return;
     this.introInProgress = true;
     let index = 0;
-    let introInterval = setInterval(() => {
+    const introInterval = setInterval(() => {
       if (index < this.IMAGES_INTRO.length) {
         this.img = this.imageCache[this.IMAGES_INTRO[index]];
         index++;
@@ -191,19 +204,21 @@ class Endboss extends MoveableObject {
         clearInterval(introInterval);
         this.introDone = true;
         this.introInProgress = false;
-        // Optional: Kurze Pause nach dem Intro, bevor der Boss angreift
         setTimeout(() => {
-          this.baseY = this.y; // Aktuelle Position als Basis für die Oszillation
+          this.baseY = this.y;
         }, 500);
       }
     }, 200);
   }
 
+  /**
+   * Plays the attack animation.
+   */
   playAttackAnimation() {
     if (this.isAttacking || this.isBeingHit) return;
     this.isAttacking = true;
     let index = 0;
-    let attackInterval = setInterval(() => {
+    const attackInterval = setInterval(() => {
       if (index < this.IMAGES_ATTACK.length) {
         this.img = this.imageCache[this.IMAGES_ATTACK[index]];
         index++;
@@ -214,36 +229,39 @@ class Endboss extends MoveableObject {
     }, 150);
   }
 
-  moveTowardsSharkie() {
+  /**
+   * Moves the Endboss toward the character horizontally.
+   */
+  moveTowardsCharacter() {
     if (this.world && this.world.character) {
-      let sharkie = this.world.character;
-      let distance = Math.abs(this.x - sharkie.x);
+      const sharkie = this.world.character;
+      const distance = Math.abs(this.x - sharkie.x);
       if (distance < this.detectionRange) {
-        if (this.x > sharkie.x) {
-          this.x -= this.speed / 2;
-        } else if (this.x < sharkie.x) {
-          this.x += this.speed / 2;
-        }
+        this.x += this.x < sharkie.x ? this.speed / 2 : -this.speed / 2;
       }
     }
   }
 
+  /**
+   * Plays an animation sequence.
+   * @param {string[]} images - Array of image paths.
+   * @param {string} [indexName="currentImage"] - The property used for tracking the current frame.
+   */
   playAnimation(images, indexName = "currentImage") {
-    if (!this[indexName]) {
-      this[indexName] = 0;
-    }
-    let index = this[indexName] % images.length;
-    let path = images[index];
+    if (!this[indexName]) this[indexName] = 0;
+    const index = this[indexName] % images.length;
+    const path = images[index];
     if (this.imageCache[path]) {
       this.img = this.imageCache[path];
       this[indexName]++;
     }
   }
 
-  // Wird aufgerufen, wenn der Endboss getroffen wird.
+  /**
+   * Processes damage received by the Endboss.
+   */
   receiveDamage() {
     if (this.isDead) return;
-    // Setze den Zustand, damit nur die Hurt-Animation abgespielt wird.
     this.isBeingHit = true;
     this.hp--;
     if (this.hp > 0) {
@@ -259,24 +277,28 @@ class Endboss extends MoveableObject {
     }
   }
 
+  /**
+   * Plays the hurt animation.
+   */
   playHurtAnimation() {
     let i = 0;
-    let hurtInterval = setInterval(() => {
+    const hurtInterval = setInterval(() => {
       if (i < this.IMAGES_HURT.length) {
         this.img = this.imageCache[this.IMAGES_HURT[i]];
         i++;
       } else {
         clearInterval(hurtInterval);
-        // Nach der Hurt-Animation wird der Zustand zurückgesetzt,
-        // sodass normale Animationen (Floating etc.) wieder übernommen werden.
         this.isBeingHit = false;
       }
     }, 150);
   }
 
+  /**
+   * Plays the death animation.
+   */
   playDeathAnimation() {
     let i = 0;
-    let deathInterval = setInterval(() => {
+    const deathInterval = setInterval(() => {
       if (i < this.IMAGES_DEAD.length) {
         this.img = this.imageCache[this.IMAGES_DEAD[i]];
         i++;
