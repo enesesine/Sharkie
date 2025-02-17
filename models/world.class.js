@@ -15,7 +15,6 @@ class World {
   poisonStatusBar = new PoisonStatusBar();
   statusBar = new StatusBar();
 
-  // Sound properties for win and lose
   winSound = new Audio("Audio/win-sound.mp3");
   loseSound = new Audio("Audio/lose-sound.mp3");
 

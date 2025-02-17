@@ -7,7 +7,7 @@ class Endboss extends MoveableObject {
   width = 300;
   baseY = -80;
   y = -80;
-  speed = 9;
+  speed = 10;
   damage = 40;
   detectionRange = 800;
   IMAGES_STANDING = [
