@@ -23,7 +23,7 @@ function initJoystick() {
     const rect = container.getBoundingClientRect();
     startX = rect.left + rect.width / 2;
     startY = rect.top + rect.height / 2;
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
   }
 
   /**

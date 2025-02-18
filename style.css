@@ -429,6 +429,7 @@ body {
     align-items: center;
     justify-content: center;
     pointer-events: auto;
+    touch-action: none;
   }
   /* Joystick selbst (als <div> mit Hintergrundbild) */
   #joystick {
