@@ -350,17 +350,22 @@ body {
 
 /* Für sehr kleine Bildschirme (unter 500px): Mobile Message Overlay */
 @media only screen and (max-width: 500px) {
+  html,
+  body {
+    overflow: hidden;
+  }
+
   #mobile-message {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8); /* halbtransparent */
+    height: 105vh;
+    background: rgba(0, 0, 0, 0.8);
     color: white;
     z-index: 3000;
     padding: 20px;
@@ -383,6 +388,7 @@ body {
       transform: rotate(360deg);
     }
   }
+
   .mobile-message-middle img {
     max-width: 80%;
     height: auto;
@@ -406,6 +412,7 @@ body {
     left: 0;
     right: 0;
     z-index: 2000;
+    pointer-events: auto;
     /* pointer-events wurde entfernt, damit Klicks durchkommen */
   }
   /* Joystick unten links im Canvas */
@@ -448,7 +455,7 @@ body {
     background: none;
     border: none;
     padding: 0;
-    cursor: pointer;
+    pointer-events: auto;
   }
   #attack-buttons button img {
     width: 100%;

@@ -67,9 +67,9 @@ function initJoystick() {
   container.addEventListener("mousedown", onStart);
   container.addEventListener("touchstart", onStart);
   document.addEventListener("mousemove", onMove);
-  document.addEventListener("touchmove", onMove, { passive: false });
+  container.addEventListener("touchmove", onMove, { passive: false });
   document.addEventListener("mouseup", onEnd);
-  document.addEventListener("touchend", onEnd);
+  container.addEventListener("touchend", onEnd);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

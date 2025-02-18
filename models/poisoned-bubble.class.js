@@ -1,6 +1,6 @@
 /**
- * Represents a poisoned bubble with a single image.
- * Movement is managed by the game world.
+ * Represents a poisoned bubble.
+ * @extends MoveableObject
  */
 class PoisonedBubble extends MoveableObject {
   IMAGES = [
@@ -8,10 +8,10 @@ class PoisonedBubble extends MoveableObject {
   ];
 
   /**
-   * Creates a poisoned bubble.
-   * @param {number} x - The initial x-position.
-   * @param {number} y - The initial y-position.
-   * @param {boolean} goingLeft - Direction of travel (true if left).
+   * Creates a new PoisonedBubble instance.
+   * @param {number} x - The x-position.
+   * @param {number} y - The y-position.
+   * @param {boolean} goingLeft - Direction flag.
    * @param {World} world - Reference to the game world.
    */
   constructor(x, y, goingLeft, world) {
@@ -25,16 +25,14 @@ class PoisonedBubble extends MoveableObject {
     this.height = 65;
     this.goingLeft = goingLeft;
     this.speed = 10;
+    // Entferne die PoisonedBubble nach 3 Sekunden
+    setTimeout(() => this.removeBubble(), 1500);
   }
 
-  /**
-   * No frame animation is needed.
-   */
-  animate() {}
+  animate() {
+    // Keine Animation, da nur ein Bild verwendet wird.
+  }
 
-  /**
-   * Removes this bubble from the world's bubbles array.
-   */
   removeBubble() {
     const index = this.world.bubbles.indexOf(this);
     if (index >= 0) {
