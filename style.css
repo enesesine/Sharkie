@@ -12,19 +12,19 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center; /* Vertikale Zentrierung */
-  min-height: 100vh; /* Sorgt dafür, dass der Body mindestens die Höhe des Viewports hat */
-  background: url("Imgs/3. Background/Legacy/Dark/2.png");
+  min-height: 100vh; /* mindestens Viewport-Höhe */
+  background: url("Imgs/3. Background/Legacy/Dark/2.png") no-repeat center
+    center/cover;
   color: white;
   margin: 0;
   overflow: hidden;
-  margin: 0;
   padding: 0;
 }
 
 /* ---- Startscreen ---- */
 #startscreen {
   position: absolute;
-  z-index: 3000; /* Startscreen ganz oben */
+  z-index: 3000;
   width: 100%;
   height: 100vh;
   background: url("Imgs/3. Background/Legacy/Dark/1.png") no-repeat center
@@ -96,7 +96,6 @@ body {
 }
 
 /* ---- Popup Overlay ---- */
-/* Popup-Overlay: Deckt den gesamten Bildschirm ab */
 #popup-overlay {
   position: fixed;
   top: 0;
@@ -105,7 +104,7 @@ body {
   height: 100vh;
   background: rgba(0, 0, 0, 0.7);
   z-index: 3000;
-  display: none; /* Standardmäßig versteckt */
+  display: none;
 }
 
 /* Popup-Container: Zentral über dem Overlay */
@@ -122,7 +121,7 @@ body {
   padding: 20px;
   text-align: center;
   z-index: 3001;
-  display: none; /* Standardmäßig versteckt */
+  display: none;
 }
 
 #popup-content h2 {
@@ -152,7 +151,7 @@ body {
 
 /* ---- Game Container ---- */
 #game-container {
-  position: relative; /* Damit absolute Elemente hier relativ positioniert werden */
+  position: relative;
   display: inline-block;
   width: 720px;
   height: 480px;
@@ -179,15 +178,14 @@ body {
 /* Fullscreen Button */
 #fullscreen-btn {
   position: absolute;
-  bottom: 10px; /* gleicher Abstand wie der Sound-Button */
-  right: 40px; /* 40px vom rechten Rand, also links vom Sound-Button (der bei 10px ist) */
+  bottom: 10px;
+  right: 40px;
   width: 20px;
   height: auto;
   cursor: pointer;
   filter: brightness(0) invert(1);
   border-radius: 3px;
   padding: 2px;
-
   transition: transform 0.2s ease;
   z-index: 10;
 }
@@ -196,7 +194,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Sound Toggle Button - innerhalb des Game Containers */
+/* Sound Toggle Button */
 #sound-toggle {
   position: absolute;
   bottom: 10px;
@@ -207,7 +205,6 @@ body {
   filter: brightness(0) invert(1);
   border-radius: 3px;
   padding: 2px;
-
   transition: transform 0.2s ease;
   z-index: 10;
 }
@@ -271,7 +268,7 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* ---- You Win Screen - exakt 720x480 ---- */
+/* ---- You Win Screen ---- */
 #win-screen {
   position: fixed;
   top: 50%;
@@ -316,7 +313,7 @@ body {
 .win-buttons {
   position: absolute;
   right: 140px;
-  bottom: 100px; /* oder ein anderer passender Wert */
+  bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -354,7 +351,6 @@ body {
   body {
     overflow: hidden;
   }
-
   #mobile-message {
     display: flex;
     flex-direction: column;
@@ -388,7 +384,6 @@ body {
       transform: rotate(360deg);
     }
   }
-
   .mobile-message-middle img {
     max-width: 80%;
     height: auto;
@@ -413,16 +408,13 @@ body {
     right: 0;
     z-index: 2000;
     pointer-events: auto;
-    /* pointer-events wurde entfernt, damit Klicks durchkommen */
   }
-  /* Joystick unten links im Canvas */
-  /* Joystick-Container (unten links im Canvas) */
   #joystick-container {
     position: absolute;
     left: 20px;
     bottom: 20px;
-    width: 50px; /* Deutlich kleiner als vorher */
-    height: 50px; /* Deutlich kleiner als vorher */
+    width: 50px;
+    height: 50px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
@@ -431,28 +423,25 @@ body {
     pointer-events: auto;
     touch-action: none;
   }
-  /* Joystick selbst (als <div> mit Hintergrundbild) */
   #joystick {
     width: 100%;
     height: 100%;
     background: url("Imgs/7. Other/joystick.png") no-repeat center center;
     background-size: contain;
-    /* Filter, damit das Bild weiß erscheint */
     filter: brightness(0) invert(1);
   }
-  /* Attack-Buttons unten rechts im Canvas */
   #attack-buttons {
     position: absolute;
     right: 20px;
     bottom: 20px;
     display: flex;
-    flex-direction: row; /* Hier von column auf row geändert */
+    flex-direction: row;
     gap: 10px;
     pointer-events: auto;
   }
   #attack-buttons button {
     width: 80px;
-    height: 80px; /* Feste Höhe, damit die Images gut zur Geltung kommen */
+    height: 80px;
     background: none;
     border: none;
     padding: 0;
@@ -462,5 +451,30 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+}
+
+/* Für Smartphones im Landscape-Modus */
+@media only screen and (max-width: 500px) and (orientation: landscape) {
+  #canvas {
+    width: 100vw;
+    height: auto;
+    max-height: 100vh;
+    border: none;
+    transform: none;
+  }
+  #game-container {
+    width: 100vw;
+    height: 10ß0vh;
+    margin: 0;
+    overflow: hidden;
+  }
+  #sound-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: auto;
+    z-index: 1000;
   }
 }
