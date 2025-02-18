@@ -20,8 +20,14 @@ function initializeMuteState() {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
     soundToggle.src = "Imgs/7. Other/mute.png";
+    if (window.world && window.world.muteAllSounds) {
+      window.world.muteAllSounds(true);
+    }
   } else {
     soundToggle.src = "Imgs/7. Other/Sound-image.png";
+    if (window.world && window.world.muteAllSounds) {
+      window.world.muteAllSounds(false);
+    }
   }
 }
 
@@ -57,6 +63,8 @@ function resetGame() {
   if (localStorage.getItem("muteStatus") !== "true") {
     backgroundMusic.play().catch(() => {});
   }
+  // Nach dem Reset ebenfalls den Mute-Status setzen
+  initializeMuteState();
 }
 
 /**
@@ -70,11 +78,17 @@ function toggleMusic() {
     backgroundMusic.play().catch(() => {});
     soundToggle.src = "Imgs/7. Other/Sound-image.png";
     localStorage.setItem("muteStatus", "false");
+    if (window.world && window.world.muteAllSounds) {
+      window.world.muteAllSounds(false);
+    }
   } else {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
     soundToggle.src = "Imgs/7. Other/mute.png";
     localStorage.setItem("muteStatus", "true");
+    if (window.world && window.world.muteAllSounds) {
+      window.world.muteAllSounds(true);
+    }
   }
 }
 

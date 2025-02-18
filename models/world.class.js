@@ -76,12 +76,13 @@ class World {
     for (const enemy of this.enemies) {
       if (!enemy || enemy.isDead) continue;
       if (!this.character.isAttacking && this.character.isColliding(enemy)) {
-        const scY = this.character.y + this.character.height / 2;
-        const ecY = enemy.y + enemy.height / 2;
-        if (Math.abs(scY - ecY) < 50) {
-          const dmg = enemy instanceof Endboss ? 40 : 20;
-          this.character.hit(dmg, enemy);
-        }
+        const sharkieCenter = this.character.y + this.character.height / 2;
+        const enemyCenter = enemy.y + enemy.height / 2;
+        if (
+          enemy instanceof Endboss ||
+          Math.abs(sharkieCenter - enemyCenter) < 50
+        )
+          this.character.hit(enemy instanceof Endboss ? 40 : 20, enemy);
       }
     }
   }
@@ -89,11 +90,13 @@ class World {
   processSlapCollisions() {
     for (const enemy of this.enemies) {
       if (!enemy || enemy.isDead) continue;
-      if (this.character.isAttacking && this.character.isSlapColliding(enemy)) {
-        if (!enemy.slapHit) {
-          enemy.slapHit = true;
-          enemy instanceof Endboss ? enemy.hit(20) : enemy.die();
-        }
+      if (
+        this.character.isAttacking &&
+        this.character.isSlapColliding(enemy) &&
+        !enemy.slapHit
+      ) {
+        enemy.slapHit = true;
+        enemy instanceof Endboss ? enemy.hit(20) : enemy.die();
       }
     }
   }
@@ -126,15 +129,12 @@ class World {
   }
 
   draw() {
-    if (this.gameWon) {
-      this.handleWin();
-      return;
-    }
-    if (this.gameOver) {
-      this.handleGameOver();
-      return;
-    }
-    this.renderScene();
+    if (this.gameWon) return this.handleWin();
+    if (this.gameOver) return this.handleGameOver();
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.updateCameraPosition();
+    this.drawGameObjects();
+    this.drawUI();
     requestAnimationFrame(() => this.draw());
   }
 
@@ -153,9 +153,11 @@ class World {
     this.loseSound.play().catch(() => {});
   }
 
-  renderScene() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.updateCameraPosition();
+  updateCameraPosition() {
+    this.camera_x = 50 - this.character.x;
+  }
+
+  drawGameObjects() {
     this.ctx.save();
     this.ctx.translate(this.camera_x, 0);
     this.addObjectsToMap(this.backgroundObjects);
@@ -165,18 +167,18 @@ class World {
     this.addObjectsToMap(this.bubbles);
     this.addToMap(this.character);
     this.ctx.restore();
-    this.addToMap(this.statusBar);
-    this.addToMap(this.coinStatusBar);
-    this.addToMap(this.poisonStatusBar);
   }
 
-  updateCameraPosition() {
-    const fixedX = 50;
-    this.camera_x = fixedX - this.character.x;
+  drawUI() {
+    this.addObjectsToMap([
+      this.statusBar,
+      this.coinStatusBar,
+      this.poisonStatusBar,
+    ]);
   }
 
-  addObjectsToMap(objs) {
-    objs.forEach((o) => this.addToMap(o));
+  addObjectsToMap(objects) {
+    objects.forEach((o) => this.addToMap(o));
   }
 
   addToMap(mo) {
@@ -192,40 +194,36 @@ class World {
   }
 
   spawnBubble(sharkie) {
-    const offsetX = 140,
-      offsetY = 130;
-    const spawnX = sharkie.otherDirection
-      ? sharkie.x - offsetX
-      : sharkie.x + offsetX;
-    const spawnY = sharkie.y + offsetY;
+    const offX = 140,
+      offY = 130;
+    const spawnX = sharkie.otherDirection ? sharkie.x - offX : sharkie.x + offX;
+    const spawnY = sharkie.y + offY;
     const bubble = new Bubble(spawnX, spawnY, sharkie.otherDirection, this);
     this.bubbles.push(bubble);
     this.animateBubble(bubble);
   }
 
   spawnPoisonedBubble(sharkie) {
-    const offsetX = 140,
-      offsetY = 130;
-    const spawnX = sharkie.otherDirection
-      ? sharkie.x - offsetX
-      : sharkie.x + offsetX;
-    const spawnY = sharkie.y + offsetY;
-    const poisonedBubble = new PoisonedBubble(
+    const offX = 140,
+      offY = 130;
+    const spawnX = sharkie.otherDirection ? sharkie.x - offX : sharkie.x + offX;
+    const spawnY = sharkie.y + offY;
+    const pbubble = new PoisonedBubble(
       spawnX,
       spawnY,
       sharkie.otherDirection,
       this
     );
-    this.bubbles.push(poisonedBubble);
-    this.animateBubble(poisonedBubble);
+    this.bubbles.push(pbubble);
+    this.animateBubble(pbubble);
   }
 
   animateBubble(bubble) {
     const speed = 5;
-    const id = setGameInterval(() => {
+    const moveInt = setGameInterval(() => {
       bubble.x += bubble.goingLeft ? -speed : speed;
       if (bubble.x < -bubble.width) {
-        clearInterval(id);
+        clearInterval(moveInt);
         this.bubbles = this.bubbles.filter((b) => b !== bubble);
       }
     }, 1000 / 60);
@@ -237,5 +235,20 @@ class World {
     document.getElementById("win-screen").style.display = "flex";
     backgroundMusic.pause();
     this.winSound.play().catch(() => {});
+  }
+
+  /**
+   * Mutes or unmutes all game sounds.
+   * @param {boolean} mute - True to mute, false to unmute.
+   */
+  muteAllSounds(mute) {
+    backgroundMusic.muted = mute;
+    this.winSound.muted = mute;
+    this.loseSound.muted = mute;
+    this.character.fishSwimmingSound.muted = mute;
+    this.character.bubblePopSound.muted = mute;
+    this.character.coinPickUpSound.muted = mute;
+    this.character.poisonBottleSound.muted = mute;
+    this.character.electricitySound.muted = mute;
   }
 }
