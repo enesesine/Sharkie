@@ -57,18 +57,16 @@ class Fish extends MoveableObject {
   die() {
     if (this.isDead) return;
     this.isDead = true;
-    clearInterval(this.moveInterval);
-    clearInterval(this.animationInterval);
+    clearInterval(this.moveInterval), clearInterval(this.animationInterval);
     this.playAnimation(this.IMAGES_DEATH);
-    const moveUpSpeed = 8;
-    const moveUpInterval = setInterval(() => {
-      this.y -= moveUpSpeed;
-      this.opacity -= 0.03;
-      if (this.opacity <= 0) {
-        clearInterval(moveUpInterval);
-        this.remove();
-      }
-    }, 60);
+    const speed = 8,
+      interval = setInterval(() => {
+        (this.y -= speed), (this.opacity -= 0.03);
+        if (this.opacity <= 0) {
+          clearInterval(interval);
+          this.remove();
+        }
+      }, 60);
   }
 
   /**

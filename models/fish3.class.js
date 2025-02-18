@@ -57,15 +57,13 @@ class Fish3 extends MoveableObject {
     clearInterval(this.moveInterval);
     clearInterval(this.animationInterval);
     let i = 0;
-    const deathInterval = setInterval(() => {
-      if (i < this.IMAGES_DEAD.length) {
-        this.img = this.imageCache[this.IMAGES_DEAD[i]];
-        i++;
-      } else {
-        clearInterval(deathInterval);
-        this.remove();
-      }
-    }, 150);
+    const deathInterval = setInterval(
+      () =>
+        i < this.IMAGES_DEAD.length
+          ? (this.img = this.imageCache[this.IMAGES_DEAD[i++]])
+          : (clearInterval(deathInterval), this.remove()),
+      150
+    );
   }
 
   /**

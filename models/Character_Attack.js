@@ -35,43 +35,63 @@ Character.prototype.animateAttackBubble = function () {
   }, 150);
 };
 
+/**
+ * Handles the initial key press for the poisoned bubble attack.
+ * @this {Character}
+ */
+Character.prototype.handlePoisonKey = function () {
+  const keyboardC = this.world.keyboard.C;
+  if (keyboardC && !this.wasPoisonKeyPressed) {
+    this.wasPoisonKeyPressed = true;
+    if (
+      this.world.collectedPoisonBottles > 0 &&
+      !this.isPoisonBubbleAttacking
+    ) {
+      this.isPoisonBubbleAttacking = true;
+      this.poisonBubbleAttackIndex = 0;
+      this.resetAFKTimer();
+    }
+  } else if (!keyboardC) {
+    this.wasPoisonKeyPressed = false;
+  }
+};
+
+/**
+ * Processes the poisoned bubble attack animation and spawning.
+ * @this {Character}
+ */
+Character.prototype.processPoisonAttack = function () {
+  if (this.isPoisonBubbleAttacking) {
+    this.playAnimation(
+      this.IMAGES_ATTACK_POISONED_BUBBLE,
+      "poisonBubbleAttackIndex"
+    );
+    if (
+      this.poisonBubbleAttackIndex >= this.IMAGES_ATTACK_POISONED_BUBBLE.length
+    ) {
+      this.isPoisonBubbleAttacking = false;
+      if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
+        this.bubblePopSound.play().catch(() => {});
+        this.world.spawnPoisonedBubble(this);
+        this.lastBubbleTime = Date.now();
+        this.world.collectedPoisonBottles--;
+        this.world.poisonStatusBar.setPercentage(
+          this.world.collectedPoisonBottles * 20
+        );
+      }
+    }
+  }
+};
+
+/**
+ * Main function to animate the poisoned bubble attack.
+ * @this {Character}
+ */
 Character.prototype.animateAttackPoisonedBubble = function () {
   setGameInterval(() => {
     if (this.isDead) return;
-    if (this.world.keyboard.C && !this.wasPoisonKeyPressed) {
-      this.wasPoisonKeyPressed = true;
-      if (
-        this.world.collectedPoisonBottles > 0 &&
-        !this.isPoisonBubbleAttacking
-      ) {
-        this.isPoisonBubbleAttacking = true;
-        this.poisonBubbleAttackIndex = 0;
-        this.resetAFKTimer();
-      }
-    } else if (!this.world.keyboard.C) {
-      this.wasPoisonKeyPressed = false;
-    }
-    if (this.isPoisonBubbleAttacking) {
-      this.playAnimation(
-        this.IMAGES_ATTACK_POISONED_BUBBLE,
-        "poisonBubbleAttackIndex"
-      );
-      if (
-        this.poisonBubbleAttackIndex >=
-        this.IMAGES_ATTACK_POISONED_BUBBLE.length
-      ) {
-        this.isPoisonBubbleAttacking = false;
-        if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
-          this.bubblePopSound.play().catch(() => {});
-          this.world.spawnPoisonedBubble(this);
-          this.lastBubbleTime = Date.now();
-          this.world.collectedPoisonBottles--;
-          this.world.poisonStatusBar.setPercentage(
-            this.world.collectedPoisonBottles * 20
-          );
-        }
-      }
-    }
+    this.handlePoisonKey();
+    this.processPoisonAttack();
   }, 150);
 };
 
@@ -83,32 +103,57 @@ Character.prototype.takeDamage = function (amount) {
   if (this.hp === 0 && !this.isDead) this.die();
 };
 
-Character.prototype.hit = function (damage) {
-  const now = Date.now();
-  if (this.hp <= 0) return;
+/**
+ * Applies damage to the character if the damage cooldown has passed.
+ * Updates HP, plays the electricity sound, and triggers death if needed.
+ * @param {number} damage - The amount of damage.
+ * @param {number} now - The current timestamp.
+ * @returns {boolean} True if the character died due to this damage.
+ */
+Character.prototype.applyDamage = function (damage, now) {
   if (now - this.lastDamageTime >= this.damageCooldown) {
     this.lastDamageTime = now;
-    this.hp -= damage;
-    if (this.hp < 0) this.hp = 0;
+    this.hp = Math.max(0, this.hp - damage);
     this.world.statusBar.setPercentage(this.hp);
     this.electricitySound.play().catch(() => {});
     if (this.hp === 0) {
       this.die();
-      return;
+      return true;
     }
   }
+  return false;
+};
+
+/**
+ * Triggers the hurt animation for the character.
+ * @param {number} now - The current timestamp.
+ */
+Character.prototype.triggerHurtAnimation = function (now) {
   if (!this.isHurt && this.hp > 0) {
     this.isHurt = true;
     this.hurtStartTime = now;
     this.hurtImageIndex = 0;
-    const hurtInterval = setGameInterval(() => {
-      this.playAnimation(this.IMAGES_HURT_SHOCK, "hurtImageIndex");
-    }, 150);
+    const hurtInterval = setGameInterval(
+      () => this.playAnimation(this.IMAGES_HURT_SHOCK, "hurtImageIndex"),
+      150
+    );
     setTimeout(() => {
       clearInterval(hurtInterval);
       this.isHurt = false;
     }, this.hurtDuration);
   }
+};
+
+/**
+ * Processes a hit on the character.
+ * Reduces HP, plays the electricity sound, and triggers the hurt animation.
+ * @param {number} damage - The amount of damage.
+ */
+Character.prototype.hit = function (damage) {
+  const now = Date.now();
+  if (this.hp <= 0) return;
+  if (this.applyDamage(damage, now)) return;
+  this.triggerHurtAnimation(now);
   if (this.hp <= 0) this.die();
 };
 
@@ -165,29 +210,51 @@ Character.prototype.firePoisonedBubble = function () {
   }
 };
 
-Character.prototype.isSlapColliding = function (enemy) {
-  const attackWidth = 30,
-    attackHeight = this.height - 40;
+/**
+ * Returns the attack hitbox for the slap attack.
+ * @returns {{x: number, y: number, width: number, height: number}} The attack box.
+ */
+Character.prototype.getAttackBox = function () {
+  const attackWidth = 30;
+  const attackHeight = this.height - 40;
   const attackX = this.otherDirection
     ? this.x - attackWidth
     : this.x + this.width;
   const attackY = this.y + 20;
-  const attackBox = {
-    x: attackX,
-    y: attackY,
-    width: attackWidth,
-    height: attackHeight,
-  };
-  const enemyBox = {
-    x: enemy.x,
-    y: enemy.y,
-    width: enemy.width,
-    height: enemy.height,
-  };
+  return { x: attackX, y: attackY, width: attackWidth, height: attackHeight };
+};
+
+/**
+ * Returns the hitbox of the given enemy.
+ * @param {Object} enemy - The enemy object.
+ * @returns {{x: number, y: number, width: number, height: number}} The enemy box.
+ */
+Character.prototype.getEnemyBox = function (enemy) {
+  return { x: enemy.x, y: enemy.y, width: enemy.width, height: enemy.height };
+};
+
+/**
+ * Checks if two boxes collide.
+ * @param {{x: number, y: number, width: number, height: number}} box1
+ * @param {{x: number, y: number, width: number, height: number}} box2
+ * @returns {boolean} True if the boxes intersect.
+ */
+function boxesCollide(box1, box2) {
   return (
-    attackBox.x < enemyBox.x + enemyBox.width &&
-    attackBox.x + attackBox.width > enemyBox.x &&
-    attackBox.y < enemyBox.y + enemyBox.height &&
-    attackBox.y + attackBox.height > enemyBox.y
+    box1.x < box2.x + box2.width &&
+    box1.x + box1.width > box2.x &&
+    box1.y < box2.y + box2.height &&
+    box1.y + box1.height > box2.y
   );
+}
+
+/**
+ * Determines whether the slap attack hitbox collides with an enemy.
+ * @param {Object} enemy - The enemy object.
+ * @returns {boolean} True if colliding.
+ */
+Character.prototype.isSlapColliding = function (enemy) {
+  const attackBox = this.getAttackBox();
+  const enemyBox = this.getEnemyBox(enemy);
+  return boxesCollide(attackBox, enemyBox);
 };

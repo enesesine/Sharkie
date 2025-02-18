@@ -37,29 +37,24 @@ function startGame() {
  * Opens a popup with the specified content.
  * @param {string} type - The type of content to display ("controls", "imprint", "privacy").
  */
+/**
+ * Öffnet das Popup-Fenster mit dem gewünschten Inhalt.
+ * @param {string} type - "controls", "imprint" oder "privacy".
+ */
 function openPopup(type) {
-  let content = "";
-  if (type === "controls") {
-    content = `
-      <h2>Steuerung</h2>
-      <p>🡆 Pfeiltasten: Bewegung</p>
-      <p>🡆 D: Bubble Attack</p>
-      <p>🡆 C: Poisoned Bubble Attack</p>
-      <p>🡆 Space: Slap Attack</p>
-    `;
-  } else if (type === "imprint") {
-    content = `
-      <h2>Impressum</h2>
-      <p>Entwickelt von Enes Hadzic</p>
-      <p>Kontakt: contacthadzic@gmail.com</p>
-    `;
-  } else if (type === "privacy") {
-    content = `
-      <h2>Datenschutz</h2>
-      <p>Dieses Spiel speichert keine persönlichen Daten.</p>
-    `;
-  }
-  document.getElementById("popup-content").innerHTML = content;
+  const contentMap = {
+    controls: `<h2>Steuerung</h2>
+<p>🡆 Pfeiltasten: Bewegung</p>
+<p>🡆 D: Bubble Attack</p>
+<p>🡆 C: Poisoned Bubble Attack</p>
+<p>🡆 Space: Slap Attack</p>`,
+    imprint: `<h2>Impressum</h2>
+<p>Entwickelt von Enes Hadzic</p>
+<p>Kontakt: contacthadzic@gmail.com</p>`,
+    privacy: `<h2>Datenschutz</h2>
+<p>Dieses Spiel speichert keine persönlichen Daten.</p>`,
+  };
+  document.getElementById("popup-content").innerHTML = contentMap[type] || "";
   document.getElementById("popup-overlay").style.display = "block";
   document.getElementById("popup-container").style.display = "block";
 }

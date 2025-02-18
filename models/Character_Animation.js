@@ -19,19 +19,13 @@ Character.prototype.animateHorizontalMovement = function () {
     const kb = this.world.keyboard;
     let moved = false;
     if (kb.RIGHT && this.x < this.world.level.level_end_x) {
-      this.x += this.speed;
-      this.otherDirection = false;
-      moved = true;
+      (this.x += this.speed), (this.otherDirection = false), (moved = true);
     }
     if (kb.LEFT && this.x > this.spawnX) {
-      this.x -= this.speed;
-      this.otherDirection = true;
-      moved = true;
+      (this.x -= this.speed), (this.otherDirection = true), (moved = true);
     }
-    if (moved) {
-      this.lastMovementTime = performance.now();
-      this.resetLongIdle();
-    }
+    moved &&
+      ((this.lastMovementTime = performance.now()), this.resetLongIdle());
     this.world.camera_x = -this.x + 5;
   }, 1000 / 60);
 };
@@ -67,7 +61,10 @@ Character.prototype.animateSwimming = function () {
 
 Character.prototype.animateIdle = function () {
   setGameInterval(() => {
-    if (this.isDead || this.isHurt) return;
+    const kb = this.world.keyboard,
+      t = performance.now() - this.lastMovementTime;
+    if (this.isDead || this.isHurt || kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)
+      return;
     if (
       this.isAttacking ||
       this.isBubbleAttacking ||
@@ -76,10 +73,7 @@ Character.prototype.animateIdle = function () {
       this.lastMovementTime = performance.now();
       return;
     }
-    const kb = this.world.keyboard;
-    if (kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN) return;
-    const idleTime = performance.now() - this.lastMovementTime;
-    idleTime < 5000
+    t < 5000
       ? this.playAnimation(this.IMAGES_STANDING, "idleImageIndex")
       : !this.longIdleIntroDone
       ? this.playLongIdleIntro()

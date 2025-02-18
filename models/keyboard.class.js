@@ -20,12 +20,12 @@ class Keyboard {
   }
 
   /**
-   * Updates the state of a key based on the keyboard event.
+   * Sets the key state based on a keyboard event.
    * @param {KeyboardEvent} event - The keyboard event.
-   * @param {boolean} state - True for keydown, false for keyup.
+   * @param {boolean} state - True if the key is pressed, false if released.
    */
   setKeyState(event, state) {
-    const keyMap = {
+    const key = {
       ArrowLeft: "LEFT",
       ArrowRight: "RIGHT",
       ArrowUp: "UP",
@@ -33,16 +33,10 @@ class Keyboard {
       Space: "SPACE",
       KeyD: "D",
       KeyC: "C",
-    };
-    const keyName = keyMap[event.code];
-    if (keyName) {
-      if (state && !this.keyPressed[event.code]) {
-        this[keyName] = true;
-        this.keyPressed[event.code] = true;
-      } else if (!state) {
-        this[keyName] = false;
-        this.keyPressed[event.code] = false;
-      }
-    }
+    }[event.code];
+    if (!key) return;
+    if (state && !this.keyPressed[event.code]) this[key] = true;
+    else if (!state) this[key] = false;
+    this.keyPressed[event.code] = state;
   }
 }

@@ -32,11 +32,10 @@ function initJoystick() {
    */
   function onMove(event) {
     if (!active) return;
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-    let deltaX = clientX - startX;
-    let deltaY = clientY - startY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const { clientX, clientY } = event.touches ? event.touches[0] : event;
+    let deltaX = clientX - startX,
+      deltaY = clientY - startY,
+      distance = Math.hypot(deltaX, deltaY);
     if (distance > maxDistance) {
       const ratio = maxDistance / distance;
       deltaX *= ratio;
