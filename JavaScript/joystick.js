@@ -1,5 +1,5 @@
 /**
- * Initializes the on-screen joystick.
+ * Initializes the on-screen joystick using pointer events.
  */
 function initJoystick() {
   const container = document.getElementById("joystick-container");
@@ -13,29 +13,29 @@ function initJoystick() {
   const maxDistance = 40;
 
   /**
-   * Handles the start of joystick interaction.
-   * @param {Event} event - The event object.
+   * Pointer down handler.
+   * @param {PointerEvent} event
    */
-  function onStart(event) {
+  function onPointerDown(event) {
     active = true;
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    // Set pointer capture to keep receiving events even wenn der Zeiger den Container verlässt
+    container.setPointerCapture(event.pointerId);
     const rect = container.getBoundingClientRect();
     startX = rect.left + rect.width / 2;
     startY = rect.top + rect.height / 2;
-    if (event.cancelable) event.preventDefault();
+    event.preventDefault();
   }
 
   /**
-   * Handles joystick movement.
-   * @param {Event} event - The event object.
+   * Pointer move handler.
+   * @param {PointerEvent} event
    */
-  function onMove(event) {
+  function onPointerMove(event) {
     if (!active) return;
-    const { clientX, clientY } = event.touches ? event.touches[0] : event;
-    let deltaX = clientX - startX,
-      deltaY = clientY - startY,
-      distance = Math.hypot(deltaX, deltaY);
+    const { clientX, clientY } = event;
+    let deltaX = clientX - startX;
+    let deltaY = clientY - startY;
+    const distance = Math.hypot(deltaX, deltaY);
     if (distance > maxDistance) {
       const ratio = maxDistance / distance;
       deltaX *= ratio;
@@ -46,31 +46,25 @@ function initJoystick() {
     keyboard.LEFT = deltaX < -10;
     keyboard.DOWN = deltaY > 10;
     keyboard.UP = deltaY < -10;
-    if (event.cancelable) event.preventDefault();
+    event.preventDefault();
   }
 
   /**
-   * Handles the end of joystick interaction.
-   * @param {Event} event - The event object.
+   * Pointer up/cancel handler.
+   * @param {PointerEvent} event
    */
-  function onEnd(event) {
+  function onPointerUp(event) {
     active = false;
     joystick.style.transform = "translate(0px, 0px)";
-    keyboard.RIGHT = false;
-    keyboard.LEFT = false;
-    keyboard.UP = false;
-    keyboard.DOWN = false;
-    if (event.cancelable) event.preventDefault();
+    keyboard.RIGHT = keyboard.LEFT = keyboard.UP = keyboard.DOWN = false;
+    container.releasePointerCapture(event.pointerId);
+    event.preventDefault();
   }
 
-  // Bind touch events only on the joystick container.
-  container.addEventListener("touchstart", onStart, { passive: false });
-  container.addEventListener("touchmove", onMove, { passive: false });
-  container.addEventListener("touchend", onEnd, { passive: false });
-  // Bind mouse events on the container.
-  container.addEventListener("mousedown", onStart);
-  container.addEventListener("mousemove", onMove);
-  container.addEventListener("mouseup", onEnd);
+  container.addEventListener("pointerdown", onPointerDown);
+  container.addEventListener("pointermove", onPointerMove);
+  container.addEventListener("pointerup", onPointerUp);
+  container.addEventListener("pointercancel", onPointerUp);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
