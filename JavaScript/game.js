@@ -13,21 +13,20 @@ backgroundMusic.volume = 0.5;
  * Initializes the mute state based on localStorage.
  * If muted, pauses background music and updates the sound icon.
  */
+/**
+ * Initializes the mute state based on localStorage.
+ * Updates the sound icon.
+ */
 function initializeMuteState() {
   const soundToggle = document.getElementById("sound-toggle");
   const isMuted = localStorage.getItem("muteStatus") === "true";
+  soundToggle.src = isMuted
+    ? "Imgs/7. Other/mute.png"
+    : "Imgs/7. Other/Sound-image.png";
+  // Pause background music if muted
   if (isMuted) {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
-    soundToggle.src = "Imgs/7. Other/mute.png";
-    if (window.world && window.world.muteAllSounds) {
-      window.world.muteAllSounds(true);
-    }
-  } else {
-    soundToggle.src = "Imgs/7. Other/Sound-image.png";
-    if (window.world && window.world.muteAllSounds) {
-      window.world.muteAllSounds(false);
-    }
   }
 }
 
@@ -40,8 +39,9 @@ function init() {
   world = new World(canvas, keyboard);
   window.world = world;
   world.statusBar.setPercentage(100);
-  // Initialize mute state and start background music if not muted
+  // Initialize mute state and apply it to all game sounds
   initializeMuteState();
+  world.muteAllSounds(localStorage.getItem("muteStatus") === "true");
   if (localStorage.getItem("muteStatus") !== "true") {
     backgroundMusic.play().catch(() => {});
   }
@@ -60,11 +60,11 @@ function resetGame() {
   world.statusBar.setPercentage(100);
   backgroundMusic.pause();
   backgroundMusic.currentTime = 0;
+  // Apply mute state to new world
+  world.muteAllSounds(localStorage.getItem("muteStatus") === "true");
   if (localStorage.getItem("muteStatus") !== "true") {
     backgroundMusic.play().catch(() => {});
   }
-  // Nach dem Reset ebenfalls den Mute-Status setzen
-  initializeMuteState();
 }
 
 /**
@@ -78,18 +78,14 @@ function toggleMusic() {
     backgroundMusic.play().catch(() => {});
     soundToggle.src = "Imgs/7. Other/Sound-image.png";
     localStorage.setItem("muteStatus", "false");
-    if (window.world && window.world.muteAllSounds) {
-      window.world.muteAllSounds(false);
-    }
   } else {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
     soundToggle.src = "Imgs/7. Other/mute.png";
     localStorage.setItem("muteStatus", "true");
-    if (window.world && window.world.muteAllSounds) {
-      window.world.muteAllSounds(true);
-    }
   }
+  // Wende den neuen Mute-Status auch auf alle Game-Sounds an
+  world.muteAllSounds(localStorage.getItem("muteStatus") === "true");
 }
 
 /**

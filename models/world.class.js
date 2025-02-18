@@ -39,6 +39,8 @@ class World {
     this.draw();
     this.checkCollisions();
     this.initializeEnemies();
+    // Füge Event-Listener zu den "Menu"/"Home"-Buttons hinzu, um aus dem Fullscreen zu gehen
+    this.setupMenuExit();
   }
 
   setWorld() {
@@ -46,15 +48,15 @@ class World {
   }
 
   initializeEnemies() {
-    this.level.enemies.forEach((enemy) => {
-      enemy.world = this;
-      enemy.slapHit = false;
+    this.level.enemies.forEach((e) => {
+      e.world = this;
+      e.slapHit = false;
     });
   }
 
   resetEnemySlapFlags() {
-    this.enemies.forEach((enemy) => {
-      if (enemy) enemy.slapHit = false;
+    this.enemies.forEach((e) => {
+      if (e) e.slapHit = false;
     });
   }
 
@@ -140,7 +142,11 @@ class World {
 
   handleWin() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    document.getElementById("win-screen").style.display = "flex";
+    const winEl = document.getElementById("win-screen");
+    winEl.style.display = "flex";
+    if (document.fullscreenElement) {
+      document.fullscreenElement.appendChild(winEl);
+    }
     backgroundMusic.pause();
     this.winSound.play().catch(() => {});
   }
@@ -148,7 +154,11 @@ class World {
   handleGameOver() {
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    document.getElementById("game-over-screen").style.display = "flex";
+    const goEl = document.getElementById("game-over-screen");
+    goEl.style.display = "flex";
+    if (document.fullscreenElement) {
+      document.fullscreenElement.appendChild(goEl);
+    }
     backgroundMusic.pause();
     this.loseSound.play().catch(() => {});
   }
@@ -177,8 +187,8 @@ class World {
     ]);
   }
 
-  addObjectsToMap(objects) {
-    objects.forEach((o) => this.addToMap(o));
+  addObjectsToMap(objs) {
+    objs.forEach((o) => this.addToMap(o));
   }
 
   addToMap(mo) {
@@ -231,10 +241,7 @@ class World {
 
   displayWinScreen() {
     this.gameWon = true;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    document.getElementById("win-screen").style.display = "flex";
-    backgroundMusic.pause();
-    this.winSound.play().catch(() => {});
+    this.handleWin();
   }
 
   /**
@@ -250,5 +257,22 @@ class World {
     this.character.coinPickUpSound.muted = mute;
     this.character.poisonBottleSound.muted = mute;
     this.character.electricitySound.muted = mute;
+  }
+
+  /**
+   * Sets up event listeners on the Menu buttons (in Game Over and Win screens)
+   * to exit fullscreen mode when clicked.
+   */
+  setupMenuExit() {
+    const menuButtons = document.querySelectorAll(
+      "#game-over-screen button, #win-screen button"
+    );
+    menuButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+    });
   }
 }

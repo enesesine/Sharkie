@@ -63,12 +63,14 @@ function initJoystick() {
     event.preventDefault();
   }
 
+  // Bind touch/mouse events only on the joystick container.
   container.addEventListener("mousedown", onStart);
-  container.addEventListener("touchstart", onStart);
-  document.addEventListener("mousemove", onMove);
+  container.addEventListener("touchstart", onStart, { passive: false });
   container.addEventListener("touchmove", onMove, { passive: false });
-  document.addEventListener("mouseup", onEnd);
-  container.addEventListener("touchend", onEnd);
+  container.addEventListener("touchend", onEnd, { passive: false });
+  // Für Maus-Events reichen Container oder document (hier werden die Maus-Events auf container gebunden)
+  container.addEventListener("mousemove", onMove);
+  container.addEventListener("mouseup", onEnd);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
