@@ -46,7 +46,7 @@ function initJoystick() {
     keyboard.LEFT = deltaX < -10;
     keyboard.DOWN = deltaY > 10;
     keyboard.UP = deltaY < -10;
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
   }
 
   /**
@@ -60,15 +60,15 @@ function initJoystick() {
     keyboard.LEFT = false;
     keyboard.UP = false;
     keyboard.DOWN = false;
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
   }
 
-  // Bind touch/mouse events only on the joystick container.
-  container.addEventListener("mousedown", onStart);
+  // Bind touch events only on the joystick container.
   container.addEventListener("touchstart", onStart, { passive: false });
   container.addEventListener("touchmove", onMove, { passive: false });
   container.addEventListener("touchend", onEnd, { passive: false });
-  // Für Maus-Events reichen Container oder document (hier werden die Maus-Events auf container gebunden)
+  // Bind mouse events on the container.
+  container.addEventListener("mousedown", onStart);
   container.addEventListener("mousemove", onMove);
   container.addEventListener("mouseup", onEnd);
 }
