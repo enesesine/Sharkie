@@ -357,14 +357,12 @@ body {
     justify-content: center;
     align-items: center;
     position: fixed;
-    top: 0;
     left: 0;
     width: 100vw;
     height: 105vh;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     z-index: 3000;
-    padding: 20px;
     text-align: center;
   }
   .mobile-message-top,
