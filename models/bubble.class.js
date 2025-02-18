@@ -23,7 +23,7 @@ class Bubble extends MoveableObject {
     this.height = 40;
     this.goingLeft = goingLeft;
     this.speed = 1;
-    // Entferne die Bubble nach 3 Sekunden
+
     setTimeout(() => this.removeBubble(), 1500);
   }
 

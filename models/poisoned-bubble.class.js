@@ -25,13 +25,11 @@ class PoisonedBubble extends MoveableObject {
     this.height = 65;
     this.goingLeft = goingLeft;
     this.speed = 10;
-    // Entferne die PoisonedBubble nach 3 Sekunden
+
     setTimeout(() => this.removeBubble(), 1500);
   }
 
-  animate() {
-    // Keine Animation, da nur ein Bild verwendet wird.
-  }
+  animate() {}
 
   removeBubble() {
     const index = this.world.bubbles.indexOf(this);
