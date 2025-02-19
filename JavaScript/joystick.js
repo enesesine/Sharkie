@@ -14,11 +14,10 @@ function initJoystick() {
 
   /**
    * Pointer down handler.
-   * @param {PointerEvent} event
+   * @param {PointerEvent} event - The pointer event.
    */
   function onPointerDown(event) {
     active = true;
-    // Set pointer capture to keep receiving events even wenn der Zeiger den Container verlässt
     container.setPointerCapture(event.pointerId);
     const rect = container.getBoundingClientRect();
     startX = rect.left + rect.width / 2;
@@ -28,7 +27,7 @@ function initJoystick() {
 
   /**
    * Pointer move handler.
-   * @param {PointerEvent} event
+   * @param {PointerEvent} event - The pointer event.
    */
   function onPointerMove(event) {
     if (!active) return;
@@ -51,7 +50,7 @@ function initJoystick() {
 
   /**
    * Pointer up/cancel handler.
-   * @param {PointerEvent} event
+   * @param {PointerEvent} event - The pointer event.
    */
   function onPointerUp(event) {
     active = false;

@@ -23,17 +23,19 @@ class Bubble extends MoveableObject {
     this.height = 40;
     this.goingLeft = goingLeft;
     this.speed = 1;
-
     setTimeout(() => this.removeBubble(), 1500);
   }
 
+  /**
+   * Updates the bubble's position and removes it if it goes out of bounds.
+   */
   update() {
     if (this.goingLeft) {
       this.x -= this.speed;
     } else {
       this.x += this.speed;
     }
-    let distance = this.x - this.initialX;
+    const distance = this.x - this.initialX;
     this.y = this.initialY + Math.sin(distance / 30) * 15;
     if (
       this.x < -this.width ||
@@ -43,6 +45,9 @@ class Bubble extends MoveableObject {
     }
   }
 
+  /**
+   * Removes the bubble from the game world's bubbles array.
+   */
   removeBubble() {
     const index = this.world.bubbles.indexOf(this);
     if (index >= 0) {
@@ -50,6 +55,9 @@ class Bubble extends MoveableObject {
     }
   }
 
+  /**
+   * Destroys the bubble by removing it from the game world's bubbles array.
+   */
   destroyBubble() {
     const index = this.world.bubbles.indexOf(this);
     if (index >= 0) {

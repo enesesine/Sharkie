@@ -1,3 +1,6 @@
+/**
+ * Navigates back to the home screen by clearing intervals and updating the display.
+ */
 function homeGame() {
   clearAllGameIntervals();
   document.getElementById("game-over-screen").style.display = "none";
@@ -6,6 +9,10 @@ function homeGame() {
   document.getElementById("startscreen").style.display = "flex";
 }
 
+/**
+ * Resets the game state without reloading the page.
+ * Clears all intervals, resets UI elements, recreates the level, and restarts background music if not muted.
+ */
 function resetGame() {
   clearAllGameIntervals();
   document.getElementById("game-over-screen").style.display = "none";

@@ -1,35 +1,50 @@
-// Animations-Methoden
-
+/**
+ * Animates all character actions.
+ * @this {Character}
+ */
 Character.prototype.animate = function () {
   if (this.isDead) return;
   this.animateHorizontalMovement();
   this.animateVerticalMovement();
   this.animateSwimming();
   this.animateIdle();
-  // Die Angriffsmethoden (Attack-Slap, Bubble etc.) werden im nächsten Teil definiert
   this.animateAttackSlap();
   this.animateAttackBubble();
   this.animateAttackPoisonedBubble();
   this.animateHurt();
 };
 
+/**
+ * Animates horizontal movement based on keyboard input.
+ * @this {Character}
+ */
 Character.prototype.animateHorizontalMovement = function () {
   setGameInterval(() => {
     if (this.isDead) return;
     const kb = this.world.keyboard;
     let moved = false;
     if (kb.RIGHT && this.x < this.world.level.level_end_x) {
-      (this.x += this.speed), (this.otherDirection = false), (moved = true);
+      this.x += this.speed;
+      this.otherDirection = false;
+      moved = true;
     }
     if (kb.LEFT && this.x > this.spawnX) {
-      (this.x -= this.speed), (this.otherDirection = true), (moved = true);
+      this.x -= this.speed;
+      this.otherDirection = true;
+      moved = true;
     }
-    moved &&
-      ((this.lastMovementTime = performance.now()), this.resetLongIdle());
+    if (moved) {
+      this.lastMovementTime = performance.now();
+      this.resetLongIdle();
+    }
     this.world.camera_x = -this.x + 5;
   }, 1000 / 60);
 };
 
+/**
+ * Animates vertical movement based on keyboard input.
+ * @this {Character}
+ */
 Character.prototype.animateVerticalMovement = function () {
   setGameInterval(() => {
     if (this.isDead) return;
@@ -50,6 +65,10 @@ Character.prototype.animateVerticalMovement = function () {
   }, 1000 / 60);
 };
 
+/**
+ * Animates the swimming sequence when movement keys are pressed.
+ * @this {Character}
+ */
 Character.prototype.animateSwimming = function () {
   setGameInterval(() => {
     if (this.isDead) return;
@@ -59,10 +78,14 @@ Character.prototype.animateSwimming = function () {
   }, 150);
 };
 
+/**
+ * Animates the idle sequence based on inactivity.
+ * @this {Character}
+ */
 Character.prototype.animateIdle = function () {
   setGameInterval(() => {
-    const kb = this.world.keyboard,
-      t = performance.now() - this.lastMovementTime;
+    const kb = this.world.keyboard;
+    const t = performance.now() - this.lastMovementTime;
     if (this.isDead || this.isHurt || kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)
       return;
     if (
@@ -81,6 +104,10 @@ Character.prototype.animateIdle = function () {
   }, 150);
 };
 
+/**
+ * Plays the long idle intro animation.
+ * @this {Character}
+ */
 Character.prototype.playLongIdleIntro = function () {
   const index = this.idleLongIntroIndex % this.IMAGES_STANDING_LONG.length;
   const path = this.IMAGES_STANDING_LONG[index];
@@ -93,6 +120,10 @@ Character.prototype.playLongIdleIntro = function () {
   }
 };
 
+/**
+ * Plays the long idle loop animation.
+ * @this {Character}
+ */
 Character.prototype.playLongIdleLoop = function () {
   const index = this.idleLongLoopIndex % this.IMAGES_STANDING_LONG_LOOP.length;
   const path = this.IMAGES_STANDING_LONG_LOOP[index];
@@ -101,6 +132,10 @@ Character.prototype.playLongIdleLoop = function () {
   this.idleLongLoopIndex++;
 };
 
+/**
+ * Animates the hurt sequence.
+ * @this {Character}
+ */
 Character.prototype.animateHurt = function () {
   setGameInterval(() => {
     if (this.isDead) return;
