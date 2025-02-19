@@ -18,20 +18,19 @@ Character.prototype.animate = function () {
  * Animates horizontal movement based on keyboard input.
  * @this {Character}
  */
+/**
+ * Animates the character's horizontal movement.
+ */
 Character.prototype.animateHorizontalMovement = function () {
   setGameInterval(() => {
     if (this.isDead) return;
     const kb = this.world.keyboard;
     let moved = false;
     if (kb.RIGHT && this.x < this.world.level.level_end_x) {
-      this.x += this.speed;
-      this.otherDirection = false;
-      moved = true;
+      (this.x += this.speed), (this.otherDirection = false), (moved = true);
     }
     if (kb.LEFT && this.x > this.spawnX) {
-      this.x -= this.speed;
-      this.otherDirection = true;
-      moved = true;
+      (this.x -= this.speed), (this.otherDirection = true), (moved = true);
     }
     if (moved) {
       this.lastMovementTime = performance.now();
@@ -51,16 +50,13 @@ Character.prototype.animateVerticalMovement = function () {
     const kb = this.world.keyboard;
     let moved = false;
     if (kb.DOWN && this.y < 270) {
-      this.y += this.speed;
-      moved = true;
+      (this.y += this.speed), (moved = true);
     }
     if (kb.UP && this.y > -50) {
-      this.y -= this.speed;
-      moved = true;
+      (this.y -= this.speed), (moved = true);
     }
     if (moved) {
-      this.lastMovementTime = performance.now();
-      this.resetLongIdle();
+      (this.lastMovementTime = performance.now()), this.resetLongIdle();
     }
   }, 1000 / 60);
 };
@@ -79,23 +75,31 @@ Character.prototype.animateSwimming = function () {
 };
 
 /**
- * Animates the idle sequence based on inactivity.
- * @this {Character}
+ * Checks if idle animation conditions are met.
+ * @returns {boolean} True if idle animation should proceed.
+ */
+Character.prototype.checkIdleConditions = function () {
+  const kb = this.world.keyboard;
+  if (this.isDead || this.isHurt || kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)
+    return false;
+  if (
+    this.isAttacking ||
+    this.isBubbleAttacking ||
+    this.isPoisonBubbleAttacking
+  ) {
+    this.lastMovementTime = performance.now();
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Animates the idle state of the character.
  */
 Character.prototype.animateIdle = function () {
   setGameInterval(() => {
-    const kb = this.world.keyboard;
+    if (!this.checkIdleConditions()) return;
     const t = performance.now() - this.lastMovementTime;
-    if (this.isDead || this.isHurt || kb.LEFT || kb.RIGHT || kb.UP || kb.DOWN)
-      return;
-    if (
-      this.isAttacking ||
-      this.isBubbleAttacking ||
-      this.isPoisonBubbleAttacking
-    ) {
-      this.lastMovementTime = performance.now();
-      return;
-    }
     t < 5000
       ? this.playAnimation(this.IMAGES_STANDING, "idleImageIndex")
       : !this.longIdleIntroDone

@@ -63,30 +63,35 @@ Character.prototype.handlePoisonKey = function () {
 };
 
 /**
+ * Checks the bubble cooldown and triggers the poison bubble attack if possible.
+ * @this {Character}
+ */
+Character.prototype.triggerPoisonBubble = function () {
+  if (Date.now() - this.lastBubbleTime < this.bubbleCooldown) return false;
+  this.bubblePopSound.play().catch(() => {});
+  this.world.spawnPoisonedBubble(this);
+  this.lastBubbleTime = Date.now();
+  this.world.collectedPoisonBottles--;
+  this.world.poisonStatusBar.setPercentage(
+    this.world.collectedPoisonBottles * 20
+  );
+  return true;
+};
+
+/**
  * Processes the poisoned bubble attack animation and spawning.
  * @this {Character}
  */
 Character.prototype.processPoisonAttack = function () {
-  if (this.isPoisonBubbleAttacking) {
-    this.playAnimation(
-      this.IMAGES_ATTACK_POISONED_BUBBLE,
-      "poisonBubbleAttackIndex"
-    );
-    if (
-      this.poisonBubbleAttackIndex >= this.IMAGES_ATTACK_POISONED_BUBBLE.length
-    ) {
-      this.isPoisonBubbleAttacking = false;
-      if (Date.now() - this.lastBubbleTime >= this.bubbleCooldown) {
-        this.bubblePopSound.play().catch(() => {});
-        this.world.spawnPoisonedBubble(this);
-        this.lastBubbleTime = Date.now();
-        this.world.collectedPoisonBottles--;
-        this.world.poisonStatusBar.setPercentage(
-          this.world.collectedPoisonBottles * 20
-        );
-      }
-    }
-  }
+  if (!this.isPoisonBubbleAttacking) return;
+  this.playAnimation(
+    this.IMAGES_ATTACK_POISONED_BUBBLE,
+    "poisonBubbleAttackIndex"
+  );
+  if (this.poisonBubbleAttackIndex < this.IMAGES_ATTACK_POISONED_BUBBLE.length)
+    return;
+  this.isPoisonBubbleAttacking = false;
+  this.triggerPoisonBubble();
 };
 
 /**
