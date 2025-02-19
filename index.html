@@ -6,19 +6,13 @@
     <link rel="stylesheet" href="style.css" />
     <title>Sharkie</title>
 
-    <!-- ------------------ Core Klassen ------------------ -->
-    <!-- Basis-Klassen, die von allen weiteren benötigt werden -->
     <script src="JavaScript/levels/intervals.js"></script>
     <script src="models/drawable-object.class.js"></script>
     <script src="models/moveable-object.class.js"></script>
-
-    <!-- Weitere Modelle -->
     <script src="models/background-object.class.js"></script>
-
     <script src="./models/Character_Core.js"></script>
     <script src="./models/Character_Animation.js"></script>
     <script src="./models/Character_Attack.js"></script>
-
     <script src="models/fish.class.js"></script>
     <script src="models/fish2.class.js"></script>
     <script src="models/fish3.class.js"></script>
@@ -29,30 +23,19 @@
     <script src="models/bubble.class.js"></script>
     <script src="models/poisoned-bubble.class.js"></script>
     <script src="JavaScript/levels/restart-home-game.js"></script>
-
-    <!-- Level-Klasse MUSS VOR `level1.js` geladen werden -->
     <script src="models/levels.class.js"></script>
-
-    <!-- ------------------ Sammelobjekte: Coins & Poison ------------------ -->
     <script src="models/coin.class.js"></script>
     <script src="models/coin-statusbar.class.js"></script>
     <script src="models/poison-bottle.class.js"></script>
     <script src="models/poison-status-bar.class.js"></script>
-
-    <!-- ------------------ World-Klasse MUSS vor `level1.js` geladen werden -->
     <script src="models/world.class.js"></script>
-
-    <!-- ------------------ Level 1 ------------------ -->
     <script src="JavaScript/levels/level1.js"></script>
-
-    <!-- ------------------ Spiel-Logik ------------------ -->
     <script src="./JavaScript/joystick.js"></script>
     <script src="JavaScript/game.js"></script>
     <script src="JavaScript/startscreen.js"></script>
     <link rel="icon" type="image/vnd.icon" href="Imgs/icon.ico" />
   </head>
   <body>
-    <!-- Startscreen -->
     <div id="startscreen">
       <h1>Sharkie - The Game</h1>
       <button onclick="startGame()">Start</button>
@@ -61,36 +44,41 @@
       <button onclick="openPopup('privacy')">Privacy Policy</button>
     </div>
 
-    <!-- Spielfeld -->
     <div id="game-container">
-      <canvas
-        id="canvas"
-        width="720"
-        height="480"
-        style="display: none"
-      ></canvas>
+      <canvas id="canvas" width="720" height="480" style="display: none">
+      </canvas>
 
-      <!-- Fullscreen-Button -->
+      <div id="on-screen-controls">
+        <div id="joystick-container">
+          <img id="joystick" src="Imgs/7. Other/joystick.png" alt="Joystick" />
+        </div>
+        <div id="attack-buttons">
+          <button id="attack-bubble">
+            <img src="Imgs/7. Other/attack-button.png" alt="Attack Bubble" />
+          </button>
+          <button id="attack-poison">
+            <img src="Imgs/7. Other/poison-button.png" alt="Attack Poison" />
+          </button>
+        </div>
+      </div>
+
       <img
         id="fullscreen-btn"
         src="./Imgs/7. Other/fullscreen.png"
         alt="Fullscreen Button"
       />
 
-      <!-- Sound Toggle -->
       <img id="sound-toggle" src="Imgs/7. Other/mute.png" alt="Sound Toggle" />
     </div>
 
-    <!-- Popup-Fenster (Controls, Impressum, Datenschutz) -->
     <div id="popup-overlay" onclick="closePopup()"></div>
     <div id="popup-container">
       <div id="popup">
-        <button id="close-popup" onclick="closePopup()">←</button>
+        <button id="close-popup" onclick="closePopup()">&larr;</button>
         <div id="popup-content"></div>
       </div>
     </div>
 
-    <!-- Game Over Screen -->
     <div id="game-over-screen" style="display: none">
       <div id="game-over-overlay"></div>
       <div id="game-over-content">
@@ -102,7 +90,6 @@
       </div>
     </div>
 
-    <!-- You Win Screen -->
     <div id="win-screen">
       <div id="win-overlay"></div>
       <div id="win-content">
@@ -117,11 +104,9 @@
       </div>
     </div>
 
-    <!-- Mobile Message (für Bildschirme unter 500px) -->
     <div id="mobile-message">
       <div class="mobile-message-top">TO PLAY SHARKIE...</div>
       <div class="mobile-message-middle">
-        <!-- Platzhalterbild für das rotierende Handy -->
         <img
           src="Imgs/7. Other/turning-phone.png"
           alt="Rotate Phone"
@@ -130,22 +115,5 @@
       </div>
       <div class="mobile-message-bottom">TURN YOUR DEVICE!</div>
     </div>
-
-    <!-- On-Screen Controls (für Bildschirme zwischen 500px und 1200px) -->
-    <div id="on-screen-controls">
-      <div id="joystick-container">
-        <!-- Der Joystick als Bild -->
-        <img id="joystick" src="Imgs/7. Other/joystick.png" alt="Joystick" />
-      </div>
-      <div id="attack-buttons">
-        <button id="attack-bubble">
-          <img src="Imgs/7. Other/attack-button.png" alt="Attack Bubble" />
-        </button>
-        <button id="attack-poison">
-          <img src="Imgs/7. Other/poison-button.png" alt="Attack Poison" />
-        </button>
-      </div>
-    </div>
   </body>
-  <test></test>
 </html>

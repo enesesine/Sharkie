@@ -1,7 +1,6 @@
-/* Alle Elemente: Textauswahl deaktivieren */
 * {
   user-select: none;
-  -webkit-user-select: none; /* Für ältere Webkit-Browser */
+  -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
 }
@@ -11,8 +10,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Vertikale Zentrierung */
-  min-height: 100vh; /* mindestens Viewport-Höhe */
+  justify-content: center;
+  min-height: 100vh;
   background: url("Imgs/3. Background/Legacy/Dark/2.png") no-repeat center
     center/cover;
   color: white;
@@ -21,7 +20,6 @@ body {
   padding: 0;
 }
 
-/* ---- Startscreen ---- */
 #startscreen {
   position: absolute;
   z-index: 3000;
@@ -84,7 +82,6 @@ body {
   transform: scaleX(1);
 }
 
-/* ---- Canvas ---- */
 #canvas {
   background-color: black;
   display: none;
@@ -95,7 +92,6 @@ body {
   transform: translate(-50%, -50%);
 }
 
-/* ---- Popup Overlay ---- */
 #popup-overlay {
   position: fixed;
   top: 0;
@@ -107,7 +103,6 @@ body {
   display: none;
 }
 
-/* Popup-Container: Zentral über dem Overlay */
 #popup-container {
   position: fixed;
   top: 50%;
@@ -149,7 +144,6 @@ body {
   left: 10px;
 }
 
-/* ---- Game Container ---- */
 #game-container {
   position: relative;
   display: inline-block;
@@ -158,13 +152,11 @@ body {
   margin: 0 auto;
 }
 
-/* Canvas (im Game Container) */
 #canvas {
   background-color: black;
   border: 2px solid white;
 }
 
-/* Fullscreen Modus */
 #game-container:fullscreen {
   width: 100vw;
   height: 100vh;
@@ -175,7 +167,6 @@ body {
   height: 90%;
 }
 
-/* Fullscreen Button */
 #fullscreen-btn {
   position: absolute;
   bottom: 10px;
@@ -194,7 +185,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Sound Toggle Button */
 #sound-toggle {
   position: absolute;
   bottom: 10px;
@@ -209,7 +199,6 @@ body {
   z-index: 10;
 }
 
-/* ---- Game Over Screen ---- */
 #game-over-screen {
   position: fixed;
   top: 0;
@@ -268,7 +257,6 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* ---- You Win Screen ---- */
 #win-screen {
   position: fixed;
   top: 50%;
@@ -339,13 +327,11 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* Standardmäßig beide Steuerelemente ausblenden */
 #mobile-message,
 #on-screen-controls {
   display: none;
 }
 
-/* Für sehr kleine Bildschirme (unter 500px): Mobile Message Overlay */
 @media only screen and (max-width: 500px) {
   html,
   body {
@@ -357,12 +343,14 @@ body {
     justify-content: center;
     align-items: center;
     position: fixed;
+    top: 0;
     left: 0;
     width: 100vw;
     height: 105vh;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     z-index: 3000;
+    padding: 20px;
     text-align: center;
   }
   .mobile-message-top,
@@ -396,8 +384,7 @@ body {
   }
 }
 
-/* Für Bildschirme zwischen 500px und 1200px: On-Screen Controls */
-@media only screen and (min-width: 500px) and (max-width: 1200px) {
+@media (min-width: 500px) and (max-width: 1366px) {
   #on-screen-controls {
     display: block;
     position: absolute;
@@ -474,5 +461,74 @@ body {
     width: 30px;
     height: auto;
     z-index: 1000;
+  }
+}
+
+@media only screen and (max-width: 1023px) and (orientation: landscape) {
+  #game-container {
+    position: initial;
+    display: initial;
+    width: initial;
+    height: initial;
+    margin: initial;
+  }
+
+  #canvas {
+    width: 90%;
+    height: 90%;
+  }
+
+  #on-screen-controls {
+    display: flex;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    pointer-events: auto;
+  }
+
+  #joystick-container {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    touch-action: none;
+  }
+  #joystick {
+    width: 100%;
+    height: 100%;
+    background: url("Imgs/7. Other/joystick.png") no-repeat center center;
+    background-size: contain;
+    filter: brightness(0) invert(1);
+  }
+  #attack-buttons {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    pointer-events: auto;
+  }
+  #attack-buttons button {
+    width: 80px;
+    height: 80px;
+    background: none;
+    border: none;
+    padding: 0;
+    pointer-events: auto;
+  }
+  #attack-buttons button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 }
