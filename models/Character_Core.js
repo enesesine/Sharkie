@@ -3,7 +3,6 @@
  * @extends MoveableObject
  */
 class Character extends MoveableObject {
-  // Eigenschaften
   height = 220;
   width = 170;
   x = 5;
@@ -18,7 +17,7 @@ class Character extends MoveableObject {
   damageCooldown = 1000;
   hurtImageIndex = 0;
   currentHurtImages = null;
-  // Animation arrays
+
   IMAGES_STANDING = [
     "Imgs/1.Sharkie/1.IDLE/1.png",
     "Imgs/1.Sharkie/1.IDLE/2.png",
@@ -141,12 +140,11 @@ class Character extends MoveableObject {
     "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/7.png",
     "Imgs/1.Sharkie/4.Attack/Bubble trap/For Whale/8.png",
   ];
-  // Zustände für Angriffe und Animationen
+
   isBubbleAttacking = false;
   bubbleAttackIndex = 0;
   isPoisonBubbleAttacking = false;
   poisonBubbleAttackIndex = 0;
-  // Animationszustände
   world;
   swimImageIndex = 0;
   idleImageIndex = 0;
@@ -159,10 +157,8 @@ class Character extends MoveableObject {
   lastBubbleTime = 0;
   bubbleCooldown = 500;
   deathImageIndex = 0;
-  // Offsets
   bubbleSpawnOffsetX = 140;
   bubbleSpawnOffsetY = 140;
-  // Sounds
   fishSwimmingSound = new Audio("Audio/fishSwimming.ogg");
   bubblePopSound = new Audio("Audio/Bubble_Pop_Attack.mp3");
   coinPickUpSound = new Audio("Audio/Coin_PickUp.ogg");
@@ -173,6 +169,7 @@ class Character extends MoveableObject {
 
   /**
    * Creates a new Character instance.
+   * @constructor
    */
   constructor() {
     super().loadImage("Imgs/1.Sharkie/1.IDLE/1.png");
@@ -199,16 +196,31 @@ class Character extends MoveableObject {
     }, 100);
   }
 
-  // Allgemeine Methoden
+  /**
+   * Resets the long idle state.
+   * @returns {void}
+   */
   resetLongIdle() {
     this.longIdleIntroDone = false;
     this.idleLongIntroIndex = 0;
     this.idleLongLoopIndex = 0;
     this.lastMovementTime = performance.now();
   }
+
+  /**
+   * Resets the AFK timer.
+   * @returns {void}
+   */
   resetAFKTimer() {
     this.resetLongIdle();
   }
+
+  /**
+   * Plays an animation sequence.
+   * @param {string[]} images - Array of image paths.
+   * @param {string} [indexName="currentImage"] - Property name for frame tracking.
+   * @returns {void}
+   */
   playAnimation(images, indexName = "currentImage") {
     if (this.isHurt || this.isDead) return;
     if (!this[indexName]) this[indexName] = 0;
@@ -218,6 +230,11 @@ class Character extends MoveableObject {
     this.img = this.imageCache[path];
     this[indexName]++;
   }
+
+  /**
+   * Plays the hurt animation sequence.
+   * @returns {void}
+   */
   playHurtAnimation() {
     const images = this.currentHurtImages || this.IMAGES_HURT_SHOCK;
     if (this.hurtImageIndex < images.length) {
@@ -231,11 +248,20 @@ class Character extends MoveableObject {
       this.currentHurtImages = null;
     }
   }
-  // Sound-Methoden
+
+  /**
+   * Plays the fish swimming sound.
+   * @returns {void}
+   */
   playFishSwimmingSound() {
     if (this.fishSwimmingSound.paused)
       this.fishSwimmingSound.play().catch(() => {});
   }
+
+  /**
+   * Stops the fish swimming sound.
+   * @returns {void}
+   */
   stopFishSwimmingSound() {
     if (!this.fishSwimmingSound.paused) {
       this.fishSwimmingSound.pause();

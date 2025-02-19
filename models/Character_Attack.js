@@ -1,5 +1,7 @@
-// Angriffs- und Schadens-Methoden
-
+/**
+ * Animates the slap attack.
+ * @this {Character}
+ */
 Character.prototype.animateAttackSlap = function () {
   setGameInterval(() => {
     if (this.isDead) return;
@@ -17,6 +19,10 @@ Character.prototype.animateAttackSlap = function () {
   }, 60);
 };
 
+/**
+ * Animates the bubble attack triggered by the D key.
+ * @this {Character}
+ */
 Character.prototype.animateAttackBubble = function () {
   setGameInterval(() => {
     if (this.isDead) return;
@@ -95,6 +101,11 @@ Character.prototype.animateAttackPoisonedBubble = function () {
   }, 150);
 };
 
+/**
+ * Reduces HP by the specified amount and triggers death if HP reaches 0.
+ * @this {Character}
+ * @param {number} amount - The damage amount.
+ */
 Character.prototype.takeDamage = function (amount) {
   if (this.isDead) return;
   this.hp -= amount;
@@ -105,7 +116,8 @@ Character.prototype.takeDamage = function (amount) {
 
 /**
  * Applies damage to the character if the damage cooldown has passed.
- * Updates HP, plays the electricity sound, and triggers death if needed.
+ * Plays the electricity sound and updates HP.
+ * @this {Character}
  * @param {number} damage - The amount of damage.
  * @param {number} now - The current timestamp.
  * @returns {boolean} True if the character died due to this damage.
@@ -126,6 +138,7 @@ Character.prototype.applyDamage = function (damage, now) {
 
 /**
  * Triggers the hurt animation for the character.
+ * @this {Character}
  * @param {number} now - The current timestamp.
  */
 Character.prototype.triggerHurtAnimation = function (now) {
@@ -133,10 +146,9 @@ Character.prototype.triggerHurtAnimation = function (now) {
     this.isHurt = true;
     this.hurtStartTime = now;
     this.hurtImageIndex = 0;
-    const hurtInterval = setGameInterval(
-      () => this.playAnimation(this.IMAGES_HURT_SHOCK, "hurtImageIndex"),
-      150
-    );
+    const hurtInterval = setGameInterval(() => {
+      this.playAnimation(this.IMAGES_HURT_SHOCK, "hurtImageIndex");
+    }, 150);
     setTimeout(() => {
       clearInterval(hurtInterval);
       this.isHurt = false;
@@ -147,6 +159,7 @@ Character.prototype.triggerHurtAnimation = function (now) {
 /**
  * Processes a hit on the character.
  * Reduces HP, plays the electricity sound, and triggers the hurt animation.
+ * @this {Character}
  * @param {number} damage - The amount of damage.
  */
 Character.prototype.hit = function (damage) {
@@ -157,6 +170,10 @@ Character.prototype.hit = function (damage) {
   if (this.hp <= 0) this.die();
 };
 
+/**
+ * Triggers the death sequence.
+ * @this {Character}
+ */
 Character.prototype.die = function () {
   this.isDead = true;
   this.deathImageIndex = 0;
@@ -173,6 +190,10 @@ Character.prototype.die = function () {
   }, 150);
 };
 
+/**
+ * Executes the bubble attack animation and spawns a bubble.
+ * @this {Character}
+ */
 Character.prototype.shootBubbleAttack = function () {
   let i = 0;
   const totalFrames = this.IMAGES_ATTACK_BUBBLE.length;
@@ -190,6 +211,10 @@ Character.prototype.shootBubbleAttack = function () {
   }, 50);
 };
 
+/**
+ * Fires a bubble attack.
+ * @this {Character}
+ */
 Character.prototype.fireBubble = function () {
   const currentTime = Date.now();
   if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
@@ -198,6 +223,10 @@ Character.prototype.fireBubble = function () {
   }
 };
 
+/**
+ * Fires a poisoned bubble attack.
+ * @this {Character}
+ */
 Character.prototype.firePoisonedBubble = function () {
   const currentTime = Date.now();
   if (currentTime - this.lastBubbleTime >= this.bubbleCooldown) {
@@ -212,6 +241,7 @@ Character.prototype.firePoisonedBubble = function () {
 
 /**
  * Returns the attack hitbox for the slap attack.
+ * @this {Character}
  * @returns {{x: number, y: number, width: number, height: number}} The attack box.
  */
 Character.prototype.getAttackBox = function () {
@@ -226,6 +256,7 @@ Character.prototype.getAttackBox = function () {
 
 /**
  * Returns the hitbox of the given enemy.
+ * @this {Character}
  * @param {Object} enemy - The enemy object.
  * @returns {{x: number, y: number, width: number, height: number}} The enemy box.
  */
@@ -250,6 +281,7 @@ function boxesCollide(box1, box2) {
 
 /**
  * Determines whether the slap attack hitbox collides with an enemy.
+ * @this {Character}
  * @param {Object} enemy - The enemy object.
  * @returns {boolean} True if colliding.
  */
